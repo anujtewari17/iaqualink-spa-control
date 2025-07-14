@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spa Control</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23007bff'/><text x='50' y='60' text-anchor='middle' fill='white' font-size='40' font-family='Arial'>S</text></svg>">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Spa Control">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>🌊 Spa Control</h1>
+                <p>Sign in with your iAquaLink credentials</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="btn btn-primary" id="login-btn">
+                    <span class="btn-text">Sign In</span>
+                    <span class="btn-loading" style="display: none;">Signing in...</span>
+                </button>
+            </form>
+            <div id="login-error" class="error-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="screen" style="display: none;">
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <p>Loading spa controls...</p>
+        </div>
+    </div>
+
+    <!-- Main Control Screen -->
+    <div id="control-screen" class="screen" style="display: none;">
+        <header class="control-header">
+            <h1>🌊 Spa Control</h1>
+            <div class="header-info">
+                <div class="connection-status" id="connection-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Connected</span>
+                </div>
+                <button id="logout-btn" class="btn btn-secondary">Logout</button>
+            </div>
+        </header>
+
+        <main class="control-main">
+            <!-- Temperature Control -->
+            <div class="control-section">
+                <h2>Temperature</h2>
+                <div class="temperature-controls">
+                    <div class="temp-display">
+                        <div class="temp-current">
+                            <span class="temp-label">Current</span>
+                            <span class="temp-value" id="current-temp">--°F</span>
+                        </div>
+                        <div class="temp-target">
+                            <span class="temp-label">Target</span>
+                            <span class="temp-value" id="target-temp">--°F</span>
+                        </div>
+                    </div>
+                    <div class="temp-controls">
+                        <button class="btn btn-temp" id="temp-up">+</button>
+                        <button class="btn btn-temp" id="temp-down">-</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spa Controls -->
+            <div class="control-section">
+                <h2>Spa Controls</h2>
+                <div class="spa-controls-grid">
+                    <div class="spa-control" id="spa-mode-control">
+                        <div class="control-icon">🌊</div>
+                        <div class="control-name">Spa Mode</div>
+                        <div class="control-status" id="spa-mode-status">OFF</div>
+                    </div>
+                    <div class="spa-control" id="spa-heat-control">
+                        <div class="control-icon">🔥</div>
+                        <div class="control-name">Spa Heat</div>
+                        <div class="control-status" id="spa-heat-status">OFF</div>
+                    </div>
+                    <div class="spa-control" id="filter-pump-control">
+                        <div class="control-icon">⚡</div>
+                        <div class="control-name">Filter Pump</div>
+                        <div class="control-status" id="filter-pump-status">OFF</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="control-footer">
+            <div class="last-updated">
+                Last updated: <span id="last-updated">Never</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Error Screen -->
+    <div id="error-screen" class="screen" style="display: none;">
+        <div class="error-container">
+            <h1>⚠️ Connection Error</h1>
+            <p id="error-message">Unable to connect to spa system.</p>
+            <button id="retry-btn" class="btn btn-primary">Retry</button>
+            <button id="logout-error-btn" class="btn btn-secondary">Logout</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

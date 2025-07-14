@@ -1,0 +1,516 @@
+/* iAquaLink Simplified Spa Control - Tablet-Optimized CSS */
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    min-height: 100vh;
+    color: #333;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    line-height: 1.6;
+}
+
+/* Screen Management */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Login Screen */
+.login-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.login-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+.login-header p {
+    color: #7f8c8d;
+    margin-bottom: 32px;
+    font-size: 1rem;
+}
+
+.form-group {
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid #ecf0f1;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    background: white;
+    color: #2c3e50;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Buttons */
+.btn {
+    padding: 16px 32px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 60px;
+    min-width: 120px;
+    touch-action: manipulation;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primary {
+    background: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: #95a5a6;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #7f8c8d;
+    transform: translateY(-2px);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+}
+
+/* Loading Screen */
+.loading-container {
+    text-align: center;
+    color: white;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid rgba(255, 255, 255, 0.3);
+    border-top: 6px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 32px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Control Screen */
+.control-header {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.control-header h1 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+.header-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.connection-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #27ae60;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.disconnected {
+    background: #e74c3c;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.control-main {
+    flex: 1;
+    padding: 32px;
+    width: 100%;
+    max-width: 800px;
+    overflow-y: auto;
+}
+
+.control-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.control-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+    color: #2c3e50;
+    text-align: center;
+    font-weight: 700;
+}
+
+/* Temperature Controls */
+.temperature-controls {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: center;
+}
+
+.temp-display {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+}
+
+.temp-current, .temp-target {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.temp-label {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.temp-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #3498db;
+}
+
+.temp-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.btn-temp {
+    background: #3498db;
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-temp:hover {
+    background: #2980b9;
+    transform: scale(1.05);
+}
+
+.btn-temp:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+}
+
+/* Spa Controls Grid */
+.spa-controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+}
+
+.spa-control {
+    background: #ecf0f1;
+    border: 3px solid #bdc3c7;
+    border-radius: 16px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.spa-control:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.spa-control.active {
+    background: #3498db;
+    color: white;
+    border-color: #2980b9;
+}
+
+.spa-control.active:hover {
+    background: #2980b9;
+}
+
+.control-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+.control-name {
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+}
+
+.control-status {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    font-weight: 600;
+}
+
+/* Footer */
+.control-footer {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 16px 32px;
+    text-align: center;
+    width: 100%;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    backdrop-filter: blur(10px);
+}
+
+/* Error Messages */
+.error-message {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    padding: 16px;
+    border-radius: 8px;
+    margin-top: 16px;
+    border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+.error-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.error-container h1 {
+    color: #e74c3c;
+    margin-bottom: 16px;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.error-container p {
+    color: #7f8c8d;
+    margin-bottom: 32px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .control-main {
+        padding: 16px;
+    }
+
+    .control-section {
+        padding: 24px;
+    }
+
+    .temperature-controls {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        text-align: center;
+    }
+
+    .spa-controls-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .temp-value {
+        font-size: 2rem;
+    }
+}
+
+/* Mobile Portrait */
+@media (max-width: 480px) {
+    .control-header {
+        padding: 12px 16px;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .control-header h1 {
+        font-size: 1.2rem;
+    }
+
+    .header-info {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .login-container, .error-container {
+        padding: 24px;
+        width: 95%;
+    }
+
+    .control-section {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .control-section h2 {
+        font-size: 1.2rem;
+        margin-bottom: 16px;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        min-height: 50px;
+    }
+
+    .spa-control {
+        padding: 24px;
+        min-height: 140px;
+    }
+
+    .control-icon {
+        font-size: 2.5rem;
+    }
+}
+
+/* Tablet Landscape */
+@media (min-width: 768px) and (orientation: landscape) {
+    .control-main {
+        padding: 32px;
+    }
+
+    .spa-controls-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Large Tablet/Desktop */
+@media (min-width: 1024px) {
+    .control-main {
+        padding: 32px;
+    }
+
+    .spa-controls-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .btn {
+        border: 2px solid currentColor;
+    }
+
+    .spa-control {
+        border-width: 3px;
+    }
+}
