@@ -1,0 +1,31 @@
+{
+  "name": "iaqualink-spa-control-simplified",
+  "version": "1.0.0",
+  "description": "Simplified iAquaLink 2.0 Spa Control (Spa Mode, Spa Heat, Filter Pump, Temperature Only)",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step required'",
+    "start": "echo 'Use vercel dev for local development'"
+  },
+  "keywords": [
+    "iaqualink",
+    "spa",
+    "control",
+    "automation",
+    "kiosk",
+    "tablet",
+    "simplified"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
