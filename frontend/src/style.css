@@ -1,0 +1,51 @@
+body {
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background: #f0f0f0;
+}
+
+.container {
+  text-align: center;
+}
+
+.temps div {
+  margin: 8px 0;
+  font-size: 1.5rem;
+}
+
+.controls button {
+  display: block;
+  margin: 10px auto;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+}
+
+.login {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  margin: auto;
+}
+
+.login input {
+  margin: 5px 0;
+  padding: 8px;
+  font-size: 1rem;
+}
+
+.login .error {
+  color: red;
+}
+
+.logout {
+  margin-bottom: 20px;
+}
+
+button.active {
+  background: #007bff;
+  color: #fff;
+}
