@@ -405,7 +405,7 @@ class SimpleSpaController {
         // Start new interval (every 30 seconds)
         this.updateInterval = setInterval(() => {
             this.updateDeviceStates();
-        }, 30000);
+        }, 60000);
     }
 
     stopAutoUpdate() {
