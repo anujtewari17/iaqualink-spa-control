@@ -18,9 +18,14 @@ This project provides a simple guest-facing web interface to control spa feature
 
 ## Setup
 
-1. Install dependencies:
+1. Install dependencies at the project root. The `postinstall` script will also
+   install the `frontend/` dependencies:
    ```bash
    npm install
+   ```
+   Alternatively, you can run the following to install the frontend dependencies directly:
+   ```bash
+   npm install --prefix frontend
    ```
 2. Copy `.env.example` to `.env` and fill in your device serial number.
 3. Run locally with Netlify CLI:
