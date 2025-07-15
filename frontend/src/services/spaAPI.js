@@ -10,6 +10,15 @@ const api = axios.create({
   },
 });
 
+// Attach access key from localStorage if present
+api.interceptors.request.use((config) => {
+  const key = localStorage.getItem('accessKey');
+  if (key) {
+    config.headers['x-access-key'] = key;
+  }
+  return config;
+});
+
 // Add request interceptor for error handling
 api.interceptors.response.use(
   (response) => response,

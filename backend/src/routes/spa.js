@@ -31,12 +31,15 @@ router.post('/toggle/:device', async (req, res) => {
       });
     }
 
-    const result = await iaqualinkService.toggleDevice(device);
-    res.json({ 
+    await iaqualinkService.toggleDevice(device);
+    // Fetch updated status after toggle
+    const status = await iaqualinkService.getSpaStatus();
+
+    res.json({
       success: true,
       device,
       message: `${device} toggled successfully`,
-      result 
+      status
     });
   } catch (error) {
     console.error(`Error toggling ${req.params.device}:`, error);
