@@ -1,6 +1,8 @@
 import React from 'react';
 
 function SpaControls({ spaMode, spaHeater, jetPump, onToggle, disabled }) {
+  const spaActive = spaMode || spaHeater;
+
   const handleButtonClick = (device) => {
     if (!disabled) {
       onToggle(device);
@@ -12,26 +14,14 @@ function SpaControls({ spaMode, spaHeater, jetPump, onToggle, disabled }) {
       <h2>Spa Controls</h2>
 
       <div className="control-grid">
-        <button 
-          className={`control-button ${spaMode ? 'active' : ''} ${disabled ? 'disabled' : ''}`}
-          onClick={() => handleButtonClick('spa-mode')}
+        <button
+          className={`control-button ${spaActive ? 'active heating' : ''} ${disabled ? 'disabled' : ''}`}
+          onClick={() => handleButtonClick('spa')}
           disabled={disabled}
         >
           <div className="control-icon">🛁</div>
-          <div className="control-label">Spa Mode</div>
-          <div className="control-status">{spaMode ? 'ON' : 'OFF'}</div>
-        </button>
-
-        <button 
-          className={`control-button ${spaHeater ? 'active heating' : ''} ${disabled ? 'disabled' : ''}`}
-          onClick={() => handleButtonClick('spa-heater')}
-          disabled={disabled}
-        >
-          <div className="control-icon">🔥</div>
-          <div className="control-label">Spa Heater</div>
-          <div className="control-status">
-            {spaHeater ? 'HEATING' : 'OFF'}
-          </div>
+          <div className="control-label">Spa</div>
+          <div className="control-status">{spaActive ? 'ON' : 'OFF'}</div>
         </button>
 
         <button 
@@ -46,8 +36,8 @@ function SpaControls({ spaMode, spaHeater, jetPump, onToggle, disabled }) {
       </div>
 
       <div className="control-note">
-        <p>🔔 Spa Mode must be ON to use heater and jets</p>
-        <p>⏱️ Changes may take 30-60 seconds to take effect</p>
+        <p>🔔 Spa must be ON to use jets</p>
+        <p>⏱️ Updates appear within a few seconds</p>
       </div>
     </div>
   );
