@@ -121,6 +121,9 @@ CORS_ORIGIN=https://username.github.io
 JET_PUMP_COMMAND=aux_4
 # Set to the AUX circuit number that controls your jets (e.g. aux_4)
 
+```
+
+
 ### Frontend Environment Variables
 ```bash
 # Required
@@ -163,7 +166,8 @@ Available Controls:
 
 Notes:
 • Spa must be ON to use jets
-• Changes take 30-60 seconds
+• Updates appear within a few seconds
+
 ```
 
 ## 🎯 Features

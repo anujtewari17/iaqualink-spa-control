@@ -53,17 +53,31 @@ function App() {
 
     try {
       setLoading(true);
+
       if (device === 'spa') {
         const newState = !spaData.spaMode;
         optimisticUpdate({ spaMode: newState, spaHeater: newState });
-
         await toggleSpaDevice('spa-mode');
-        await toggleSpaDevice('spa-heater');
+        const res = await toggleSpaDevice('spa-heater');
+        if (res.status) {
+          optimisticUpdate({
+            spaMode: !!res.status.spaMode,
+            spaHeater: !!res.status.spaHeater,
+            jetPump: !!res.status.jetPump,
+          });
+        }
       } else {
         const keyMap = { 'jet-pump': 'jetPump' };
         optimisticUpdate({ [keyMap[device]]: !spaData[keyMap[device]] });
 
-        await toggleSpaDevice(device);
+        const res = await toggleSpaDevice(device);
+        if (res.status) {
+          optimisticUpdate({
+            spaMode: !!res.status.spaMode,
+            spaHeater: !!res.status.spaHeater,
+            jetPump: !!res.status.jetPump,
+          });
+        }
       }
 
       // Refresh status shortly after sending commands
