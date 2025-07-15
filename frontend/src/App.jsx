@@ -53,7 +53,6 @@ function App() {
 
     try {
       setLoading(true);
-
       if (device === 'spa') {
         const newState = !spaData.spaMode;
         optimisticUpdate({ spaMode: newState, spaHeater: newState });

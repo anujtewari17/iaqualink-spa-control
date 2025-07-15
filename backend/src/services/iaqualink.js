@@ -22,6 +22,7 @@ class IaqualinkService {
       console.log(`💧 Jet pump command mapped to ${this.jetPumpCommand}`);
     }
 
+
     this.sessionId = null;
     this.authToken = null;
     this.userId = null;
