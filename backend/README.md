@@ -72,6 +72,7 @@ Health check endpoint.
    IAQUALINK_PASSWORD=your_password
    PORT=3001
    CORS_ORIGIN=http://localhost:3000
+   ACCESS_KEY=mysecret
    ```
 
 4. Start the server:
@@ -90,6 +91,7 @@ Health check endpoint.
 - `PORT`: Server port (default: 3001)
 - `CORS_ORIGIN`: Frontend URL for CORS (default: http://localhost:3000)
 - `SESSION_TIMEOUT`: Session timeout in milliseconds (default: 43200000)
+- `ACCESS_KEY`: Optional key required in `x-access-key` header for all API requests
 
 ## Deployment Options
 

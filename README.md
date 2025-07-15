@@ -31,11 +31,9 @@ npm run build
 ## 📦 What's Included
 
 ### Frontend (React + Vite)
-- 🌡️ **Temperature Display**: Air, spa, and pool temperatures
 - 🎛️ **Spa Controls**: Toggle buttons for spa mode, heater, and jet pump
 - 📱 **iPad Optimized**: Touch-friendly interface for guided access
-- 🔄 **Auto-refresh**: Status updates every 30 seconds
-- 🟢 **Connection Status**: Visual system health indicators
+- 🔄 **Auto-refresh**: Status updates every 5 seconds
 
 ### Backend (Node.js + Express)
 - 🔐 **Authentication**: Secure iAqualink API integration
@@ -166,7 +164,6 @@ Available Controls:
 Notes:
 • Spa Mode must be ON to use heater/jets
 • Changes take 30-60 seconds
-• Temperatures update automatically
 ```
 
 ## 🎯 Features
@@ -175,7 +172,6 @@ Notes:
 - [x] Spa Mode toggle
 - [x] Spa Heater control
 - [x] Jet Pump control
-- [x] Real-time status updates
 
 ### ✅ Safety Features
 - [x] Guest-safe interface
@@ -187,7 +183,6 @@ Notes:
 - [x] iPad-optimized design
 - [x] Touch-friendly controls (44px+ targets)
 - [x] Visual feedback
-- [x] Connection status indicators
 - [x] Auto-refresh functionality
 
 ## 🚨 Troubleshooting
