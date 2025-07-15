@@ -53,7 +53,6 @@ function App() {
 
     try {
       setLoading(true);
-
       if (device === 'spa') {
         const newState = !spaData.spaMode;
         optimisticUpdate({ spaMode: newState, spaHeater: newState });
@@ -63,7 +62,6 @@ function App() {
       } else {
         const keyMap = { 'jet-pump': 'jetPump' };
         optimisticUpdate({ [keyMap[device]]: !spaData[keyMap[device]] });
-
         await toggleSpaDevice(device);
       }
 
