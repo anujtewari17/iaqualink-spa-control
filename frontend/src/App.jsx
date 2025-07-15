@@ -58,7 +58,6 @@ function App() {
         optimisticUpdate({ spaMode: newState, spaHeater: newState });
 
         await toggleSpaDevice('spa-mode');
-
         await toggleSpaDevice('spa-heater');
       } else {
         const keyMap = { 'jet-pump': 'jetPump' };
@@ -68,7 +67,6 @@ function App() {
 
       // Refresh status shortly after sending commands
       setTimeout(fetchSpaStatus, 2000);
-
     } catch (err) {
       console.error(`Failed to toggle ${device}:`, err);
       setSpaData(prevState); // revert

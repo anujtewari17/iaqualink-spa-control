@@ -119,6 +119,7 @@ IAQUALINK_DEVICE_ID=device_serial_if_multiple
 PORT=3001
 CORS_ORIGIN=https://username.github.io
 JET_PUMP_COMMAND=aux_1
+
 ```
 
 ### Frontend Environment Variables
