@@ -31,11 +31,9 @@ npm run build
 ## 📦 What's Included
 
 ### Frontend (React + Vite)
-- 🌡️ **Temperature Display**: Air, spa, and pool temperatures
-- 🎛️ **Spa Controls**: Toggle buttons for spa mode, heater, and jet pump
+- 🎛️ **Spa Controls**: Toggle buttons for Spa (mode + heat) and jet pump
 - 📱 **iPad Optimized**: Touch-friendly interface for guided access
-- 🔄 **Auto-refresh**: Status updates every 30 seconds
-- 🟢 **Connection Status**: Visual system health indicators
+- 🔄 **Auto-refresh**: Status updates every 5 seconds
 
 ### Backend (Node.js + Express)
 - 🔐 **Authentication**: Secure iAqualink API integration
@@ -120,6 +118,8 @@ IAQUALINK_PASSWORD=your_password
 IAQUALINK_DEVICE_ID=device_serial_if_multiple
 PORT=3001
 CORS_ORIGIN=https://username.github.io
+JET_PUMP_COMMAND=aux_1
+# Set to the AUX circuit number that controls your jets (e.g. aux_5)
 ```
 
 ### Frontend Environment Variables
@@ -159,23 +159,19 @@ Simple signage for guests:
 🌊 SPA CONTROL
 
 Available Controls:
-• Spa Mode - Turn spa on/off
-• Spa Heater - Heat the spa
+• Spa - Turn on/off (mode + heat)
 • Jet Pump - Activate jets
 
 Notes:
-• Spa Mode must be ON to use heater/jets
+• Spa must be ON to use jets
 • Changes take 30-60 seconds
-• Temperatures update automatically
 ```
 
 ## 🎯 Features
 
 ### ✅ Spa Controls
-- [x] Spa Mode toggle
-- [x] Spa Heater control
+- [x] Spa (mode + heat) toggle
 - [x] Jet Pump control
-- [x] Real-time status updates
 
 ### ✅ Safety Features
 - [x] Guest-safe interface
@@ -187,7 +183,6 @@ Notes:
 - [x] iPad-optimized design
 - [x] Touch-friendly controls (44px+ targets)
 - [x] Visual feedback
-- [x] Connection status indicators
 - [x] Auto-refresh functionality
 
 ## 🚨 Troubleshooting

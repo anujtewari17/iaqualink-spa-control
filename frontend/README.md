@@ -4,11 +4,9 @@ A React-based frontend application for controlling spa features via iAqualink AP
 
 ## Features
 
-- **Temperature Display**: Real-time air, spa, and pool temperature monitoring
-- **Spa Controls**: Simple toggle buttons for Spa Mode, Spa Heater, and Jet Pump
+- **Spa Controls**: Toggle buttons for Spa (mode + heat) and Jet Pump
 - **iPad Optimized**: Touch-friendly interface designed for iPad Safari
-- **Auto-refresh**: Status updates every 30 seconds
-- **Connection Status**: Visual indicators for system health
+- **Auto-refresh**: Status updates every 5 seconds
 
 ## Setup
 
@@ -65,9 +63,8 @@ The built files will be in the `dist` directory.
 frontend/
 ├── src/
 │   ├── components/
-│   │   ├── ConnectionStatus.jsx
-│   │   ├── SpaControls.jsx
-│   │   └── TemperatureDisplay.jsx
+│   │   ├── Login.jsx
+│   │   └── SpaControls.jsx
 │   ├── services/
 │   │   └── spaAPI.js
 │   ├── styles/
