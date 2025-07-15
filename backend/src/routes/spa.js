@@ -32,6 +32,10 @@ router.post('/toggle/:device', async (req, res) => {
     }
 
     await iaqualinkService.toggleDevice(device);
+
+    // Wait briefly for the system to update before reading status
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     // Fetch updated status after toggle
     const status = await iaqualinkService.getSpaStatus();
 

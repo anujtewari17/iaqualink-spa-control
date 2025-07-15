@@ -92,7 +92,8 @@ Health check endpoint.
 - `CORS_ORIGIN`: Frontend URL for CORS (default: http://localhost:3000)
 - `SESSION_TIMEOUT`: Session timeout in milliseconds (default: 43200000)
 - `ACCESS_KEY`: Optional key required in `x-access-key` header for all API requests
-- `JET_PUMP_COMMAND`: Device command for the spa jets (default: `aux_1`)
+- `JET_PUMP_COMMAND`: Device command for the spa jets (default: `aux_4`)
+
 
 ## Deployment Options
 

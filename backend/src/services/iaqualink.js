@@ -12,7 +12,16 @@ class IaqualinkService {
     this.username = process.env.IAQUALINK_USERNAME;
     this.password = process.env.IAQUALINK_PASSWORD;
     this.deviceId = process.env.IAQUALINK_DEVICE_ID;
-    this.jetPumpCommand = process.env.JET_PUMP_COMMAND || 'aux_1';
+    this.jetPumpCommand = process.env.JET_PUMP_COMMAND || 'aux_4';
+
+    if (!process.env.JET_PUMP_COMMAND) {
+      console.warn(
+        'JET_PUMP_COMMAND not set - defaulting jet pump to aux_4. Set JET_PUMP_COMMAND in the .env file if jets use a different circuit.'
+      );
+    } else {
+      console.log(`💧 Jet pump command mapped to ${this.jetPumpCommand}`);
+    }
+
 
     this.sessionId = null;
     this.authToken = null;

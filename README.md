@@ -118,9 +118,8 @@ IAQUALINK_PASSWORD=your_password
 IAQUALINK_DEVICE_ID=device_serial_if_multiple
 PORT=3001
 CORS_ORIGIN=https://username.github.io
-JET_PUMP_COMMAND=aux_1
-
-```
+JET_PUMP_COMMAND=aux_4
+# Set to the AUX circuit number that controls your jets (e.g. aux_4)
 
 ### Frontend Environment Variables
 ```bash

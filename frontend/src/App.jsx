@@ -62,6 +62,7 @@ function App() {
       } else {
         const keyMap = { 'jet-pump': 'jetPump' };
         optimisticUpdate({ [keyMap[device]]: !spaData[keyMap[device]] });
+
         await toggleSpaDevice(device);
       }
 
