@@ -94,6 +94,7 @@ Health check endpoint.
 - `ACCESS_KEY`: Optional key required in `x-access-key` header for all API requests
 - `JET_PUMP_COMMAND`: Device command for the spa jets (default: `aux_1`)
 
+
 ## Deployment Options
 
 ### 1. Fly.io Deployment
