@@ -31,7 +31,8 @@ npm run build
 ## 📦 What's Included
 
 ### Frontend (React + Vite)
-- 🎛️ **Spa Controls**: Toggle buttons for spa mode, heater, and jet pump
+
+- 🎛️ **Spa Controls**: Toggle buttons for Spa (mode + heat) and jet pump
 - 📱 **iPad Optimized**: Touch-friendly interface for guided access
 - 🔄 **Auto-refresh**: Status updates every 5 seconds
 
@@ -157,20 +158,18 @@ Simple signage for guests:
 🌊 SPA CONTROL
 
 Available Controls:
-• Spa Mode - Turn spa on/off
-• Spa Heater - Heat the spa
+• Spa - Turn on/off (mode + heat)
 • Jet Pump - Activate jets
 
 Notes:
-• Spa Mode must be ON to use heater/jets
+• Spa must be ON to use jets
 • Changes take 30-60 seconds
 ```
 
 ## 🎯 Features
 
 ### ✅ Spa Controls
-- [x] Spa Mode toggle
-- [x] Spa Heater control
+- [x] Spa (mode + heat) toggle
 - [x] Jet Pump control
 
 ### ✅ Safety Features
