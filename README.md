@@ -31,6 +31,7 @@ npm run build
 ## 📦 What's Included
 
 ### Frontend (React + Vite)
+
 - 🎛️ **Spa Controls**: Toggle buttons for Spa (mode + heat) and jet pump
 - 📱 **iPad Optimized**: Touch-friendly interface for guided access
 - 🔄 **Auto-refresh**: Status updates every 5 seconds

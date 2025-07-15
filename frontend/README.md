@@ -4,6 +4,7 @@ A React-based frontend application for controlling spa features via iAqualink AP
 
 ## Features
 
+
 - **Spa Controls**: Toggle buttons for Spa (mode + heat) and Jet Pump
 - **iPad Optimized**: Touch-friendly interface designed for iPad Safari
 - **Auto-refresh**: Status updates every 5 seconds
