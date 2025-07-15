@@ -12,6 +12,7 @@ class IaqualinkService {
     this.username = process.env.IAQUALINK_USERNAME;
     this.password = process.env.IAQUALINK_PASSWORD;
     this.deviceId = process.env.IAQUALINK_DEVICE_ID;
+    this.jetPumpCommand = process.env.JET_PUMP_COMMAND || 'aux_1';
 
     this.sessionId = null;
     this.authToken = null;
@@ -115,7 +116,7 @@ class IaqualinkService {
         poolTemp: data.pool_temp || null,
         spaMode: data.spa_pump === '1' || data.spa_pump === 1,
         spaHeater: data.spa_heater === '1' || data.spa_heater === 1,
-        jetPump: data.spa_pump === '1' || data.spa_pump === 1, // Assuming jet pump is same as spa pump
+        jetPump: data[this.jetPumpCommand] === '1' || data[this.jetPumpCommand] === 1,
         connected: data.status === 'Online',
         lastUpdate: new Date().toISOString()
       };
@@ -134,7 +135,7 @@ class IaqualinkService {
     const deviceMap = {
       'spa-mode': 'spa_pump',
       'spa-heater': 'spa_heater',
-      'jet-pump': 'spa_pump' // Assuming jet pump is controlled by spa pump
+      'jet-pump': this.jetPumpCommand
     };
 
     const command = deviceMap[deviceName];
