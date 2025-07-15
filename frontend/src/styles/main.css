@@ -86,95 +86,6 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-/* Connection status */
-.connection-status {
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 15px;
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: white;
-  margin-bottom: 20px;
-}
-
-.status-indicator {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.status-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
-}
-
-.status-text {
-  font-weight: 500;
-}
-
-.last-update {
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
-/* Temperature display */
-.temperature-display {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.temp-card {
-  background: rgba(255,255,255,0.95);
-  border-radius: 20px;
-  padding: 25px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.2);
-  transition: transform 0.2s ease;
-}
-
-.temp-card:hover {
-  transform: translateY(-2px);
-}
-
-.temp-card.spa-temp {
-  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-  color: #333;
-}
-
-.temp-icon {
-  font-size: 2.5rem;
-  opacity: 0.8;
-}
-
-.temp-value {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 5px;
-}
-
-.temp-label {
-  font-size: 0.9rem;
-  opacity: 0.7;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
 
 /* Spa controls */
 .spa-controls {
@@ -308,14 +219,6 @@ body {
 }
 
 @media (max-width: 768px) {
-  .temperature-display {
-    grid-template-columns: 1fr;
-  }
-
-  .temp-card {
-    padding: 20px;
-  }
-
   .spa-controls {
     padding: 20px;
   }
@@ -334,11 +237,43 @@ body {
 }
 
 /* Prevent text selection on touch devices */
-.control-button,
-.temp-card,
-.connection-status {
+.control-button {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+/* Login screen */
+.login-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.login-form {
+  background: rgba(255,255,255,0.95);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-form input {
+  padding: 10px 15px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.login-form button {
+  padding: 10px 15px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }

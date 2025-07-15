@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import spaRoutes from './routes/spa.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { authMiddleware } from './middleware/auth.js';
 
 dotenv.config();
 
@@ -44,7 +45,8 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/api', spaRoutes);
+// Authentication middleware (uses ACCESS_KEY if set)
+app.use('/api', authMiddleware, spaRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
