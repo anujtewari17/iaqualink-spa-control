@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import TemperatureDisplay from './components/TemperatureDisplay';
 import SpaControls from './components/SpaControls';
-import ConnectionStatus from './components/ConnectionStatus';
+// Status display removed for streamlined interface
+import Login from './components/Login';
 import { getSpaStatus, toggleSpaDevice } from './services/spaAPI';
 
 function App() {
+  const [authenticated, setAuthenticated] = useState(
+    !!localStorage.getItem('accessKey')
+  );
   const [spaData, setSpaData] = useState({
-    airTemp: '--',
-    spaTemp: '--',
-    poolTemp: '--',
     spaMode: false,
     spaHeater: false,
     jetPump: false,
@@ -17,26 +17,27 @@ function App() {
   });
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+
+  const handleLogin = (key) => {
+    localStorage.setItem('accessKey', key);
+    setAuthenticated(true);
+    fetchSpaStatus();
+  };
 
   const fetchSpaStatus = async () => {
+    if (!authenticated) return;
     try {
       const status = await getSpaStatus();
       setSpaData(prev => ({
         ...prev,
-        airTemp: status.airTemp || '--',
-        spaTemp: status.spaTemp || '--',
-        poolTemp: status.poolTemp || '--',
-        spaMode: status.spaMode || false,
-        spaHeater: status.spaHeater || false,
-        jetPump: status.jetPump || false,
+        spaMode: !!status.spaMode,
+        spaHeater: !!status.spaHeater,
+        jetPump: !!status.jetPump,
         connected: true,
         lastUpdate: new Date()
       }));
-      setError(null);
     } catch (err) {
       console.error('Failed to fetch spa status:', err);
-      setError('Connection failed');
       setSpaData(prev => ({ ...prev, connected: false }));
     } finally {
       setLoading(false);
@@ -44,27 +45,69 @@ function App() {
   };
 
   const handleToggle = async (device) => {
+    if (!authenticated) return;
+    const prevState = { ...spaData };
+
+    const optimisticUpdate = (updates) =>
+      setSpaData((p) => ({ ...p, ...updates, lastUpdate: new Date() }));
+
     try {
       setLoading(true);
-      await toggleSpaDevice(device);
-      // Refresh status after toggle
-      await fetchSpaStatus();
+
+      if (device === 'spa') {
+        const newState = !spaData.spaMode;
+        optimisticUpdate({ spaMode: newState, spaHeater: newState });
+
+        await toggleSpaDevice('spa-mode');
+        const result = await toggleSpaDevice('spa-heater');
+        if (result && result.status) {
+          optimisticUpdate({
+            spaMode: !!result.status.spaMode,
+            spaHeater: !!result.status.spaHeater,
+            jetPump: result.status.jetPump ?? spaData.jetPump,
+            connected: true,
+          });
+        } else {
+          await fetchSpaStatus();
+        }
+      } else {
+        const keyMap = { 'jet-pump': 'jetPump' };
+        optimisticUpdate({ [keyMap[device]]: !spaData[keyMap[device]] });
+
+        const result = await toggleSpaDevice(device);
+        if (result && result.status) {
+          const status = result.status;
+          optimisticUpdate({
+            spaMode: status.spaMode ?? spaData.spaMode,
+            spaHeater: status.spaHeater ?? spaData.spaHeater,
+            jetPump: status.jetPump ?? spaData.jetPump,
+            connected: true,
+          });
+        } else {
+          await fetchSpaStatus();
+        }
+      }
     } catch (err) {
       console.error(`Failed to toggle ${device}:`, err);
-      setError(`Failed to toggle ${device}`);
+      setSpaData(prevState); // revert
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    if (!authenticated) return;
     fetchSpaStatus();
 
-    // Set up auto-refresh every 30 seconds
-    const interval = setInterval(fetchSpaStatus, 30000);
+    // Set up auto-refresh every 5 seconds
+    const interval = setInterval(fetchSpaStatus, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [authenticated]);
+
+  if (!authenticated) {
+    return <Login onLogin={handleLogin} />;
+  }
 
   if (loading && !spaData.lastUpdate) {
     return (
@@ -84,18 +127,7 @@ function App() {
         <p>Guest Access Panel</p>
       </header>
 
-      <ConnectionStatus 
-        connected={spaData.connected} 
-        lastUpdate={spaData.lastUpdate}
-        error={error}
-      />
-
       <main className="app-main">
-        <TemperatureDisplay 
-          airTemp={spaData.airTemp}
-          spaTemp={spaData.spaTemp}
-          poolTemp={spaData.poolTemp}
-        />
 
         <SpaControls 
           spaMode={spaData.spaMode}
@@ -108,7 +140,7 @@ function App() {
 
       <footer className="app-footer">
         <p>Touch controls to operate spa features</p>
-        <p>System updates every 30 seconds</p>
+        <p>System updates every 5 seconds</p>
       </footer>
     </div>
   );
