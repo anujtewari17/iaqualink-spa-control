@@ -38,6 +38,7 @@ function SpaControls({ spaMode, spaHeater, jetPump, onToggle, disabled }) {
       <div className="control-note">
         <p>🔔 Spa must be ON to use jets</p>
         <p>⏱️ Updates appear within a few seconds</p>
+
       </div>
     </div>
   );

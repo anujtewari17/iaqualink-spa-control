@@ -57,7 +57,6 @@ function App() {
       if (device === 'spa') {
         const newState = !spaData.spaMode;
         optimisticUpdate({ spaMode: newState, spaHeater: newState });
-
         await toggleSpaDevice('spa-mode');
         const res = await toggleSpaDevice('spa-heater');
         if (res.status) {
