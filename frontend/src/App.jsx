@@ -58,34 +58,17 @@ function App() {
         optimisticUpdate({ spaMode: newState, spaHeater: newState });
 
         await toggleSpaDevice('spa-mode');
-        const result = await toggleSpaDevice('spa-heater');
-        if (result && result.status) {
-          optimisticUpdate({
-            spaMode: !!result.status.spaMode,
-            spaHeater: !!result.status.spaHeater,
-            jetPump: result.status.jetPump ?? spaData.jetPump,
-            connected: true,
-          });
-        } else {
-          await fetchSpaStatus();
-        }
+
+        await toggleSpaDevice('spa-heater');
       } else {
         const keyMap = { 'jet-pump': 'jetPump' };
         optimisticUpdate({ [keyMap[device]]: !spaData[keyMap[device]] });
-
-        const result = await toggleSpaDevice(device);
-        if (result && result.status) {
-          const status = result.status;
-          optimisticUpdate({
-            spaMode: status.spaMode ?? spaData.spaMode,
-            spaHeater: status.spaHeater ?? spaData.spaHeater,
-            jetPump: status.jetPump ?? spaData.jetPump,
-            connected: true,
-          });
-        } else {
-          await fetchSpaStatus();
-        }
+        await toggleSpaDevice(device);
       }
+
+      // Refresh status shortly after sending commands
+      setTimeout(fetchSpaStatus, 2000);
+
     } catch (err) {
       console.error(`Failed to toggle ${device}:`, err);
       setSpaData(prevState); // revert

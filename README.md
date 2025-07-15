@@ -31,7 +31,6 @@ npm run build
 ## 📦 What's Included
 
 ### Frontend (React + Vite)
-
 - 🎛️ **Spa Controls**: Toggle buttons for Spa (mode + heat) and jet pump
 - 📱 **iPad Optimized**: Touch-friendly interface for guided access
 - 🔄 **Auto-refresh**: Status updates every 5 seconds
@@ -119,6 +118,7 @@ IAQUALINK_PASSWORD=your_password
 IAQUALINK_DEVICE_ID=device_serial_if_multiple
 PORT=3001
 CORS_ORIGIN=https://username.github.io
+JET_PUMP_COMMAND=aux_1
 ```
 
 ### Frontend Environment Variables
