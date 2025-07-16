@@ -102,41 +102,52 @@ class IaqualinkService {
     }
   }
 
-  async getSpaStatus() {
-    await this.ensureAuthenticated();
+ async getSpaStatus() {
+  await this.ensureAuthenticated();
 
-    try {
-      const response = await axios.get(this.sessionUrl, {
-        params: {
-          actionID: 'command',
-          command: 'get_home',
-          serial: this.currentDevice.serial_number,
-          sessionID: this.sessionId
-        }
-      });
-      
-      const data = response.data;
-      console.log('🐟 RAW IAQUALINK API RESPONSE:', data); // 🐟 LOG THIS EVERY TIME
+  try {
+    const response = await axios.get(this.sessionUrl, {
+      params: {
+        actionID: 'command',
+        command: 'get_home',
+        serial: this.currentDevice.serial_number,
+        sessionID: this.sessionId
+      }
+    });
 
-      // Parse the response data
-      const status = {
-        airTemp: data.air_temp || null,
-        spaTemp: data.spa_temp || null,
-        poolTemp: data.pool_temp || null,
-        spaMode: data.spa_pump === '1' || data.spa_pump === 1,
-        spaHeater: data.spa_heater === '1' || data.spa_heater === 1,
-        jetPump: data[this.jetPumpCommand] === '1' || data[this.jetPumpCommand] === 1,
-        connected: data.status === 'Online',
-        lastUpdate: new Date().toISOString()
-      };
-      console.log(status);
-      console.log('📊 Spa status retrieved successfully');
-      return status;
-    } catch (error) {
-      console.error('❌ Failed to get spa status:', error.response?.data || error.message);
-      throw new Error('Failed to retrieve spa status');
-    }
+    const data = response.data;
+    const flatStatus = data.home_screen.reduce((acc, item) => ({ ...acc, ...item }), {});
+
+    const auxKeys = Object.keys(flatStatus).filter(k => k.startsWith('aux'));
+    console.log('🧩 Detected AUX keys:', auxKeys);
+    auxKeys.forEach(key => {
+      console.log(`  ${key}:`, flatStatus[key]);
+    });
+
+    const jetPumpStatus = auxKeys.includes(this.jetPumpCommand) 
+      ? flatStatus[this.jetPumpCommand] === '1' 
+      : false;
+
+    const status = {
+      airTemp: parseInt(flatStatus.air_temp, 10) || null,
+      spaTemp: parseInt(flatStatus.spa_temp || flatStatus.spa_set_point, 10) || null,
+      poolTemp: parseInt(flatStatus.pool_temp || flatStatus.pool_set_point, 10) || null,
+      spaMode: flatStatus.spa_pump === '1',
+      spaHeater: flatStatus.spa_heater === '3',
+      jetPump: jetPumpStatus,
+      connected: flatStatus.status === 'Online',
+      lastUpdate: new Date().toISOString()
+    };
+
+    console.log('✅ Mapped Spa Status:', status);
+    return status;
+
+  } catch (error) {
+    console.error('❌ Failed to get spa status:', error.response?.data || error.message);
+    throw new Error('Failed to retrieve spa status');
   }
+}
+
 
   async toggleDevice(deviceName) {
     await this.ensureAuthenticated();
