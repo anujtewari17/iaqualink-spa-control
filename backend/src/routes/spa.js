@@ -8,6 +8,7 @@ router.get('/status', async (req, res) => {
   try {
     const status = await iaqualinkService.getSpaStatus();
     res.json(status);
+    console.log(status);
   } catch (error) {
     console.error('Error getting spa status:', error);
     res.status(500).json({ 
