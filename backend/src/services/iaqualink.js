@@ -128,7 +128,7 @@ class IaqualinkService {
         connected: data.status === 'Online',
         lastUpdate: new Date().toISOString()
       };
-
+      console.log(status);
       console.log('📊 Spa status retrieved successfully');
       return status;
     } catch (error) {
