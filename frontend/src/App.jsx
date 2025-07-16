@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import SpaControls from './components/SpaControls';
-// Status display removed for streamlined interface
+import TemperatureDisplay from './components/TemperatureDisplay';
 import Login from './components/Login';
-import { getSpaStatus, toggleSpaDevice } from './services/spaAPI';
+import { getSpaStatus, toggleSpaDevice, setSpaTemperature } from './services/spaAPI';
 
 function App() {
   const [authenticated, setAuthenticated] = useState(
@@ -12,7 +12,12 @@ function App() {
     spaMode: false,
     spaHeater: false,
     jetPump: false,
+    filterPump: false,
     connected: false,
+    airTemp: null,
+    spaTemp: null,
+    poolTemp: null,
+    spaSetPoint: null,
     lastUpdate: null
   });
 
@@ -28,12 +33,17 @@ function App() {
     if (!authenticated) return;
     try {
       const status = await getSpaStatus();
-      console.log('SPA STATUS RESPONSE:', status); // Debug line
+      console.log('SPA STATUS RESPONSE:', status);
       setSpaData(prev => ({
         ...prev,
         spaMode: !!status.spaMode,
         spaHeater: !!status.spaHeater,
         jetPump: !!status.jetPump,
+        filterPump: !!status.filterPump,
+        airTemp: status.airTemp,
+        spaTemp: status.spaTemp,
+        poolTemp: status.poolTemp,
+        spaSetPoint: status.spaSetPoint,
         connected: true,
         lastUpdate: new Date()
       }));
@@ -57,18 +67,33 @@ function App() {
 
       if (device === 'spa') {
         const newState = !spaData.spaMode;
-        optimisticUpdate({ spaMode: newState, spaHeater: newState });
+        optimisticUpdate({ 
+          spaMode: newState, 
+          spaHeater: newState,
+          // When spa turns off, also turn off filter pump
+          filterPump: newState ? spaData.filterPump : false
+        });
         await toggleSpaDevice('spa-mode');
         const res = await toggleSpaDevice('spa-heater');
+        
+        // If spa is being turned off, also turn off filter pump
+        if (!newState && spaData.filterPump) {
+          await toggleSpaDevice('filter-pump');
+        }
+        
         if (res.status) {
           optimisticUpdate({
             spaMode: !!res.status.spaMode,
             spaHeater: !!res.status.spaHeater,
             jetPump: !!res.status.jetPump,
+            filterPump: !!res.status.filterPump,
           });
         }
       } else {
-        const keyMap = { 'jet-pump': 'jetPump' };
+        const keyMap = { 
+          'jet-pump': 'jetPump',
+          'filter-pump': 'filterPump'
+        };
         optimisticUpdate({ [keyMap[device]]: !spaData[keyMap[device]] });
 
         const res = await toggleSpaDevice(device);
@@ -77,6 +102,7 @@ function App() {
             spaMode: !!res.status.spaMode,
             spaHeater: !!res.status.spaHeater,
             jetPump: !!res.status.jetPump,
+            filterPump: !!res.status.filterPump,
           });
         }
       }
@@ -86,6 +112,20 @@ function App() {
     } catch (err) {
       console.error(`Failed to toggle ${device}:`, err);
       setSpaData(prevState); // revert
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTemperatureChange = async (newTemp) => {
+    try {
+      setLoading(true);
+      setSpaData(prev => ({ ...prev, spaSetPoint: newTemp }));
+      await setSpaTemperature(newTemp);
+      setTimeout(fetchSpaStatus, 2000);
+    } catch (err) {
+      console.error('Failed to set spa temperature:', err);
+      fetchSpaStatus(); // Refresh to get actual value
     } finally {
       setLoading(false);
     }
@@ -120,23 +160,32 @@ function App() {
     <div className="app">
       <header className="app-header">
         <h1>🌊 Spa Control</h1>
-        <p>Guest Access Panel</p>
+        <p>Guest Control Panel</p>
       </header>
 
       <main className="app-main">
-
-        <SpaControls 
+        <TemperatureDisplay 
+          airTemp={spaData.airTemp}
+          spaTemp={spaData.spaTemp}
+          poolTemp={spaData.poolTemp}
+          spaSetPoint={spaData.spaSetPoint}
+          onTemperatureChange={handleTemperatureChange}
+          disabled={loading}
+        />
+        
+        <SpaControls
           spaMode={spaData.spaMode}
           spaHeater={spaData.spaHeater}
           jetPump={spaData.jetPump}
+          filterPump={spaData.filterPump}
           onToggle={handleToggle}
-          disabled={loading || !spaData.connected}
+          disabled={loading}
         />
       </main>
 
       <footer className="app-footer">
-        <p>Touch controls to operate spa features</p>
-        <p>System updates every 5 seconds</p>
+        <p>🔄 Auto-refresh every 5 seconds</p>
+        <p>Status: {spaData.connected ? '🟢 Connected' : '🔴 Disconnected'}</p>
       </footer>
     </div>
   );
