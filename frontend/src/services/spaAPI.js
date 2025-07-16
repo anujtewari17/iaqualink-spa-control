@@ -46,4 +46,13 @@ export const toggleSpaDevice = async (device) => {
   }
 };
 
+export const setSpaTemperature = async (temperature) => {
+  try {
+    const response = await api.post('/api/set-temperature', { temperature });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to set spa temperature');
+  }
+};
+
 export default api;
