@@ -28,6 +28,7 @@ function App() {
     if (!authenticated) return;
     try {
       const status = await getSpaStatus();
+      console.log('SPA STATUS RESPONSE:', status); // Debug line
       setSpaData(prev => ({
         ...prev,
         spaMode: !!status.spaMode,
