@@ -114,10 +114,9 @@ class IaqualinkService {
           sessionID: this.sessionId
         }
       });
+      
       const data = response.data;
       console.log('🐟 RAW IAQUALINK API RESPONSE:', data); // 🐟 LOG THIS EVERY TIME
-
-      const data = response.data;
 
       // Parse the response data
       const status = {
