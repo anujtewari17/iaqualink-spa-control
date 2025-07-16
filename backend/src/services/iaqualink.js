@@ -102,52 +102,53 @@ class IaqualinkService {
     }
   }
 
- async getSpaStatus() {
-  await this.ensureAuthenticated();
+  async getSpaStatus() {
+    await this.ensureAuthenticated();
 
-  try {
-    const response = await axios.get(this.sessionUrl, {
-      params: {
-        actionID: 'command',
-        command: 'get_home',
-        serial: this.currentDevice.serial_number,
-        sessionID: this.sessionId
-      }
-    });
+    try {
+      const response = await axios.get(this.sessionUrl, {
+        params: {
+          actionID: 'command',
+          command: 'get_home',
+          serial: this.currentDevice.serial_number,
+          sessionID: this.sessionId
+        }
+      });
 
-    const data = response.data;
-    const flatStatus = data.home_screen.reduce((acc, item) => ({ ...acc, ...item }), {});
+      const data = response.data;
+      const flatStatus = data.home_screen.reduce((acc, item) => ({ ...acc, ...item }), {});
 
-    const auxKeys = Object.keys(flatStatus).filter(k => k.startsWith('aux'));
-    console.log('🧩 Detected AUX keys:', auxKeys);
-    auxKeys.forEach(key => {
-      console.log(`  ${key}:`, flatStatus[key]);
-    });
+      const auxKeys = Object.keys(flatStatus).filter(k => k.startsWith('aux'));
+      console.log('🧩 Detected AUX keys:', auxKeys);
+      auxKeys.forEach(key => {
+        console.log(`  ${key}:`, flatStatus[key]);
+      });
 
-    const jetPumpStatus = auxKeys.includes(this.jetPumpCommand) 
-      ? flatStatus[this.jetPumpCommand] === '1' 
-      : false;
+      const jetPumpStatus = auxKeys.includes(this.jetPumpCommand) 
+        ? flatStatus[this.jetPumpCommand] === '1' 
+        : false;
 
-    const status = {
-      airTemp: parseInt(flatStatus.air_temp, 10) || null,
-      spaTemp: parseInt(flatStatus.spa_temp || flatStatus.spa_set_point, 10) || null,
-      poolTemp: parseInt(flatStatus.pool_temp || flatStatus.pool_set_point, 10) || null,
-      spaMode: flatStatus.spa_pump === '1',
-      spaHeater: flatStatus.spa_heater === '3',
-      jetPump: jetPumpStatus,
-      connected: flatStatus.status === 'Online',
-      lastUpdate: new Date().toISOString()
-    };
+      const status = {
+        airTemp: parseInt(flatStatus.air_temp, 10) || null,
+        spaTemp: parseInt(flatStatus.spa_temp || flatStatus.spa_set_point, 10) || null,
+        poolTemp: parseInt(flatStatus.pool_temp || flatStatus.pool_set_point, 10) || null,
+        spaSetPoint: parseInt(flatStatus.spa_set_point, 10) || null,
+        spaMode: flatStatus.spa_pump === '1',
+        spaHeater: flatStatus.spa_heater === '3',
+        jetPump: jetPumpStatus,
+        filterPump: flatStatus.pool_pump === '1', // Add filter pump status
+        connected: flatStatus.status === 'Online',
+        lastUpdate: new Date().toISOString()
+      };
 
-    console.log('✅ Mapped Spa Status:', status);
-    return status;
+      console.log('✅ Mapped Spa Status:', status);
+      return status;
 
-  } catch (error) {
-    console.error('❌ Failed to get spa status:', error.response?.data || error.message);
-    throw new Error('Failed to retrieve spa status');
+    } catch (error) {
+      console.error('❌ Failed to get spa status:', error.response?.data || error.message);
+      throw new Error('Failed to retrieve spa status');
+    }
   }
-}
-
 
   async toggleDevice(deviceName) {
     await this.ensureAuthenticated();
@@ -155,7 +156,8 @@ class IaqualinkService {
     const deviceMap = {
       'spa-mode': 'spa_pump',
       'spa-heater': 'spa_heater',
-      'jet-pump': this.jetPumpCommand
+      'jet-pump': this.jetPumpCommand,
+      'filter-pump': 'pool_pump' // Add filter pump control
     };
 
     const command = deviceMap[deviceName];
@@ -178,6 +180,28 @@ class IaqualinkService {
     } catch (error) {
       console.error(`❌ Failed to toggle ${deviceName}:`, error.response?.data || error.message);
       throw new Error(`Failed to toggle ${deviceName}`);
+    }
+  }
+
+  async setSpaTemperature(temperature) {
+    await this.ensureAuthenticated();
+
+    try {
+      const response = await axios.get(this.sessionUrl, {
+        params: {
+          actionID: 'command',
+          command: 'set_spa_set_point',
+          serial: this.currentDevice.serial_number,
+          sessionID: this.sessionId,
+          temp: temperature
+        }
+      });
+
+      console.log(`🌡️ Set spa temperature to ${temperature}°F successfully`);
+      return response.data;
+    } catch (error) {
+      console.error(`❌ Failed to set spa temperature:`, error.response?.data || error.message);
+      throw new Error('Failed to set spa temperature');
     }
   }
 }
