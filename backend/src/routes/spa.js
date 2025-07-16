@@ -24,7 +24,7 @@ router.post('/toggle/:device', async (req, res) => {
     const { device } = req.params;
 
     // Validate device parameter
-    const validDevices = ['spa-mode', 'spa-heater', 'jet-pump'];
+    const validDevices = ['spa-mode', 'spa-heater', 'jet-pump', 'filter-pump'];
     if (!validDevices.includes(device)) {
       return res.status(400).json({ 
         error: 'Invalid device',
@@ -50,6 +50,42 @@ router.post('/toggle/:device', async (req, res) => {
     console.error(`Error toggling ${req.params.device}:`, error);
     res.status(500).json({ 
       error: `Failed to toggle ${req.params.device}`,
+      message: error.message 
+    });
+  }
+});
+
+// Set spa temperature
+router.post('/set-temperature', async (req, res) => {
+  try {
+    const { temperature } = req.body;
+    
+    // Validate temperature range
+    if (!temperature || temperature < 80 || temperature > 104) {
+      return res.status(400).json({ 
+        error: 'Invalid temperature',
+        message: 'Temperature must be between 80°F and 104°F' 
+      });
+    }
+
+    await iaqualinkService.setSpaTemperature(temperature);
+
+    // Wait briefly for the system to update
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    // Fetch updated status
+    const status = await iaqualinkService.getSpaStatus();
+
+    res.json({
+      success: true,
+      temperature,
+      message: `Spa temperature set to ${temperature}°F`,
+      status
+    });
+  } catch (error) {
+    console.error('Error setting spa temperature:', error);
+    res.status(500).json({ 
+      error: 'Failed to set spa temperature',
       message: error.message 
     });
   }
