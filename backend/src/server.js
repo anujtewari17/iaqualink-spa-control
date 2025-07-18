@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import spaRoutes from './routes/spa.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
+import cron from 'node-cron';
+import iaqualinkService from './services/iaqualink.js';
 
 dotenv.config();
 
@@ -62,5 +64,19 @@ app.listen(PORT, () => {
   console.log(`📡 CORS enabled for: ${corsOptions.origin}`);
   console.log(`🔐 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
+
+// Cron job to turn off equipment nightly at 12 AM Pacific Time
+cron.schedule(
+  '0 0 * * *',
+  async () => {
+    try {
+      console.log('⏰ Nightly shutdown: turning off all equipment');
+      await iaqualinkService.turnOffAllEquipment();
+    } catch (err) {
+      console.error('Cron job failed:', err.message);
+    }
+  },
+  { timezone: 'America/Los_Angeles' }
+);
 
 export default app;
