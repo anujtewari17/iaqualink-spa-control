@@ -204,6 +204,25 @@ class IaqualinkService {
       throw new Error('Failed to set spa temperature');
     }
   }
+
+  async turnOffAllEquipment() {
+    await this.ensureAuthenticated();
+    const status = await this.getSpaStatus();
+    const actions = [];
+    if (status.spaMode) actions.push('spa-mode');
+    if (status.spaHeater) actions.push('spa-heater');
+    if (status.jetPump) actions.push('jet-pump');
+    if (status.filterPump) actions.push('filter-pump');
+
+    for (const device of actions) {
+      try {
+        await this.toggleDevice(device);
+        await new Promise(r => setTimeout(r, 1000));
+      } catch (e) {
+        console.error(`Failed to turn off ${device}:`, e.message);
+      }
+    }
+  }
 }
 
 export default new IaqualinkService();

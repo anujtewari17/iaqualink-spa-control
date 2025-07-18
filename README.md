@@ -117,9 +117,12 @@ IAQUALINK_PASSWORD=your_password
 # Optional
 IAQUALINK_DEVICE_ID=device_serial_if_multiple
 PORT=3001
+# URL the frontend is served from
 CORS_ORIGIN=https://username.github.io
-JET_PUMP_COMMAND=aux_4
 # Set to the AUX circuit number that controls your jets (e.g. aux_4)
+JET_PUMP_COMMAND=aux_4
+# Semicolon separated addresses allowed to use the app
+ALLOWED_ADDRESSES=123 Main St, Anytown USA;456 Beach Ave, Sun City
 
 ```
 
@@ -137,6 +140,14 @@ VITE_BACKEND_URL=https://your-backend-url.fly.dev
 - **Rate limiting**: 100 requests per 15 minutes
 - **Input validation**: Sanitized API parameters
 - **Session management**: Automatic token refresh
+- **Location checks**: Optional geo restriction for frontend access
+- **Nightly shutdown**: Cron job turns off equipment at midnight
+- **Render cron**: Use a scheduled job to wake the free-tier backend
+
+### Render Cron Setup
+Render free services fall asleep after 15 minutes. Configure a Render Cron
+Job to POST to `/api/shutdown` every day at **12:05 AM America/Los_Angeles** so
+the backend is awake and the nightly shutdown runs.
 
 ## 📱 iPad Setup for Guests
 
