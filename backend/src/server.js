@@ -6,6 +6,9 @@ import dotenv from 'dotenv';
 import spaRoutes from './routes/spa.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
+import cron from 'node-cron';
+import iaqualinkService from './services/iaqualink.js';
+import axios from 'axios';
 
 dotenv.config();
 
@@ -61,6 +64,31 @@ app.listen(PORT, () => {
   console.log(`🌊 iAqualink Spa Control Backend running on port ${PORT}`);
   console.log(`📡 CORS enabled for: ${corsOptions.origin}`);
   console.log(`🔐 Environment: ${process.env.NODE_ENV || 'development'}`);
+});
+
+// Cron job to turn off equipment nightly at 12 AM Pacific Time
+cron.schedule(
+  '0 0 * * *',
+  async () => {
+    try {
+      console.log('⏰ Nightly shutdown: turning off all equipment');
+      await iaqualinkService.turnOffAllEquipment();
+    } catch (err) {
+      console.error('Cron job failed:', err.message);
+    }
+  },
+  { timezone: 'America/Los_Angeles' }
+);
+
+// Heartbeat to keep Render service awake
+const HEARTBEAT_URL = process.env.HEARTBEAT_URL || `http://localhost:${PORT}/health`;
+cron.schedule('*/14 * * * *', async () => {
+  try {
+    await axios.get(HEARTBEAT_URL);
+    console.log('💓 Heartbeat ping');
+  } catch (err) {
+    console.error('Heartbeat failed:', err.message);
+  }
 });
 
 export default app;
