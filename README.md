@@ -121,8 +121,11 @@ PORT=3001
 CORS_ORIGIN=https://username.github.io
 # Set to the AUX circuit number that controls your jets (e.g. aux_4)
 JET_PUMP_COMMAND=aux_4
-# Semicolon separated addresses allowed to use the app
-ALLOWED_ADDRESSES=123 Main St, Anytown USA;456 Beach Ave, Sun City
+# Semicolon separated latitude,longitude coordinates allowed to use the app
+ALLOWED_LOCATIONS=37.7749,-122.4194;34.0522,-118.2437
+# Optional URL to ping every 14 minutes to keep the backend awake
+HEARTBEAT_URL=
+
 
 ```
 
@@ -142,12 +145,13 @@ VITE_BACKEND_URL=https://your-backend-url.fly.dev
 - **Session management**: Automatic token refresh
 - **Location checks**: Optional geo restriction for frontend access
 - **Nightly shutdown**: Cron job turns off equipment at midnight
-- **Render cron**: Use a scheduled job to wake the free-tier backend
+- **Render cron**: Scheduled jobs keep the free-tier backend awake
 
 ### Render Cron Setup
-Render free services fall asleep after 15 minutes. Configure a Render Cron
-Job to POST to `/api/shutdown` every day at **12:05 AM America/Los_Angeles** so
-the backend is awake and the nightly shutdown runs.
+Render free services fall asleep after 15 minutes. Configure Render Cron jobs to:
+1. **Heartbeat** – GET `/health` every 14 minutes to keep the service awake.
+2. **Nightly shutdown** – POST `/api/shutdown` at **12:05 AM America/Los_Angeles**.
+
 
 ## 📱 iPad Setup for Guests
 

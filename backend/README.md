@@ -100,10 +100,13 @@ Turns off all equipment. Useful for external schedulers.
 - `SESSION_TIMEOUT`: Session timeout in milliseconds (default: 43200000)
 - `ACCESS_KEY`: Optional key required in `x-access-key` header for all API requests
 - `JET_PUMP_COMMAND`: Device command for the spa jets (default: `aux_4`)
-- `ALLOWED_ADDRESSES`: Semicolon separated list of physical addresses that
-  are allowed to access the app
+- `ALLOWED_LOCATIONS`: Semicolon separated latitude,longitude pairs allowed to access the app
+- `HEARTBEAT_URL`: Optional URL pinged every 14 minutes to keep the service awake
 ### Render Cron Setup
-On Render's free tier the service sleeps after 15 minutes. Configure a Render Cron Job to POST to `/api/shutdown` every day at **12:05 AM America/Los_Angeles**. This wakes the service and runs the nightly shutdown.
+On Render's free tier the service sleeps after 15 minutes. Configure Render Cron jobs:
+1. **Heartbeat** – GET `/health` every 14 minutes to keep the service awake.
+2. **Nightly shutdown** – POST `/api/shutdown` at **12:05 AM America/Los_Angeles**.
+
 
 
 
