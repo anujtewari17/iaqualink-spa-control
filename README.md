@@ -153,6 +153,7 @@ Render free services fall asleep after 15 minutes. Configure Render Cron jobs to
 2. **Nightly shutdown** – POST `/api/shutdown` at **12:05 AM America/Los_Angeles**.
 The backend also issues an automatic shutdown three hours after the spa is turned on.
 
+
 ## 📱 iPad Setup for Guests
 
 ### 1. Enable Guided Access
