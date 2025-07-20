@@ -19,6 +19,20 @@ router.get('/status', async (req, res) => {
   }
 });
 
+// Get AUX circuit status
+router.get('/aux-status', async (req, res) => {
+  try {
+    const aux = await iaqualinkService.getDeviceStatus();
+    res.json(aux);
+  } catch (error) {
+    console.error('Error getting aux status:', error);
+    res.status(500).json({
+      error: 'Failed to retrieve aux status',
+      message: error.message,
+    });
+  }
+});
+
 // Toggle spa device
 let shutdownTimer = null;
 const AUTO_SHUTDOWN_MS = 3 * 60 * 60 * 1000; // 3 hours
