@@ -1,5 +1,6 @@
 import express from 'express';
 import iaqualinkService from '../services/iaqualink.js';
+import { isLocationAllowed } from "../services/location.js";
 
 const router = express.Router();
 
@@ -19,6 +20,23 @@ router.get('/status', async (req, res) => {
 });
 
 // Toggle spa device
+let shutdownTimer = null;
+const AUTO_SHUTDOWN_MS = 3 * 60 * 60 * 1000; // 3 hours
+
+function scheduleAutoShutdown() {
+  if (shutdownTimer) {
+    clearTimeout(shutdownTimer);
+  }
+  shutdownTimer = setTimeout(async () => {
+    try {
+      console.log('⏰ Auto shutdown after 3h');
+      await iaqualinkService.turnOffAllEquipment();
+    } catch (err) {
+      console.error('Auto shutdown failed:', err.message);
+    }
+  }, AUTO_SHUTDOWN_MS);
+}
+
 router.post('/toggle/:device', async (req, res) => {
   try {
     const { device } = req.params;
@@ -39,6 +57,15 @@ router.post('/toggle/:device', async (req, res) => {
 
     // Fetch updated status after toggle
     const status = await iaqualinkService.getSpaStatus();
+
+    if (device === 'spa-mode') {
+      if (status.spaMode) {
+        scheduleAutoShutdown();
+      } else if (shutdownTimer) {
+        clearTimeout(shutdownTimer);
+        shutdownTimer = null;
+      }
+    }
 
     res.json({
       success: true,
@@ -106,6 +133,33 @@ router.get('/devices', async (req, res) => {
       message: error.message 
     });
   }
+});
+
+// Manual shutdown endpoint for scheduled jobs
+router.post('/shutdown', async (req, res) => {
+  try {
+    await iaqualinkService.turnOffAllEquipment();
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error running shutdown:', error);
+    res.status(500).json({
+      error: 'Failed to run shutdown',
+      message: error.message,
+    });
+  }
+});
+
+
+
+
+// Location check
+router.post('/check-location', (req, res) => {
+  const { latitude, longitude } = req.body;
+  if (latitude === undefined || longitude === undefined) {
+    return res.status(400).json({ error: 'Missing coordinates' });
+  }
+  const allowed = isLocationAllowed(parseFloat(latitude), parseFloat(longitude));
+  res.json({ allowed });
 });
 
 export default router;
