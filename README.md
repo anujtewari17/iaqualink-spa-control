@@ -40,6 +40,7 @@ npm run build
 - 🛡️ **Session Management**: Automatic token refresh
 - 🌊 **Spa API**: RESTful endpoints for spa control
 - 📊 **Status Monitoring**: Real-time temperature and device status
+- 🔌 **AUX Status API**: Query circuit states including jets
 - 🚦 **Rate Limiting**: Built-in API protection
 - 🔗 **CORS**: Configurable cross-origin support
 
@@ -233,6 +234,7 @@ Notes:
 2. Test API endpoints directly:
    ```bash
    curl https://your-backend-url.fly.dev/api/status
+   curl https://your-backend-url.fly.dev/api/aux-status
    ```
 3. Verify iAqualink credentials in official app
 

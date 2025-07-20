@@ -102,6 +102,46 @@ class IaqualinkService {
     }
   }
 
+  async getDeviceStatus() {
+    await this.ensureAuthenticated();
+    try {
+      const response = await axios.get(this.sessionUrl, {
+        params: {
+          actionID: 'command',
+          command: 'get_devices',
+          serial: this.currentDevice.serial_number,
+          sessionID: this.sessionId
+        }
+      });
+
+      const data = response.data;
+      const screen = data.devices_screen || [];
+      const auxStatus = {};
+      screen.forEach(item => {
+        const key = Object.keys(item)[0];
+        if (key && key.toLowerCase().startsWith('aux')) {
+          const info = item[key];
+          let flattened = {};
+          if (Array.isArray(info)) {
+            info.forEach(obj => {
+              if (obj && typeof obj === 'object') {
+                Object.assign(flattened, obj);
+              }
+            });
+          } else if (info && typeof info === 'object') {
+            flattened = info;
+          }
+          auxStatus[key] = flattened;
+        }
+      });
+      this.auxStatus = auxStatus;
+      return auxStatus;
+    } catch (error) {
+      console.error('❌ Failed to get device status:', error.response?.data || error.message);
+      throw new Error('Failed to retrieve device status');
+    }
+  }
+
   async getSpaStatus() {
     await this.ensureAuthenticated();
 
@@ -133,6 +173,8 @@ class IaqualinkService {
       const rawJet = jetKey ? flatStatus[jetKey] : undefined;
       const jetPumpStatus = ['1', 1, 'on', 'ON', true].includes(rawJet);
 
+      const auxDetails = await this.getDeviceStatus();
+
       const status = {
         airTemp: parseInt(flatStatus.air_temp, 10) || null,
         spaTemp: parseInt(flatStatus.spa_temp || flatStatus.spa_set_point, 10) || null,
@@ -143,7 +185,8 @@ class IaqualinkService {
         jetPump: jetPumpStatus,
         filterPump: flatStatus.pool_pump === '1', // Add filter pump status
         connected: flatStatus.status === 'Online',
-        lastUpdate: new Date().toISOString()
+        lastUpdate: new Date().toISOString(),
+        auxCircuits: auxDetails
       };
 
       console.log('✅ Mapped Spa Status:', status);
