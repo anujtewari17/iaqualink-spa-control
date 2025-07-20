@@ -12,6 +12,7 @@ A Node.js/Express backend API server that interfaces with the iAqualink cloud se
 - **Rate Limiting**: Built-in rate limiting for API protection
 - **CORS**: Configurable CORS for frontend integration
 - **Scheduled Shutdown**: Cron job turns off all equipment nightly at 12 AM Pacific
+- **Auto Shutdown**: Spa turns off automatically 3 hours after activation
 - **Geo Restriction**: Location checks to restrict access
 
 ## API Endpoints
@@ -106,6 +107,7 @@ Turns off all equipment. Useful for external schedulers.
 On Render's free tier the service sleeps after 15 minutes. Configure Render Cron jobs:
 1. **Heartbeat** – GET `/health` every 14 minutes to keep the service awake.
 2. **Nightly shutdown** – POST `/api/shutdown` at **12:05 AM America/Los_Angeles**.
+The backend also schedules an automatic shutdown three hours after the spa is turned on, so cron is only needed for the nightly cutoff and keeping the service awake.
 
 
 

@@ -116,17 +116,22 @@ class IaqualinkService {
       });
 
       const data = response.data;
+      console.log('📡 Raw home_screen data:', JSON.stringify(data.home_screen, null, 2));
       const flatStatus = data.home_screen.reduce((acc, item) => ({ ...acc, ...item }), {});
 
-      const auxKeys = Object.keys(flatStatus).filter(k => k.startsWith('aux'));
+      const auxKeys = Object.keys(flatStatus).filter(k => k.toLowerCase().startsWith('aux'));
       console.log('🧩 Detected AUX keys:', auxKeys);
+      const auxStates = {};
       auxKeys.forEach(key => {
+        auxStates[key] = flatStatus[key];
         console.log(`  ${key}:`, flatStatus[key]);
       });
+      console.log('🛠 AUX circuit states:', auxStates);
 
-      const jetPumpStatus = auxKeys.includes(this.jetPumpCommand) 
-        ? flatStatus[this.jetPumpCommand] === '1' 
-        : false;
+      const normalize = (str) => str.replace(/[^a-z0-9]/gi, '').toLowerCase();
+      const jetKey = auxKeys.find(k => normalize(k) === normalize(this.jetPumpCommand));
+      const rawJet = jetKey ? flatStatus[jetKey] : undefined;
+      const jetPumpStatus = ['1', 1, 'on', 'ON', true].includes(rawJet);
 
       const status = {
         airTemp: parseInt(flatStatus.air_temp, 10) || null,
@@ -176,6 +181,7 @@ class IaqualinkService {
       });
 
       console.log(`🔄 Toggled ${deviceName} successfully`);
+      console.log('📡 Toggle response:', response.data);
       return response.data;
     } catch (error) {
       console.error(`❌ Failed to toggle ${deviceName}:`, error.response?.data || error.message);

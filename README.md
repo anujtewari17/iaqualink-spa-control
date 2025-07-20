@@ -126,7 +126,6 @@ ALLOWED_LOCATIONS=37.7749,-122.4194;34.0522,-118.2437
 # Optional URL to ping every 14 minutes to keep the backend awake
 HEARTBEAT_URL=
 
-
 ```
 
 
@@ -145,12 +144,14 @@ VITE_BACKEND_URL=https://your-backend-url.fly.dev
 - **Session management**: Automatic token refresh
 - **Location checks**: Optional geo restriction for frontend access
 - **Nightly shutdown**: Cron job turns off equipment at midnight
+- **Auto shutdown**: Spa turns off automatically 3 hours after being activated
 - **Render cron**: Scheduled jobs keep the free-tier backend awake
 
 ### Render Cron Setup
 Render free services fall asleep after 15 minutes. Configure Render Cron jobs to:
 1. **Heartbeat** – GET `/health` every 14 minutes to keep the service awake.
 2. **Nightly shutdown** – POST `/api/shutdown` at **12:05 AM America/Los_Angeles**.
+The backend also issues an automatic shutdown three hours after the spa is turned on.
 
 
 ## 📱 iPad Setup for Guests

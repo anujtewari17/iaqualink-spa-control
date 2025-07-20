@@ -10,7 +10,6 @@ import cron from 'node-cron';
 import iaqualinkService from './services/iaqualink.js';
 import axios from 'axios';
 
-
 dotenv.config();
 
 const app = express();

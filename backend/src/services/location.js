@@ -36,7 +36,6 @@ export function isLocationAllowed(latitude, longitude, radiusKm = 0.2) {
       Math.cos(toRad(latitude)) *
         Math.cos(toRad(loc.lat)) *
         Math.sin(dLon / 2) ** 2;
-
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = 6371 * c;
     return distance <= radiusKm;
