@@ -175,6 +175,14 @@ class IaqualinkService {
 
       const auxDetails = await this.getDeviceStatus();
 
+      // Prefer AUX circuit status for jet pump if available
+      let jetPumpActual = jetPumpStatus;
+      if (auxDetails && auxDetails[this.jetPumpCommand]) {
+        const auxState = auxDetails[this.jetPumpCommand].state;
+        jetPumpActual = ['1', 1, 'on', 'ON', true].includes(auxState);
+      }
+
+
       const status = {
         airTemp: parseInt(flatStatus.air_temp, 10) || null,
         spaTemp: parseInt(flatStatus.spa_temp || flatStatus.spa_set_point, 10) || null,
@@ -182,7 +190,7 @@ class IaqualinkService {
         spaSetPoint: parseInt(flatStatus.spa_set_point, 10) || null,
         spaMode: flatStatus.spa_pump === '1',
         spaHeater: flatStatus.spa_heater === '3',
-        jetPump: jetPumpStatus,
+        jetPump: jetPumpActual,
         filterPump: flatStatus.pool_pump === '1', // Add filter pump status
         connected: flatStatus.status === 'Online',
         lastUpdate: new Date().toISOString(),
