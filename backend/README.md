@@ -54,6 +54,9 @@ Toggles a spa device on/off.
 ### GET /api/devices
 Returns information about available devices.
 
+### GET /api/aux-status
+Returns current AUX circuit states including labels.
+
 ### GET /health
 Health check endpoint.
 ### POST /api/check-location
