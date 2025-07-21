@@ -26,7 +26,7 @@ const [loading, setLoading] = useState(true);
 
   const verifyLocation = () => {
     if (!navigator.geolocation) {
-      setLocationAllowed(false);
+      setLocationAllowed(true); // treat as allowed when geolocation unsupported
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -39,10 +39,10 @@ const [loading, setLoading] = useState(true);
           setLocationAllowed(allowed);
         } catch (err) {
           console.error('Location check failed', err);
-          setLocationAllowed(false);
+          setLocationAllowed(true); // default to allowed on error
         }
       },
-      () => setLocationAllowed(false)
+      () => setLocationAllowed(true)
     );
   };
 
@@ -186,10 +186,6 @@ const handleLogin = (key) => {
         <h1>🌊 Spa Control</h1>
         <p>Guest Control Panel</p>
       </header>
-
-      {locationAllowed === false && (
-        <p className="warning">Location not authorized</p>
-      )}
 
       <main className="app-main">
         <TemperatureDisplay 

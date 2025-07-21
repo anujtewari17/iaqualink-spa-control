@@ -25,9 +25,13 @@ const parseLocations = () => {
 
 export const locations = parseLocations();
 if (locations.length) {
-  console.log('📍 Allowed coordinates:', locations);
+  console.log('Allowed locations:');
+  locations.forEach((loc, idx) => {
+    console.log(`  ${idx + 1}. ${loc.lat},${loc.lon}`);
+  });
 } else {
-  console.log('📍 No location restrictions enabled');
+  console.log('No location restrictions configured');
+
 }
 
 const toRad = (v) => (v * Math.PI) / 180;

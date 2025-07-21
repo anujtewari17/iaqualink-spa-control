@@ -168,11 +168,12 @@ router.post('/check-location', (req, res) => {
   if (latitude === undefined || longitude === undefined) {
     return res.status(400).json({ error: 'Missing coordinates' });
   }
-  const allowed = isLocationAllowed(
-    parseFloat(latitude),
-    parseFloat(longitude)
-  );
-  console.log(`\uD83D\uDCCD Location allowed: ${allowed}`);
+  const latNum = parseFloat(latitude);
+  const lonNum = parseFloat(longitude);
+  console.log(`Location check: ${latNum}, ${lonNum}`);
+  const allowed = isLocationAllowed(latNum, lonNum);
+  console.log(`Allowed: ${allowed}`);
+]
   res.json({ allowed });
 });
 

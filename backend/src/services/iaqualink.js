@@ -20,10 +20,6 @@ class IaqualinkService {
       console.warn(
         'JET_PUMP_COMMAND not set - defaulting jet pump to aux_4. Set JET_PUMP_COMMAND in the .env file if jets use a different circuit.'
       );
-
-    } else {
-      console.log(`\ud83d\udca7 Jet pump command mapped to ${this.jetPumpCommand}`);
-
     }
 
     this.sessionId = null;
@@ -250,7 +246,6 @@ class IaqualinkService {
           temp: temperature
         }
       });
-
       return response.data;
     } catch (error) {
       console.error(`❌ Failed to set spa temperature:`, error.response?.data || error.message);
