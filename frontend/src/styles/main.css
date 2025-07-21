@@ -138,3 +138,19 @@ h2{
 @media (max-width:360px){
   :root{font-size:17px}
 }
+
+.admin-panel{
+  padding:2rem;
+  color:#fff;
+}
+
+.keys-table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.keys-table th,
+.keys-table td{
+  border:1px solid rgba(255,255,255,.4);
+  padding:.5rem 1rem;
+}
