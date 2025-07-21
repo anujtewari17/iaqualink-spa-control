@@ -70,7 +70,9 @@ cron.schedule(
   '0 0 * * *',
   async () => {
     try {
+
       console.log('\u23f0 Nightly shutdown: turning off all equipment');
+
       await iaqualinkService.turnOffAllEquipment();
     } catch (err) {
       console.error('Cron job failed:', err.message);

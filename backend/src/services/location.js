@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+const DEFAULT_RADIUS_KM = parseFloat(process.env.LOCATION_RADIUS_KM || '1');
+
 const parseLocations = () => {
   const raw = process.env.ALLOWED_LOCATIONS;
   if (!raw) return [];
@@ -30,8 +32,8 @@ if (locations.length) {
 
 const toRad = (v) => (v * Math.PI) / 180;
 
-export function isLocationAllowed(latitude, longitude, radiusKm = 0.2) {
-  console.log(`Incoming coordinates: ${latitude}, ${longitude}`);
+export function isLocationAllowed(latitude, longitude, radiusKm = DEFAULT_RADIUS_KM) {
+
   if (!locations.length) return true;
   return locations.some((loc) => {
     if (isNaN(loc.lat) || isNaN(loc.lon)) return false;

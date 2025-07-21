@@ -42,7 +42,6 @@ npm run build
 - 📊 **Status Monitoring**: Real-time temperature and device status
 - 🔌 **AUX Status API**: Query circuit states including jets
 - 📍 **Location Check**: Optional geo verification for app access
-
 - 🚦 **Rate Limiting**: Built-in API protection
 - 🔗 **CORS**: Configurable cross-origin support
 
