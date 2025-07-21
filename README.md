@@ -41,7 +41,7 @@ npm run build
 - 🌊 **Spa API**: RESTful endpoints for spa control
 - 📊 **Status Monitoring**: Real-time temperature and device status
 - 🔌 **AUX Status API**: Query circuit states including jets
-- 📍 **Location Check**: Optional geo verification for app access
+- 📍 **Location Check**: Optional geo verification for app access (disabled when `ALLOWED_LOCATIONS` is empty)
 - 🚦 **Rate Limiting**: Built-in API protection
 - 🔗 **CORS**: Configurable cross-origin support
 
@@ -126,7 +126,8 @@ PORT=3001
 CORS_ORIGIN=https://username.github.io
 # Set to the AUX circuit number that controls your jets (e.g. aux_4)
 JET_PUMP_COMMAND=aux_4
-# Semicolon separated latitude,longitude pairs allowed to use the app
+# Semicolon separated latitude,longitude pairs allowed to use the app.
+# Leave empty to disable location checks.
 ALLOWED_LOCATIONS=
 # Distance in km allowed from each location (default 1km)
 LOCATION_RADIUS_KM=1
@@ -134,12 +135,12 @@ LOCATION_RADIUS_KM=1
 HEARTBEAT_URL=
 # Optional Airbnb iCal feed URL for guest access codes
 ICS_FEED_URL=
-
 ```
 
 The admin key set in `ACCESS_KEY` lets your property manager access
 `/api/keys` to view active guest codes. The frontend automatically shows an
 admin page when this key is used.
+
 
 ```
 
@@ -250,7 +251,6 @@ Notes:
    curl https://your-backend-url.fly.dev/api/aux-status
    curl -X POST https://your-backend-url.fly.dev/api/check-location \
      -d '{"latitude":0,"longitude":0}' -H 'Content-Type: application/json'
-
    ```
 3. Verify iAqualink credentials in official app
 
