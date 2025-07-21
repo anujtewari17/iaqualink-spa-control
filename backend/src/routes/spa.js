@@ -45,6 +45,7 @@ function scheduleAutoShutdown() {
   shutdownTimer = setTimeout(async () => {
     try {
       console.log('Auto shutdown timer triggered');
+
       await iaqualinkService.turnOffAllEquipment();
     } catch (err) {
       console.error('Auto shutdown failed:', err.message);

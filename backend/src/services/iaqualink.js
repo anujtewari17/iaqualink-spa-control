@@ -48,6 +48,7 @@ class IaqualinkService {
       this.userId = data.id;
       this.sessionId = data.session_id;
       this.lastLogin = Date.now();
+      console.log('\u2705 Successfully logged in to iAqualink');
 
       return true;
     } catch (error) {
