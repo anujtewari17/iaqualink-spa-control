@@ -132,6 +132,14 @@ ALLOWED_LOCATIONS=
 LOCATION_RADIUS_KM=1
 # Optional URL to ping every 14 minutes to keep the backend awake
 HEARTBEAT_URL=
+# Optional Airbnb iCal feed URL for guest access codes
+ICS_FEED_URL=
+
+```
+
+The admin key set in `ACCESS_KEY` lets your property manager access
+`/api/keys` to view active guest codes. The frontend automatically shows an
+admin page when this key is used.
 
 ```
 
