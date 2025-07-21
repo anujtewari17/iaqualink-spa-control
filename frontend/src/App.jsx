@@ -1,13 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import SpaControls from './components/SpaControls';
 import TemperatureDisplay from './components/TemperatureDisplay';
 import Login from './components/Login';
-import { getSpaStatus, toggleSpaDevice, setSpaTemperature, checkLocation } from './services/spaAPI';
+import AdminPanel from './components/AdminPanel';
+import {
+  getSpaStatus,
+  toggleSpaDevice,
+  setSpaTemperature,
+  checkLocation,
+  getActiveKeys
+} from './services/spaAPI';
 
 function App() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
   const [authenticated, setAuthenticated] = useState(
     !!localStorage.getItem('accessKey')
   );
+  // null -> checking, true -> admin, false -> guest
+  const [isAdmin, setIsAdmin] = useState(null);
+  const [reservations, setReservations] = useState([]);
   const [locationAllowed, setLocationAllowed] = useState(null);
   const [spaData, setSpaData] = useState({
     spaMode: false,
@@ -46,11 +59,21 @@ const [loading, setLoading] = useState(true);
     );
   };
 
+  const checkAdmin = async () => {
+    try {
+      const res = await getActiveKeys();
+      setReservations(res);
+      setIsAdmin(true);
+      return true;
+    } catch (err) {
+      setIsAdmin(false);
+      return false;
+    }
+  };
+
 const handleLogin = (key) => {
   localStorage.setItem('accessKey', key);
   setAuthenticated(true);
-  verifyLocation();
-  fetchSpaStatus();
 };
 
   const fetchSpaStatus = async () => {
@@ -156,31 +179,27 @@ const handleLogin = (key) => {
 
   useEffect(() => {
     if (!authenticated) return;
+    checkAdmin();
+  }, [authenticated]);
+
+  useEffect(() => {
+    if (!authenticated || !isAdminRoute) return;
+    checkAdmin();
+  }, [authenticated, isAdminRoute]);
+
+  useEffect(() => {
+    if (!authenticated || isAdminRoute) return;
     verifyLocation();
     fetchSpaStatus();
-
-    // Set up auto-refresh every 5 seconds
     const interval = setInterval(fetchSpaStatus, 5000);
-
     return () => clearInterval(interval);
-  }, [authenticated]);
+  }, [authenticated, isAdminRoute]);
 
   if (!authenticated) {
     return <Login onLogin={handleLogin} />;
   }
 
-  if (loading && !spaData.lastUpdate) {
-    return (
-      <div className="app">
-        <div className="loading">
-          <div className="spinner"></div>
-          <p>Connecting to spa system...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
+  const guestPage = (
     <div className="app">
       <header className="app-header">
         <h1>🌊 Spa Control</h1>
@@ -188,7 +207,7 @@ const handleLogin = (key) => {
       </header>
 
       <main className="app-main">
-        <TemperatureDisplay 
+        <TemperatureDisplay
           airTemp={spaData.airTemp}
           spaTemp={spaData.spaTemp}
           poolTemp={spaData.poolTemp}
@@ -196,7 +215,7 @@ const handleLogin = (key) => {
           onTemperatureChange={handleTemperatureChange}
           disabled={loading}
         />
-        
+
         <SpaControls
           spaMode={spaData.spaMode}
           spaHeater={spaData.spaHeater}
@@ -212,6 +231,37 @@ const handleLogin = (key) => {
         <p>Status: {spaData.connected ? '🟢 Connected' : '🔴 Disconnected'}</p>
       </footer>
     </div>
+  );
+
+  const loadingScreen = (
+    <div className="app">
+      <div className="loading">
+        <div className="spinner"></div>
+        <p>Connecting to spa system...</p>
+      </div>
+    </div>
+  );
+
+  return (
+    <Routes>
+      <Route
+        path="/admin"
+        element={
+          isAdmin === null ? (
+            loadingScreen
+          ) : isAdmin ? (
+            <AdminPanel reservations={reservations} />
+          ) : (
+            <Navigate to="/" />
+          )
+        }
+      />
+      <Route
+        path="/"
+        element={loading && !spaData.lastUpdate ? loadingScreen : guestPage}
+      />
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
   );
 }
 
