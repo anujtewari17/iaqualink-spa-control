@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import SpaControls from './components/SpaControls';
 import TemperatureDisplay from './components/TemperatureDisplay';
 import Login from './components/Login';
-import { getSpaStatus, toggleSpaDevice, setSpaTemperature, checkLocation } from './services/spaAPI';
+import { getSpaStatus, toggleSpaDevice, setSpaTemperature } from './services/spaAPI';
 
 function App() {
   const [authenticated, setAuthenticated] = useState(
     !!localStorage.getItem('accessKey')
   );
-  const [locationAllowed, setLocationAllowed] = useState(null);
   const [spaData, setSpaData] = useState({
     spaMode: false,
     spaHeater: false,
@@ -24,32 +23,9 @@ function App() {
 
 const [loading, setLoading] = useState(true);
 
-  const verifyLocation = () => {
-    if (!navigator.geolocation) {
-      setLocationAllowed(true); // treat as allowed when geolocation unsupported
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const allowed = await checkLocation(
-            pos.coords.latitude,
-            pos.coords.longitude
-          );
-          setLocationAllowed(allowed);
-        } catch (err) {
-          console.error('Location check failed', err);
-          setLocationAllowed(true); // default to allowed on error
-        }
-      },
-      () => setLocationAllowed(true)
-    );
-  };
-
 const handleLogin = (key) => {
   localStorage.setItem('accessKey', key);
   setAuthenticated(true);
-  verifyLocation();
   fetchSpaStatus();
 };
 
@@ -156,7 +132,6 @@ const handleLogin = (key) => {
 
   useEffect(() => {
     if (!authenticated) return;
-    verifyLocation();
     fetchSpaStatus();
 
     // Set up auto-refresh every 5 seconds
@@ -186,6 +161,8 @@ const handleLogin = (key) => {
         <h1>🌊 Spa Control</h1>
         <p>Guest Control Panel</p>
       </header>
+
+
 
       <main className="app-main">
         <TemperatureDisplay 

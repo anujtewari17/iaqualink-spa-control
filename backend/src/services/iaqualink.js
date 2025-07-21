@@ -157,12 +157,10 @@ class IaqualinkService {
       const flatStatus = data.home_screen.reduce((acc, item) => ({ ...acc, ...item }), {});
 
       const auxKeys = Object.keys(flatStatus).filter(k => k.toLowerCase().startsWith('aux'));
-
       const auxStates = {};
       auxKeys.forEach(key => {
         auxStates[key] = flatStatus[key];
       });
-
 
       const normalize = (str) => str.replace(/[^a-z0-9]/gi, '').toLowerCase();
       const jetKey = auxKeys.find(k => normalize(k) === normalize(this.jetPumpCommand));
@@ -191,7 +189,6 @@ class IaqualinkService {
         lastUpdate: new Date().toISOString(),
         auxCircuits: auxDetails
       };
-
 
       return status;
 
@@ -225,7 +222,6 @@ class IaqualinkService {
           sessionID: this.sessionId
         }
       });
-
       return response.data;
     } catch (error) {
       console.error(`❌ Failed to toggle ${deviceName}:`, error.response?.data || error.message);
