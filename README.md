@@ -128,7 +128,6 @@ CORS_ORIGIN=https://username.github.io
 JET_PUMP_COMMAND=aux_4
 # Semicolon separated latitude,longitude pairs allowed to use the app.
 # Leave empty to disable location checks.
-
 ALLOWED_LOCATIONS=
 # Distance in km allowed from each location (default 1km)
 LOCATION_RADIUS_KM=1

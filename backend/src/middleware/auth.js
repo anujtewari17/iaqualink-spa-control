@@ -14,6 +14,6 @@ export const authMiddleware = (req, res, next) => {
   if (key && key === ACCESS_KEY) {
     return next();
   }
-
+  console.warn(`Unauthorized request from ${req.ip}`);
   return res.status(401).json({ error: 'Unauthorized' });
 };
