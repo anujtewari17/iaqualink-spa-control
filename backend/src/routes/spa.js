@@ -1,6 +1,6 @@
 import express from 'express';
 import iaqualinkService from '../services/iaqualink.js';
-import { isLocationAllowed } from '../services/location.js';
+import { isLocationAllowed, locations } from '../services/location.js';
 
 const router = express.Router();
 
@@ -163,6 +163,10 @@ router.post('/shutdown', async (req, res) => {
 
 // Optional location check
 router.post('/check-location', (req, res) => {
+  if (!locations.length) {
+    return res.json({ allowed: true });
+  }
+
   const { latitude, longitude } = req.body;
   console.log(`\uD83D\uDCCD Checking location lat=${latitude} lon=${longitude}`);
   if (latitude === undefined || longitude === undefined) {
@@ -170,10 +174,12 @@ router.post('/check-location', (req, res) => {
   }
   const latNum = parseFloat(latitude);
   const lonNum = parseFloat(longitude);
-  console.log(`Location check: ${latNum}, ${lonNum}`);
   const allowed = isLocationAllowed(latNum, lonNum);
-  console.log(`Allowed: ${allowed}`);
   res.json({ allowed });
 });
+
+
+
+
 
 export default router;
