@@ -13,7 +13,7 @@ A Node.js/Express backend API server that interfaces with the iAqualink cloud se
 - **CORS**: Configurable CORS for frontend integration
 - **Scheduled Shutdown**: Cron job turns off all equipment nightly at 12 AM Pacific
 - **Auto Shutdown**: Spa turns off automatically 3 hours after activation
-- **Geo Restriction**: Location checks to restrict access
+- **Geo Restriction**: Optional location checks to restrict access
 
 ## API Endpoints
 
@@ -57,10 +57,12 @@ Returns information about available devices.
 ### GET /api/aux-status
 Returns current AUX circuit states including labels.
 
+### POST /api/check-location
+Verifies that provided `latitude` and `longitude` are within `ALLOWED_LOCATIONS`.
+Returns `{ "allowed": true }`.
+
 ### GET /health
 Health check endpoint.
-### POST /api/check-location
-Verify that the client's coordinates are allowed. Returns `{ "allowed": true }`.
 
 ### POST /api/shutdown
 Turns off all equipment. Useful for external schedulers.
@@ -104,7 +106,7 @@ Turns off all equipment. Useful for external schedulers.
 - `CORS_ORIGIN`: Frontend URL for CORS (default: http://localhost:3000)
 - `SESSION_TIMEOUT`: Session timeout in milliseconds (default: 43200000)
 - `JET_PUMP_COMMAND`: Device command for the spa jets (default: `aux_4`)
-- `ALLOWED_LOCATIONS`: Semicolon separated latitude,longitude pairs allowed to access the app
+- `ALLOWED_LOCATIONS`: Semicolon separated latitude,longitude pairs
 - `HEARTBEAT_URL`: Optional URL pinged every 14 minutes to keep the service awake
 ### Render Cron Setup
 On Render's free tier the service sleeps after 15 minutes. Configure Render Cron jobs:

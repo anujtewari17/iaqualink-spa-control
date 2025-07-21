@@ -1,6 +1,6 @@
 import express from 'express';
 import iaqualinkService from '../services/iaqualink.js';
-import { isLocationAllowed } from "../services/location.js";
+import { isLocationAllowed } from '../services/location.js';
 
 const router = express.Router();
 
@@ -9,7 +9,6 @@ router.get('/status', async (req, res) => {
   try {
     const status = await iaqualinkService.getSpaStatus();
     res.json(status);
-    console.log(status);
   } catch (error) {
     console.error('Error getting spa status:', error);
     res.status(500).json({ 
@@ -43,7 +42,6 @@ function scheduleAutoShutdown() {
   }
   shutdownTimer = setTimeout(async () => {
     try {
-      console.log('\u23f0 Auto shutdown after 3h');
       await iaqualinkService.turnOffAllEquipment();
     } catch (err) {
       console.error('Auto shutdown failed:', err.message);
@@ -163,10 +161,7 @@ router.post('/shutdown', async (req, res) => {
   }
 });
 
-
-
-
-// Location check
+// Optional location check
 router.post('/check-location', (req, res) => {
   const { latitude, longitude } = req.body;
   console.log(`\uD83D\uDCCD Checking location lat=${latitude} lon=${longitude}`);
@@ -180,5 +175,9 @@ router.post('/check-location', (req, res) => {
   console.log(`\uD83D\uDCCD Location allowed: ${allowed}`);
   res.json({ allowed });
 });
+
+
+
+
 
 export default router;

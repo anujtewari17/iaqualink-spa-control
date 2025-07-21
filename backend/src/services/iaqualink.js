@@ -50,8 +50,8 @@ class IaqualinkService {
       this.userId = data.id;
       this.sessionId = data.session_id;
       this.lastLogin = Date.now();
-
       console.log('\u2705 Successfully logged in to iAqualink');
+
       return true;
     } catch (error) {
       console.error('❌ Login failed:', error.response?.data || error.message);
@@ -84,7 +84,9 @@ class IaqualinkService {
       if (!this.currentDevice) {
         throw new Error('No devices found in account');
       }
+
       console.log(`\ud83d\udcf1 Using device: ${this.currentDevice.name} (${this.currentDevice.serial_number})`);
+
       return this.devices;
     } catch (error) {
       console.error('❌ Failed to get devices:', error.response?.data || error.message);
@@ -157,17 +159,20 @@ class IaqualinkService {
       });
 
       const data = response.data;
+
       console.log('\ud83d\udcf1 Raw home_screen data:', JSON.stringify(data.home_screen, null, 2));
       const flatStatus = data.home_screen.reduce((acc, item) => ({ ...acc, ...item }), {});
 
       const auxKeys = Object.keys(flatStatus).filter(k => k.toLowerCase().startsWith('aux'));
       console.log('\ud83e\uddd0 Detected AUX keys:', auxKeys);
+
       const auxStates = {};
       auxKeys.forEach(key => {
         auxStates[key] = flatStatus[key];
-        console.log(`  ${key}:`, flatStatus[key]);
       });
+
       console.log('\ud83d\udee0 AUX circuit states:', auxStates);
+
 
       const normalize = (str) => str.replace(/[^a-z0-9]/gi, '').toLowerCase();
       const jetKey = auxKeys.find(k => normalize(k) === normalize(this.jetPumpCommand));
@@ -198,6 +203,7 @@ class IaqualinkService {
       };
 
       console.log('\u2705 Mapped Spa Status:', status);
+
       return status;
 
     } catch (error) {
@@ -230,8 +236,10 @@ class IaqualinkService {
           sessionID: this.sessionId
         }
       });
+
       console.log(`\ud83d\udd04 Toggled ${deviceName} successfully`);
       console.log('\ud83d\udcf1 Toggle response:', response.data);
+
       return response.data;
     } catch (error) {
       console.error(`❌ Failed to toggle ${deviceName}:`, error.response?.data || error.message);
@@ -252,7 +260,7 @@ class IaqualinkService {
           temp: temperature
         }
       });
-      console.log(`\ud83c\udf21\ufe0f Set spa temperature to ${temperature}\u00b0F successfully`);
+
       return response.data;
     } catch (error) {
       console.error(`❌ Failed to set spa temperature:`, error.response?.data || error.message);
