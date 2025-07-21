@@ -22,10 +22,16 @@ const parseLocations = () => {
 };
 
 export const locations = parseLocations();
+if (locations.length) {
+  console.log('📍 Allowed coordinates:', locations);
+} else {
+  console.log('📍 No location restrictions enabled');
+}
 
 const toRad = (v) => (v * Math.PI) / 180;
 
 export function isLocationAllowed(latitude, longitude, radiusKm = 0.2) {
+  console.log(`Incoming coordinates: ${latitude}, ${longitude}`);
   if (!locations.length) return true;
   return locations.some((loc) => {
     if (isNaN(loc.lat) || isNaN(loc.lon)) return false;
