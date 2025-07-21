@@ -187,8 +187,6 @@ const handleLogin = (key) => {
         <p>Guest Control Panel</p>
       </header>
 
-
-
       <main className="app-main">
         <TemperatureDisplay 
           airTemp={spaData.airTemp}

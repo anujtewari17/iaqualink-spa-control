@@ -242,6 +242,7 @@ Notes:
    curl https://your-backend-url.fly.dev/api/aux-status
    curl -X POST https://your-backend-url.fly.dev/api/check-location \
      -d '{"latitude":0,"longitude":0}' -H 'Content-Type: application/json'
+
    ```
 3. Verify iAqualink credentials in official app
 
