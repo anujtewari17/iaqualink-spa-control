@@ -55,13 +55,4 @@ export const setSpaTemperature = async (temperature) => {
   }
 };
 
-export const checkLocation = async (latitude, longitude) => {
-  try {
-    const res = await api.post('/api/check-location', { latitude, longitude });
-    return res.data.allowed;
-  } catch (error) {
-    throw new Error('Failed to verify location');
-  }
-};
-
 export default api;

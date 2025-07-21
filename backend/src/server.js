@@ -13,7 +13,8 @@ import axios from 'axios';
 dotenv.config();
 
 const app = express();
-app.set('trust proxy', 1); 
+app.set('trust proxy', 1);
+app.disable('x-powered-by');
 const PORT = process.env.PORT || 3001;
 
 // Rate limiting
@@ -35,8 +36,19 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// Basic request logging
+app.use((req, res, next) => {
+  console.log(
+    `[${new Date().toISOString()}] ${req.ip} ${req.method} ${req.originalUrl}`
+  );
+  if (req.body && Object.keys(req.body).length) {
+    console.log('  Body:', JSON.stringify(req.body));
+  }
+  next();
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -61,9 +73,9 @@ app.use('*', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🌊 iAqualink Spa Control Backend running on port ${PORT}`);
-  console.log(`📡 CORS enabled for: ${corsOptions.origin}`);
-  console.log(`🔐 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Server running on port ${PORT}`);
+  console.log(`CORS origin: ${corsOptions.origin}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
 // Cron job to turn off equipment nightly at 12 AM Pacific Time
@@ -71,8 +83,9 @@ cron.schedule(
   '0 0 * * *',
   async () => {
     try {
-      console.log('⏰ Nightly shutdown: turning off all equipment');
+      console.log('Nightly shutdown triggered');
       await iaqualinkService.turnOffAllEquipment();
+      console.log('Nightly shutdown completed');
     } catch (err) {
       console.error('Cron job failed:', err.message);
     }
@@ -85,7 +98,7 @@ const HEARTBEAT_URL = process.env.HEARTBEAT_URL || `http://localhost:${PORT}/hea
 cron.schedule('*/14 * * * *', async () => {
   try {
     await axios.get(HEARTBEAT_URL);
-    console.log('💓 Heartbeat ping');
+    console.log(`Heartbeat ping to ${HEARTBEAT_URL}`);
   } catch (err) {
     console.error('Heartbeat failed:', err.message);
   }

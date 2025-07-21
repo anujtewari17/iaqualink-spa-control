@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import SpaControls from './components/SpaControls';
 import TemperatureDisplay from './components/TemperatureDisplay';
 import Login from './components/Login';
-import { getSpaStatus, toggleSpaDevice, setSpaTemperature, checkLocation } from './services/spaAPI';
+import { getSpaStatus, toggleSpaDevice, setSpaTemperature } from './services/spaAPI';
 
 function App() {
   const [authenticated, setAuthenticated] = useState(
     !!localStorage.getItem('accessKey')
   );
-  const [locationAllowed, setLocationAllowed] = useState(null);
   const [spaData, setSpaData] = useState({
     spaMode: false,
     spaHeater: false,
@@ -24,40 +23,16 @@ function App() {
 
 const [loading, setLoading] = useState(true);
 
-  const verifyLocation = () => {
-    if (!navigator.geolocation) {
-      setLocationAllowed(false);
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const allowed = await checkLocation(
-            pos.coords.latitude,
-            pos.coords.longitude
-          );
-          setLocationAllowed(allowed);
-          if (allowed) fetchSpaStatus();
-        } catch (err) {
-          console.error('Location check failed', err);
-          setLocationAllowed(false);
-        }
-      },
-      () => setLocationAllowed(false)
-    );
-  };
-
 const handleLogin = (key) => {
   localStorage.setItem('accessKey', key);
   setAuthenticated(true);
-  verifyLocation();
+  fetchSpaStatus();
 };
 
   const fetchSpaStatus = async () => {
     if (!authenticated) return;
     try {
       const status = await getSpaStatus();
-      console.log('SPA STATUS RESPONSE:', status);
       setSpaData(prev => ({
         ...prev,
         spaMode: !!status.spaMode,
@@ -157,31 +132,16 @@ const handleLogin = (key) => {
 
   useEffect(() => {
     if (!authenticated) return;
-    if (locationAllowed === null) {
-      verifyLocation();
-      return;
-    }
-    if (!locationAllowed) return;
     fetchSpaStatus();
 
     // Set up auto-refresh every 5 seconds
     const interval = setInterval(fetchSpaStatus, 5000);
 
     return () => clearInterval(interval);
-  }, [authenticated, locationAllowed]);
+  }, [authenticated]);
 
   if (!authenticated) {
     return <Login onLogin={handleLogin} />;
-  }
-
-  if (locationAllowed === false) {
-    return (
-      <div className="app">
-        <div className="loading">
-          <p>Location not authorized.</p>
-        </div>
-      </div>
-    );
   }
 
   if (loading && !spaData.lastUpdate) {
@@ -201,6 +161,8 @@ const handleLogin = (key) => {
         <h1>🌊 Spa Control</h1>
         <p>Guest Control Panel</p>
       </header>
+
+
 
       <main className="app-main">
         <TemperatureDisplay 
