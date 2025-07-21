@@ -69,5 +69,4 @@ export const getActiveKeys = async () => {
   return res.data.reservations;
 };
 
-
 export default api;

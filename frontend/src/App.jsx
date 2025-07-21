@@ -35,7 +35,6 @@ function App() {
   });
 
 const [loading, setLoading] = useState(true);
-
   const verifyLocation = () => {
     if (!navigator.geolocation) {
       setLocationAllowed(true); // treat as allowed when geolocation unsupported
@@ -193,12 +192,14 @@ const handleLogin = (key) => {
     return <Login onLogin={handleLogin} />;
   }
 
-  const guestPage = (
+ const guestPage = (
     <div className="app">
       <header className="app-header">
         <h1>🌊 Spa Control</h1>
         <p>Guest Control Panel</p>
       </header>
+
+
 
       <main className="app-main">
         <TemperatureDisplay
