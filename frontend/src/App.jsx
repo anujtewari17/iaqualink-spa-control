@@ -9,7 +9,7 @@ import {
   toggleSpaDevice,
   setSpaTemperature,
   checkLocation,
-  getActiveKeys
+  getAllKeys
 } from './services/spaAPI';
 
 function App() {
@@ -60,7 +60,7 @@ const [loading, setLoading] = useState(true);
 
   const checkAdmin = async () => {
     try {
-      const res = await getActiveKeys();
+      const res = await getAllKeys();
       setReservations(res);
       setIsAdmin(true);
       return true;
@@ -202,6 +202,7 @@ const handleLogin = (key) => {
       <header className="app-header">
         <h1>🌊 Spa Control</h1>
         <p>Guest Control Panel</p>
+        {isAdmin && <a className="admin-link" href="/admin">Admin</a>}
       </header>
 
 

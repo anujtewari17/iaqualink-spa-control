@@ -154,3 +154,11 @@ h2{
   border:1px solid rgba(255,255,255,.4);
   padding:.5rem 1rem;
 }
+
+.admin-link{
+  color:#fff;
+  text-decoration:underline;
+  font-size:.9rem;
+  display:block;
+  margin-top:.5rem;
+}
