@@ -59,7 +59,16 @@ Returns current AUX circuit states including labels.
 
 ### POST /api/check-location
 Verifies that provided `latitude` and `longitude` are within `ALLOWED_LOCATIONS`
-using the optional `LOCATION_RADIUS_KM` distance. Returns `{ "allowed": true }`.
+using the optional `LOCATION_RADIUS_KM` distance. If no locations are configured,
+the endpoint always returns `{ "allowed": true }`.
+
+### GET /api/keys
+Returns a list of currently active reservation codes. Requires the admin
+`ACCESS_KEY`.
+
+### GET /api/keys
+Returns a list of currently active reservation codes. Requires the admin
+`ACCESS_KEY`.
 
 ### GET /api/keys
 Returns a list of currently active reservation codes. Requires the admin
@@ -110,7 +119,7 @@ Turns off all equipment. Useful for external schedulers.
 - `CORS_ORIGIN`: Frontend URL for CORS (default: http://localhost:3000)
 - `SESSION_TIMEOUT`: Session timeout in milliseconds (default: 43200000)
 - `JET_PUMP_COMMAND`: Device command for the spa jets (default: `aux_4`)
-- `ALLOWED_LOCATIONS`: Semicolon separated latitude,longitude pairs
+- `ALLOWED_LOCATIONS`: Semicolon separated latitude,longitude pairs. Leave empty to disable checks
 - `LOCATION_RADIUS_KM`: Radius in kilometers for location checks (default: 1)
 - `HEARTBEAT_URL`: Optional URL pinged every 14 minutes to keep the service awake
 - `ICS_FEED_URL`: Airbnb iCal feed URL used to generate guest access codes
