@@ -115,6 +115,9 @@ fly secrets set IAQUALINK_PASSWORD=your_password
 IAQUALINK_USERNAME=your.email@example.com
 IAQUALINK_PASSWORD=your_password
 
+# Required for API security
+ACCESS_KEY=your_secret_key
+
 # Optional
 IAQUALINK_DEVICE_ID=device_serial_if_multiple
 PORT=3001

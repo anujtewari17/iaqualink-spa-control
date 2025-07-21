@@ -1,6 +1,8 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
 
+const http = axios.create({ timeout: 10000 });
+
 dotenv.config();
 
 class IaqualinkService {
@@ -19,7 +21,7 @@ class IaqualinkService {
         'JET_PUMP_COMMAND not set - defaulting jet pump to aux_4. Set JET_PUMP_COMMAND in the .env file if jets use a different circuit.'
       );
     } else {
-      console.log(`💧 Jet pump command mapped to ${this.jetPumpCommand}`);
+      console.log(`\ud83d\udca7 Jet pump command mapped to ${this.jetPumpCommand}`);
     }
 
     this.sessionId = null;
@@ -37,7 +39,7 @@ class IaqualinkService {
 
   async login() {
     try {
-      const response = await axios.post(`${this.apiBase}/users/v1/login`, {
+      const response = await http.post(`${this.apiBase}/users/v1/login`, {
         api_key: 'EOOEMOW4YR6QNB07', // Standard API key for iAqualink
         email: this.username,
         password: this.password
@@ -49,7 +51,7 @@ class IaqualinkService {
       this.sessionId = data.session_id;
       this.lastLogin = Date.now();
 
-      console.log('✅ Successfully logged in to iAqualink');
+      console.log('\u2705 Successfully logged in to iAqualink');
       return true;
     } catch (error) {
       console.error('❌ Login failed:', error.response?.data || error.message);
@@ -59,7 +61,7 @@ class IaqualinkService {
 
   async getDevices() {
     try {
-      const response = await axios.get(this.devicesUrl, {
+      const response = await http.get(this.devicesUrl, {
         params: {
           api_key: 'EOOEMOW4YR6QNB07',
           authentication_token: this.authToken,
@@ -82,8 +84,7 @@ class IaqualinkService {
       if (!this.currentDevice) {
         throw new Error('No devices found in account');
       }
-
-      console.log(`📱 Using device: ${this.currentDevice.name} (${this.currentDevice.serial_number})`);
+      console.log(`\ud83d\udcf1 Using device: ${this.currentDevice.name} (${this.currentDevice.serial_number})`);
       return this.devices;
     } catch (error) {
       console.error('❌ Failed to get devices:', error.response?.data || error.message);
@@ -105,7 +106,7 @@ class IaqualinkService {
   async getDeviceStatus() {
     await this.ensureAuthenticated();
     try {
-      const response = await axios.get(this.sessionUrl, {
+      const response = await http.get(this.sessionUrl, {
         params: {
           actionID: 'command',
           command: 'get_devices',
@@ -146,7 +147,7 @@ class IaqualinkService {
     await this.ensureAuthenticated();
 
     try {
-      const response = await axios.get(this.sessionUrl, {
+      const response = await http.get(this.sessionUrl, {
         params: {
           actionID: 'command',
           command: 'get_home',
@@ -156,17 +157,17 @@ class IaqualinkService {
       });
 
       const data = response.data;
-      console.log('📡 Raw home_screen data:', JSON.stringify(data.home_screen, null, 2));
+      console.log('\ud83d\udcf1 Raw home_screen data:', JSON.stringify(data.home_screen, null, 2));
       const flatStatus = data.home_screen.reduce((acc, item) => ({ ...acc, ...item }), {});
 
       const auxKeys = Object.keys(flatStatus).filter(k => k.toLowerCase().startsWith('aux'));
-      console.log('🧩 Detected AUX keys:', auxKeys);
+      console.log('\ud83e\uddd0 Detected AUX keys:', auxKeys);
       const auxStates = {};
       auxKeys.forEach(key => {
         auxStates[key] = flatStatus[key];
         console.log(`  ${key}:`, flatStatus[key]);
       });
-      console.log('🛠 AUX circuit states:', auxStates);
+      console.log('\ud83d\udee0 AUX circuit states:', auxStates);
 
       const normalize = (str) => str.replace(/[^a-z0-9]/gi, '').toLowerCase();
       const jetKey = auxKeys.find(k => normalize(k) === normalize(this.jetPumpCommand));
@@ -197,7 +198,7 @@ class IaqualinkService {
         auxCircuits: auxDetails
       };
 
-      console.log('✅ Mapped Spa Status:', status);
+      console.log('\u2705 Mapped Spa Status:', status);
       return status;
 
     } catch (error) {
@@ -222,7 +223,7 @@ class IaqualinkService {
     }
 
     try {
-      const response = await axios.get(this.sessionUrl, {
+      const response = await http.get(this.sessionUrl, {
         params: {
           actionID: 'command',
           command: 'set_' + command,
@@ -230,9 +231,8 @@ class IaqualinkService {
           sessionID: this.sessionId
         }
       });
-
-      console.log(`🔄 Toggled ${deviceName} successfully`);
-      console.log('📡 Toggle response:', response.data);
+      console.log(`\ud83d\udd04 Toggled ${deviceName} successfully`);
+      console.log('\ud83d\udcf1 Toggle response:', response.data);
       return response.data;
     } catch (error) {
       console.error(`❌ Failed to toggle ${deviceName}:`, error.response?.data || error.message);
@@ -244,7 +244,7 @@ class IaqualinkService {
     await this.ensureAuthenticated();
 
     try {
-      const response = await axios.get(this.sessionUrl, {
+      const response = await http.get(this.sessionUrl, {
         params: {
           actionID: 'command',
           command: 'set_spa_set_point',
@@ -253,8 +253,7 @@ class IaqualinkService {
           temp: temperature
         }
       });
-
-      console.log(`🌡️ Set spa temperature to ${temperature}°F successfully`);
+      console.log(`\ud83c\udf21\ufe0f Set spa temperature to ${temperature}\u00b0F successfully`);
       return response.data;
     } catch (error) {
       console.error(`❌ Failed to set spa temperature:`, error.response?.data || error.message);
