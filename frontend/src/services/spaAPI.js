@@ -64,5 +64,10 @@ export const checkLocation = async (latitude, longitude) => {
   }
 };
 
+export const getActiveKeys = async () => {
+  const res = await api.get('/api/keys');
+  return res.data.reservations;
+};
+
 
 export default api;
