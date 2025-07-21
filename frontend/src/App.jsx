@@ -18,7 +18,8 @@ function App() {
   const [authenticated, setAuthenticated] = useState(
     !!localStorage.getItem('accessKey')
   );
-  const [isAdmin, setIsAdmin] = useState(false);
+  // null -> checking, true -> admin, false -> guest
+  const [isAdmin, setIsAdmin] = useState(null);
   const [reservations, setReservations] = useState([]);
   const [locationAllowed, setLocationAllowed] = useState(null);
   const [spaData, setSpaData] = useState({
@@ -181,6 +182,11 @@ const handleLogin = (key) => {
   }, [authenticated]);
 
   useEffect(() => {
+   if (!authenticated || !isAdminRoute) return;
+    checkAdmin();
+  }, [authenticated, isAdminRoute]);
+
+  useEffect(() => {
     if (!authenticated || isAdminRoute) return;
     verifyLocation();
     fetchSpaStatus();
@@ -191,8 +197,7 @@ const handleLogin = (key) => {
   if (!authenticated) {
     return <Login onLogin={handleLogin} />;
   }
-
- const guestPage = (
+  const guestPage = (
     <div className="app">
       <header className="app-header">
         <h1>🌊 Spa Control</h1>
@@ -242,7 +247,13 @@ const handleLogin = (key) => {
       <Route
         path="/admin"
         element={
-          isAdmin ? <AdminPanel reservations={reservations} /> : <Navigate to="/" />
+         isAdmin === null ? (
+            loadingScreen
+          ) : isAdmin ? (
+            <AdminPanel reservations={reservations} />
+          ) : (
+            <Navigate to="/" />
+          )
         }
       />
       <Route
