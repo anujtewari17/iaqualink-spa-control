@@ -64,4 +64,5 @@ export const checkLocation = async (latitude, longitude) => {
   }
 };
 
+
 export default api;
