@@ -173,12 +173,7 @@ router.post('/check-location', (req, res) => {
   console.log(`Location check: ${latNum}, ${lonNum}`);
   const allowed = isLocationAllowed(latNum, lonNum);
   console.log(`Allowed: ${allowed}`);
-]
   res.json({ allowed });
 });
-
-
-
-
 
 export default router;
