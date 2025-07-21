@@ -61,6 +61,7 @@ Returns current AUX circuit states including labels.
 Verifies that provided `latitude` and `longitude` are within `ALLOWED_LOCATIONS`
 using the optional `LOCATION_RADIUS_KM` distance. Returns `{ "allowed": true }`.
 
+
 ### GET /health
 Health check endpoint.
 

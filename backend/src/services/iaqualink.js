@@ -20,6 +20,10 @@ class IaqualinkService {
       console.warn(
         'JET_PUMP_COMMAND not set - defaulting jet pump to aux_4. Set JET_PUMP_COMMAND in the .env file if jets use a different circuit.'
       );
+
+    } else {
+      console.log(`\ud83d\udca7 Jet pump command mapped to ${this.jetPumpCommand}`);
+
     }
 
     this.sessionId = null;
@@ -48,6 +52,7 @@ class IaqualinkService {
       this.userId = data.id;
       this.sessionId = data.session_id;
       this.lastLogin = Date.now();
+      console.log('\u2705 Successfully logged in to iAqualink');
 
       return true;
     } catch (error) {
@@ -156,10 +161,12 @@ class IaqualinkService {
       const flatStatus = data.home_screen.reduce((acc, item) => ({ ...acc, ...item }), {});
 
       const auxKeys = Object.keys(flatStatus).filter(k => k.toLowerCase().startsWith('aux'));
+
       const auxStates = {};
       auxKeys.forEach(key => {
         auxStates[key] = flatStatus[key];
       });
+
 
       const normalize = (str) => str.replace(/[^a-z0-9]/gi, '').toLowerCase();
       const jetKey = auxKeys.find(k => normalize(k) === normalize(this.jetPumpCommand));
@@ -188,6 +195,7 @@ class IaqualinkService {
         lastUpdate: new Date().toISOString(),
         auxCircuits: auxDetails
       };
+
 
       return status;
 
@@ -221,6 +229,7 @@ class IaqualinkService {
           sessionID: this.sessionId
         }
       });
+
       return response.data;
     } catch (error) {
       console.error(`❌ Failed to toggle ${deviceName}:`, error.response?.data || error.message);
@@ -241,6 +250,7 @@ class IaqualinkService {
           temp: temperature
         }
       });
+
       return response.data;
     } catch (error) {
       console.error(`❌ Failed to set spa temperature:`, error.response?.data || error.message);

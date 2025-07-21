@@ -128,8 +128,6 @@ CORS_ORIGIN=https://username.github.io
 JET_PUMP_COMMAND=aux_4
 # Semicolon separated latitude,longitude pairs allowed to use the app
 ALLOWED_LOCATIONS=
-# Distance in km allowed from each location (default 1km)
-LOCATION_RADIUS_KM=1
 # Optional URL to ping every 14 minutes to keep the backend awake
 HEARTBEAT_URL=
 
@@ -242,6 +240,7 @@ Notes:
    curl https://your-backend-url.fly.dev/api/aux-status
    curl -X POST https://your-backend-url.fly.dev/api/check-location \
      -d '{"latitude":0,"longitude":0}' -H 'Content-Type: application/json'
+
    ```
 3. Verify iAqualink credentials in official app
 
