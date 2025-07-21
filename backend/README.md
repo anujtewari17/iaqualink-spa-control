@@ -13,7 +13,7 @@ A Node.js/Express backend API server that interfaces with the iAqualink cloud se
 - **CORS**: Configurable CORS for frontend integration
 - **Scheduled Shutdown**: Cron job turns off all equipment nightly at 12 AM Pacific
 - **Auto Shutdown**: Spa turns off automatically 3 hours after activation
-- **Geo Restriction**: Location checks to restrict access
+- **Geo Restriction**: Optional location checks to restrict access
 
 ## API Endpoints
 
@@ -54,10 +54,16 @@ Toggles a spa device on/off.
 ### GET /api/devices
 Returns information about available devices.
 
+### GET /api/aux-status
+Returns current AUX circuit states including labels.
+
+### POST /api/check-location
+Verifies that provided `latitude` and `longitude` are within `ALLOWED_LOCATIONS`
+using the optional `LOCATION_RADIUS_KM` distance. If no locations are configured,
+the endpoint always returns `{ "allowed": true }`.
+
 ### GET /health
 Health check endpoint.
-### POST /api/check-location
-Verify that the client's coordinates are allowed. Returns `{ "allowed": true }`.
 
 ### POST /api/shutdown
 Turns off all equipment. Useful for external schedulers.
@@ -93,15 +99,16 @@ Turns off all equipment. Useful for external schedulers.
 ### Required
 - `IAQUALINK_USERNAME`: Your iAqualink account email
 - `IAQUALINK_PASSWORD`: Your iAqualink account password
+- `ACCESS_KEY`: Secret key required in `x-access-key` header for all API requests
 
 ### Optional
 - `IAQUALINK_DEVICE_ID`: Specific device serial (if multiple devices)
 - `PORT`: Server port (default: 3001)
 - `CORS_ORIGIN`: Frontend URL for CORS (default: http://localhost:3000)
 - `SESSION_TIMEOUT`: Session timeout in milliseconds (default: 43200000)
-- `ACCESS_KEY`: Optional key required in `x-access-key` header for all API requests
 - `JET_PUMP_COMMAND`: Device command for the spa jets (default: `aux_4`)
-- `ALLOWED_LOCATIONS`: Semicolon separated latitude,longitude pairs allowed to access the app
+- `ALLOWED_LOCATIONS`: Semicolon separated latitude,longitude pairs. Leave empty to disable checks
+- `LOCATION_RADIUS_KM`: Radius in kilometers for location checks (default: 1)
 - `HEARTBEAT_URL`: Optional URL pinged every 14 minutes to keep the service awake
 ### Render Cron Setup
 On Render's free tier the service sleeps after 15 minutes. Configure Render Cron jobs:
