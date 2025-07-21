@@ -39,6 +39,11 @@ npm run build
 
 The built files will be in the `dist` directory.
 
+To rebuild the app and copy the output to the repository `docs/` folder, run:
+```bash
+npm run deploy
+```
+
 ## GitHub Pages Deployment
 
 1. Push your code to GitHub
