@@ -32,6 +32,7 @@ class AccessKeyService {
           });
         }
       }
+      reservations.sort((a, b) => a.start - b.start);
       this.reservations = reservations;
       console.log(`Loaded ${reservations.length} reservations from calendar`);
     } catch (err) {
@@ -41,7 +42,11 @@ class AccessKeyService {
 
   generateCode(start, end) {
     const pad = (n) => String(n).padStart(2, '0');
-    return `${pad(start.getDate())}${pad(end.getDate())}`;
+    const sm = pad(start.getMonth() + 1);
+    const sd = pad(start.getDate());
+    const em = pad(end.getMonth() + 1);
+    const ed = pad(end.getDate());
+    return `${sm}${sd}${em}${ed}`;
   }
 
   isActive(reservation) {
