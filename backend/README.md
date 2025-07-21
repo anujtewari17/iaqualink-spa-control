@@ -66,6 +66,10 @@ the endpoint always returns `{ "allowed": true }`.
 Returns a list of currently active reservation codes. Requires the admin
 `ACCESS_KEY`.
 
+### GET /api/keys
+Returns a list of currently active reservation codes. Requires the admin
+`ACCESS_KEY`.
+
 ### GET /health
 Health check endpoint.
 

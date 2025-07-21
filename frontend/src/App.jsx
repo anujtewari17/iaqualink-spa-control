@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import SpaControls from './components/SpaControls';
 import TemperatureDisplay from './components/TemperatureDisplay';
 import Login from './components/Login';
@@ -12,6 +13,8 @@ import {
 } from './services/spaAPI';
 
 function App() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
   const [authenticated, setAuthenticated] = useState(
     !!localStorage.getItem('accessKey')
   );
@@ -69,12 +72,6 @@ const [loading, setLoading] = useState(true);
 const handleLogin = (key) => {
   localStorage.setItem('accessKey', key);
   setAuthenticated(true);
-  checkAdmin().then((admin) => {
-    if (!admin) {
-      verifyLocation();
-      fetchSpaStatus();
-    }
-  });
 };
 
   const fetchSpaStatus = async () => {
@@ -180,38 +177,22 @@ const handleLogin = (key) => {
 
   useEffect(() => {
     if (!authenticated) return;
-    if (!isAdmin) {
-      verifyLocation();
-      fetchSpaStatus();
-    }
+    checkAdmin();
+  }, [authenticated]);
 
-    const interval = isAdmin ? null : setInterval(fetchSpaStatus, 5000);
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [authenticated, isAdmin]);
+  useEffect(() => {
+    if (!authenticated || isAdminRoute) return;
+    verifyLocation();
+    fetchSpaStatus();
+    const interval = setInterval(fetchSpaStatus, 5000);
+    return () => clearInterval(interval);
+  }, [authenticated, isAdminRoute]);
 
   if (!authenticated) {
     return <Login onLogin={handleLogin} />;
   }
 
-  if (loading && !spaData.lastUpdate) {
-    return (
-      <div className="app">
-        <div className="loading">
-          <div className="spinner"></div>
-          <p>Connecting to spa system...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (isAdmin) {
-    return <AdminPanel reservations={reservations} />;
-  }
-
-  return (
+ const guestPage = (
     <div className="app">
       <header className="app-header">
         <h1>🌊 Spa Control</h1>
@@ -245,6 +226,31 @@ const handleLogin = (key) => {
         <p>Status: {spaData.connected ? '🟢 Connected' : '🔴 Disconnected'}</p>
       </footer>
     </div>
+  );
+
+  const loadingScreen = (
+    <div className="app">
+      <div className="loading">
+        <div className="spinner"></div>
+        <p>Connecting to spa system...</p>
+      </div>
+    </div>
+  );
+
+  return (
+    <Routes>
+      <Route
+        path="/admin"
+        element={
+          isAdmin ? <AdminPanel reservations={reservations} /> : <Navigate to="/" />
+        }
+      />
+      <Route
+        path="/"
+        element={loading && !spaData.lastUpdate ? loadingScreen : guestPage}
+      />
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
   );
 }
 
