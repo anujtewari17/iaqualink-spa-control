@@ -110,6 +110,7 @@ Turns off all equipment. Useful for external schedulers.
 - `ALLOWED_LOCATIONS`: Semicolon separated latitude,longitude pairs. Leave empty to disable checks
 - `LOCATION_RADIUS_KM`: Radius in kilometers for location checks (default: 1)
 - `HEARTBEAT_URL`: Optional URL pinged every 14 minutes to keep the service awake
+- `ICS_FEED_URL`: Airbnb iCal feed URL used to generate guest access codes
 ### Render Cron Setup
 On Render's free tier the service sleeps after 15 minutes. Configure Render Cron jobs:
 1. **Heartbeat** – GET `/health` every 14 minutes to keep the service awake.

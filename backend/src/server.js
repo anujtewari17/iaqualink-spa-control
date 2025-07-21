@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import spaRoutes from './routes/spa.js';
+import keyRoutes from './routes/keys.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
 import cron from 'node-cron';
@@ -61,6 +62,7 @@ app.get('/health', (req, res) => {
 // API routes
 // Authentication middleware (uses ACCESS_KEY if set)
 app.use('/api', authMiddleware, spaRoutes);
+app.use('/api/keys', authMiddleware, keyRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
