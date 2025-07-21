@@ -183,6 +183,7 @@ class IaqualinkService {
         jetPumpActual = ['1', 1, 'on', 'ON', true].includes(auxState);
       }
 
+
       const status = {
         airTemp: parseInt(flatStatus.air_temp, 10) || null,
         spaTemp: parseInt(flatStatus.spa_temp || flatStatus.spa_set_point, 10) || null,
