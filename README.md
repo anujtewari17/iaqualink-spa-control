@@ -145,7 +145,8 @@ automatically after the end date.
 
 The admin key set in `ACCESS_KEY` lets your property manager access
 `/api/keys` to view all current and upcoming codes. Visit `/admin` with this key
-to see the management page.
+to see the management page. After running `npm run deploy` in the `frontend`
+folder, the compiled admin page can be found at `docs/admin/index.html`.
 
 
 ```
