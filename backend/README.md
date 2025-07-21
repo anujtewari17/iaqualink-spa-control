@@ -62,6 +62,10 @@ Verifies that provided `latitude` and `longitude` are within `ALLOWED_LOCATIONS`
 using the optional `LOCATION_RADIUS_KM` distance. If no locations are configured,
 the endpoint always returns `{ "allowed": true }`.
 
+### GET /api/keys
+Returns a list of currently active reservation codes. Requires the admin
+`ACCESS_KEY`.
+
 ### GET /health
 Health check endpoint.
 

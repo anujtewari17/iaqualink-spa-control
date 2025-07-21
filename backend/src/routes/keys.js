@@ -5,10 +5,14 @@ const router = express.Router();
 
 // List active access keys with reservation dates
 router.get('/', (req, res) => {
-  const reservations = accessKeyService.getActiveReservations().map(r => ({
+  const key = req.headers['x-access-key'];
+  if (key !== process.env.ACCESS_KEY) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  const reservations = accessKeyService.getActiveReservations().map((r) => ({
     code: r.code,
     start: r.start,
-    end: r.end
+    end: r.end,
   }));
   res.json({ reservations });
 });

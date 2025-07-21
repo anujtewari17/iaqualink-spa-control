@@ -2,12 +2,22 @@ import React, { useState, useEffect } from 'react';
 import SpaControls from './components/SpaControls';
 import TemperatureDisplay from './components/TemperatureDisplay';
 import Login from './components/Login';
-import { getSpaStatus, toggleSpaDevice, setSpaTemperature } from './services/spaAPI';
+import AdminPanel from './components/AdminPanel';
+import {
+  getSpaStatus,
+  toggleSpaDevice,
+  setSpaTemperature,
+  checkLocation,
+  getActiveKeys
+} from './services/spaAPI';
 
 function App() {
   const [authenticated, setAuthenticated] = useState(
     !!localStorage.getItem('accessKey')
   );
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [reservations, setReservations] = useState([]);
+  const [locationAllowed, setLocationAllowed] = useState(null);
   const [spaData, setSpaData] = useState({
     spaMode: false,
     spaHeater: false,
@@ -22,11 +32,49 @@ function App() {
   });
 
 const [loading, setLoading] = useState(true);
+  const verifyLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationAllowed(true); // treat as allowed when geolocation unsupported
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const allowed = await checkLocation(
+            pos.coords.latitude,
+            pos.coords.longitude
+          );
+          setLocationAllowed(allowed);
+        } catch (err) {
+          console.error('Location check failed', err);
+          setLocationAllowed(true); // default to allowed on error
+        }
+      },
+      () => setLocationAllowed(true)
+    );
+  };
+
+  const checkAdmin = async () => {
+    try {
+      const res = await getActiveKeys();
+      setReservations(res);
+      setIsAdmin(true);
+      return true;
+    } catch (err) {
+      setIsAdmin(false);
+      return false;
+    }
+  };
 
 const handleLogin = (key) => {
   localStorage.setItem('accessKey', key);
   setAuthenticated(true);
-  fetchSpaStatus();
+  checkAdmin().then((admin) => {
+    if (!admin) {
+      verifyLocation();
+      fetchSpaStatus();
+    }
+  });
 };
 
   const fetchSpaStatus = async () => {
@@ -132,13 +180,17 @@ const handleLogin = (key) => {
 
   useEffect(() => {
     if (!authenticated) return;
-    fetchSpaStatus();
+    if (!isAdmin) {
+      verifyLocation();
+      fetchSpaStatus();
+    }
 
-    // Set up auto-refresh every 5 seconds
-    const interval = setInterval(fetchSpaStatus, 5000);
+    const interval = isAdmin ? null : setInterval(fetchSpaStatus, 5000);
 
-    return () => clearInterval(interval);
-  }, [authenticated]);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [authenticated, isAdmin]);
 
   if (!authenticated) {
     return <Login onLogin={handleLogin} />;
@@ -155,6 +207,10 @@ const handleLogin = (key) => {
     );
   }
 
+  if (isAdmin) {
+    return <AdminPanel reservations={reservations} />;
+  }
+
   return (
     <div className="app">
       <header className="app-header">
@@ -165,7 +221,7 @@ const handleLogin = (key) => {
 
 
       <main className="app-main">
-        <TemperatureDisplay 
+        <TemperatureDisplay
           airTemp={spaData.airTemp}
           spaTemp={spaData.spaTemp}
           poolTemp={spaData.poolTemp}
@@ -173,7 +229,7 @@ const handleLogin = (key) => {
           onTemperatureChange={handleTemperatureChange}
           disabled={loading}
         />
-        
+
         <SpaControls
           spaMode={spaData.spaMode}
           spaHeater={spaData.spaHeater}
