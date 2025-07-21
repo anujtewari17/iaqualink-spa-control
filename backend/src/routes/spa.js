@@ -19,6 +19,20 @@ router.get('/status', async (req, res) => {
   }
 });
 
+// Get AUX circuit status
+router.get('/aux-status', async (req, res) => {
+  try {
+    const aux = await iaqualinkService.getDeviceStatus();
+    res.json(aux);
+  } catch (error) {
+    console.error('Error getting aux status:', error);
+    res.status(500).json({
+      error: 'Failed to retrieve aux status',
+      message: error.message,
+    });
+  }
+});
+
 // Toggle spa device
 let shutdownTimer = null;
 const AUTO_SHUTDOWN_MS = 3 * 60 * 60 * 1000; // 3 hours
@@ -29,7 +43,7 @@ function scheduleAutoShutdown() {
   }
   shutdownTimer = setTimeout(async () => {
     try {
-      console.log('⏰ Auto shutdown after 3h');
+      console.log('\u23f0 Auto shutdown after 3h');
       await iaqualinkService.turnOffAllEquipment();
     } catch (err) {
       console.error('Auto shutdown failed:', err.message);
@@ -155,10 +169,15 @@ router.post('/shutdown', async (req, res) => {
 // Location check
 router.post('/check-location', (req, res) => {
   const { latitude, longitude } = req.body;
+  console.log(`\uD83D\uDCCD Checking location lat=${latitude} lon=${longitude}`);
   if (latitude === undefined || longitude === undefined) {
     return res.status(400).json({ error: 'Missing coordinates' });
   }
-  const allowed = isLocationAllowed(parseFloat(latitude), parseFloat(longitude));
+  const allowed = isLocationAllowed(
+    parseFloat(latitude),
+    parseFloat(longitude)
+  );
+  console.log(`\uD83D\uDCCD Location allowed: ${allowed}`);
   res.json({ allowed });
 });
 
