@@ -1,6 +1,6 @@
 import express from 'express';
 import iaqualinkService from '../services/iaqualink.js';
-import { isLocationAllowed } from "../services/location.js";
+import { isLocationAllowed } from '../services/location.js';
 
 const router = express.Router();
 
@@ -9,12 +9,25 @@ router.get('/status', async (req, res) => {
   try {
     const status = await iaqualinkService.getSpaStatus();
     res.json(status);
-    console.log(status);
   } catch (error) {
     console.error('Error getting spa status:', error);
     res.status(500).json({ 
       error: 'Failed to retrieve spa status',
       message: error.message 
+    });
+  }
+});
+
+// Get AUX circuit status
+router.get('/aux-status', async (req, res) => {
+  try {
+    const aux = await iaqualinkService.getDeviceStatus();
+    res.json(aux);
+  } catch (error) {
+    console.error('Error getting aux status:', error);
+    res.status(500).json({
+      error: 'Failed to retrieve aux status',
+      message: error.message,
     });
   }
 });
@@ -29,7 +42,6 @@ function scheduleAutoShutdown() {
   }
   shutdownTimer = setTimeout(async () => {
     try {
-      console.log('⏰ Auto shutdown after 3h');
       await iaqualinkService.turnOffAllEquipment();
     } catch (err) {
       console.error('Auto shutdown failed:', err.message);
@@ -149,10 +161,7 @@ router.post('/shutdown', async (req, res) => {
   }
 });
 
-
-
-
-// Location check
+// Optional location check
 router.post('/check-location', (req, res) => {
   const { latitude, longitude } = req.body;
   if (latitude === undefined || longitude === undefined) {
@@ -161,5 +170,9 @@ router.post('/check-location', (req, res) => {
   const allowed = isLocationAllowed(parseFloat(latitude), parseFloat(longitude));
   res.json({ allowed });
 });
+
+
+
+
 
 export default router;

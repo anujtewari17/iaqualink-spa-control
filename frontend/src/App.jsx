@@ -37,7 +37,6 @@ const [loading, setLoading] = useState(true);
             pos.coords.longitude
           );
           setLocationAllowed(allowed);
-          if (allowed) fetchSpaStatus();
         } catch (err) {
           console.error('Location check failed', err);
           setLocationAllowed(false);
@@ -51,13 +50,13 @@ const handleLogin = (key) => {
   localStorage.setItem('accessKey', key);
   setAuthenticated(true);
   verifyLocation();
+  fetchSpaStatus();
 };
 
   const fetchSpaStatus = async () => {
     if (!authenticated) return;
     try {
       const status = await getSpaStatus();
-      console.log('SPA STATUS RESPONSE:', status);
       setSpaData(prev => ({
         ...prev,
         spaMode: !!status.spaMode,
@@ -157,31 +156,17 @@ const handleLogin = (key) => {
 
   useEffect(() => {
     if (!authenticated) return;
-    if (locationAllowed === null) {
-      verifyLocation();
-      return;
-    }
-    if (!locationAllowed) return;
+    verifyLocation();
     fetchSpaStatus();
 
     // Set up auto-refresh every 5 seconds
     const interval = setInterval(fetchSpaStatus, 5000);
 
     return () => clearInterval(interval);
-  }, [authenticated, locationAllowed]);
+  }, [authenticated]);
 
   if (!authenticated) {
     return <Login onLogin={handleLogin} />;
-  }
-
-  if (locationAllowed === false) {
-    return (
-      <div className="app">
-        <div className="loading">
-          <p>Location not authorized.</p>
-        </div>
-      </div>
-    );
   }
 
   if (loading && !spaData.lastUpdate) {
@@ -201,6 +186,10 @@ const handleLogin = (key) => {
         <h1>🌊 Spa Control</h1>
         <p>Guest Control Panel</p>
       </header>
+
+      {locationAllowed === false && (
+        <p className="warning">Location not authorized</p>
+      )}
 
       <main className="app-main">
         <TemperatureDisplay 

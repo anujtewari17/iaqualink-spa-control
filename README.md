@@ -40,6 +40,8 @@ npm run build
 - 🛡️ **Session Management**: Automatic token refresh
 - 🌊 **Spa API**: RESTful endpoints for spa control
 - 📊 **Status Monitoring**: Real-time temperature and device status
+- 🔌 **AUX Status API**: Query circuit states including jets
+- 📍 **Location Check**: Optional geo verification for app access
 - 🚦 **Rate Limiting**: Built-in API protection
 - 🔗 **CORS**: Configurable cross-origin support
 
@@ -114,6 +116,9 @@ fly secrets set IAQUALINK_PASSWORD=your_password
 IAQUALINK_USERNAME=your.email@example.com
 IAQUALINK_PASSWORD=your_password
 
+# Required for API security
+ACCESS_KEY=your_secret_key
+
 # Optional
 IAQUALINK_DEVICE_ID=device_serial_if_multiple
 PORT=3001
@@ -121,8 +126,10 @@ PORT=3001
 CORS_ORIGIN=https://username.github.io
 # Set to the AUX circuit number that controls your jets (e.g. aux_4)
 JET_PUMP_COMMAND=aux_4
-# Semicolon separated latitude,longitude coordinates allowed to use the app
-ALLOWED_LOCATIONS=37.7749,-122.4194;34.0522,-118.2437
+# Semicolon separated latitude,longitude pairs allowed to use the app
+ALLOWED_LOCATIONS=
+# Distance in km allowed from each location (default 1km)
+LOCATION_RADIUS_KM=1
 # Optional URL to ping every 14 minutes to keep the backend awake
 HEARTBEAT_URL=
 
@@ -142,7 +149,6 @@ VITE_BACKEND_URL=https://your-backend-url.fly.dev
 - **Rate limiting**: 100 requests per 15 minutes
 - **Input validation**: Sanitized API parameters
 - **Session management**: Automatic token refresh
-- **Location checks**: Optional geo restriction for frontend access
 - **Nightly shutdown**: Cron job turns off equipment at midnight
 - **Auto shutdown**: Spa turns off automatically 3 hours after being activated
 - **Render cron**: Scheduled jobs keep the free-tier backend awake
@@ -233,6 +239,9 @@ Notes:
 2. Test API endpoints directly:
    ```bash
    curl https://your-backend-url.fly.dev/api/status
+   curl https://your-backend-url.fly.dev/api/aux-status
+   curl -X POST https://your-backend-url.fly.dev/api/check-location \
+     -d '{"latitude":0,"longitude":0}' -H 'Content-Type: application/json'
    ```
 3. Verify iAqualink credentials in official app
 
