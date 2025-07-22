@@ -8,7 +8,7 @@ function formatDate(dateStr) {
 const AdminPanel = ({ reservations }) => {
   return (
     <div className="admin-panel">
-      <h2>Guest Access Links</h2>
+     <h2>Guest Access Links</h2>
       <table className="keys-table">
         <thead>
           <tr>

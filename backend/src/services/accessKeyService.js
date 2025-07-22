@@ -48,7 +48,7 @@ class AccessKeyService {
     const em = pad(end.getMonth() + 1);
     const ed = pad(end.getDate());
     return `${sm}${sd}${em}${ed}`;
-  }
+}
 
   generateUrl(code) {
     if (!this.frontendUrl) return null;
