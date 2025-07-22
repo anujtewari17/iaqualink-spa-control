@@ -11,6 +11,7 @@ router.get('/', (req, res) => {
   }
   const reservations = accessKeyService.getAllReservations().map((r) => ({
     code: r.code,
+    url: r.url,
     start: r.start,
     end: r.end,
   }));
