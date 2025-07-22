@@ -96,7 +96,7 @@ cron.schedule(
 
 // Heartbeat to keep Render service awake
 const HEARTBEAT_URL = process.env.HEARTBEAT_URL || `http://localhost:${PORT}/health`;
-cron.schedule('*/14 * * * *', async () => {
+cron.schedule('*/1 * * * *', async () => {
   try {
     await axios.get(HEARTBEAT_URL);
     console.log(`Heartbeat ping to ${HEARTBEAT_URL}`);
