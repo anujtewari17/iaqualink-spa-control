@@ -62,7 +62,13 @@ class AccessKeyService {
 
   isActive(reservation) {
     const now = new Date();
-    return now >= reservation.start && now <= reservation.end;
+    const start = new Date(reservation.start);
+    // links become active roughly an hour before the 4 PM check-in
+    start.setHours(15, 0, 0, 0); // 3 PM arrival day
+    const end = new Date(reservation.end);
+    // use the checkout date itself and allow a cushion past 11 AM
+    end.setHours(13, 0, 0, 0); // 1 PM checkout day
+    return now >= start && now <= end;
   }
 
   async validateKey(key) {
