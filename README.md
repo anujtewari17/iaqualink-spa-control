@@ -149,7 +149,7 @@ check‑in (around 3 PM on arrival day) and expire roughly two hours after the
 11 AM checkout (around 1 PM on departure day).
 
 The admin key set in `ACCESS_KEY` lets your property manager access
-`/api/keys` to view all current and upcoming links. Visit `/admin` with this key
+`/api/keys` to view the link that is active right now. Visit `/admin` with this key
 to see the management page. After running `npm run deploy` in the `frontend`
 folder, the compiled admin page can be found at `docs/admin/index.html`.
 
