@@ -52,7 +52,11 @@ class AccessKeyService {
 
   generateUrl(code) {
     if (!this.frontendUrl) return null;
-    const base = this.frontendUrl.replace(/\/?$/, '/');
+    let base = this.frontendUrl.trim();
+    if (!/^https?:\/\//i.test(base)) {
+      base = `https://${base}`;
+    }
+    base = base.replace(/\/?$/, '/');
     return `${base}?key=${code}`;
   }
 

@@ -136,6 +136,7 @@ HEARTBEAT_URL=
 # Optional Airbnb iCal feed URL for guest access codes
 ICS_FEED_URL=
 # Base URL of the frontend for generating guest links
+# Include the protocol (e.g. https://). If omitted, https:// is assumed.
 FRONTEND_URL=
 
 ```
