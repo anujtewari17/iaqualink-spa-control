@@ -7,6 +7,7 @@ dotenv.config();
 class AccessKeyService {
   constructor() {
     this.feedUrl = process.env.ICS_FEED_URL;
+    this.frontendUrl = process.env.FRONTEND_URL || '';
     this.adminKey = process.env.ACCESS_KEY;
     this.reservations = [];
     if (this.feedUrl) {
@@ -32,6 +33,7 @@ class AccessKeyService {
           });
         }
       }
+      reservations.sort((a, b) => a.start - b.start);
       this.reservations = reservations;
       console.log(`Loaded ${reservations.length} reservations from calendar`);
     } catch (err) {
@@ -41,7 +43,17 @@ class AccessKeyService {
 
   generateCode(start, end) {
     const pad = (n) => String(n).padStart(2, '0');
-    return `${pad(start.getDate())}${pad(end.getDate())}`;
+    const sm = pad(start.getMonth() + 1);
+    const sd = pad(start.getDate());
+    const em = pad(end.getMonth() + 1);
+    const ed = pad(end.getDate());
+    return `${sm}${sd}${em}${ed}`;
+  }
+
+  generateUrl(code) {
+    if (!this.frontendUrl) return null;
+    const base = this.frontendUrl.replace(/\/?$/, '/');
+    return `${base}?key=${code}`;
   }
 
   isActive(reservation) {
@@ -61,7 +73,10 @@ class AccessKeyService {
   }
 
   getAllReservations() {
-    return this.reservations;
+    return this.reservations.map((r) => ({
+      ...r,
+      url: this.generateUrl(r.code),
+    }));
   }
 }
 
