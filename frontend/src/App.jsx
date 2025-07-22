@@ -202,7 +202,6 @@ const handleLogin = (key) => {
       <header className="app-header">
         <h1>🌊 Spa Control</h1>
         <p>Guest Control Panel</p>
-        {isAdmin && <a className="admin-link" href="/admin">Admin</a>}
       </header>
 
 
