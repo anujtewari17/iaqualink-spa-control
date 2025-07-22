@@ -136,6 +136,7 @@ HEARTBEAT_URL=
 # Optional Airbnb iCal feed URL for guest access codes
 ICS_FEED_URL=
 # Base URL of the frontend for generating guest links
+# Include the protocol (e.g. https://). If omitted, https:// is assumed.
 FRONTEND_URL=
 
 ```
@@ -143,8 +144,9 @@ FRONTEND_URL=
 If `ICS_FEED_URL` is provided, the backend will fetch your Airbnb calendar and
 generate a unique 8‑digit code for each reservation using the start and end
 dates (e.g. `06250628`). These codes are used to build one‑time guest links in
-the form `FRONTEND_URL/?key=CODE`. Links remain valid only during the stay and
-expire automatically after the end date.
+the form `FRONTEND_URL/?key=CODE`. Links activate about an hour before the 4 PM
+check‑in (around 3 PM on arrival day) and expire roughly two hours after the
+11 AM checkout (around 1 PM on departure day).
 
 The admin key set in `ACCESS_KEY` lets your property manager access
 `/api/keys` to view all current and upcoming links. Visit `/admin` with this key
