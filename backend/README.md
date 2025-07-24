@@ -13,6 +13,7 @@ A Node.js/Express backend API server that interfaces with the iAqualink cloud se
 - **CORS**: Configurable CORS for frontend integration
 - **Scheduled Shutdown**: Cron job turns off all equipment nightly at 12 AM Pacific
 - **Auto Shutdown**: Spa turns off automatically 3 hours after activation
+- **Overuse Alerts**: Email or SMS notification when equipment runs more than 2.5 hours
 - **Geo Restriction**: Optional location checks to restrict access
 
 ## API Endpoints
@@ -121,13 +122,19 @@ Turns off all equipment. Useful for external schedulers.
 - `JET_PUMP_COMMAND`: Device command for the spa jets (default: `aux_4`)
 - `ALLOWED_LOCATIONS`: Semicolon separated latitude,longitude pairs. Leave empty to disable checks
 - `LOCATION_RADIUS_KM`: Radius in kilometers for location checks (default: 1)
-- `HEARTBEAT_URL`: Optional URL pinged every 14 minutes to keep the service awake
 - `ICS_FEED_URL`: Airbnb iCal feed URL used to generate guest access codes
-### Render Cron Setup
-On Render's free tier the service sleeps after 15 minutes. Configure Render Cron jobs:
-1. **Heartbeat** – GET `/health` every 14 minutes to keep the service awake.
-2. **Nightly shutdown** – POST `/api/shutdown` at **12:05 AM America/Los_Angeles**.
-The backend also schedules an automatic shutdown three hours after the spa is turned on, so cron is only needed for the nightly cutoff and keeping the service awake.
+- `FRONTEND_URL`: Base URL of the frontend for generating guest links
+- `NOTIFY_EMAIL`: Email address for overuse alerts
+- `NOTIFY_PHONE`: Mobile number for SMS alerts (E.164 format)
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`: SMTP settings for email
+- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`: Twilio SMS credentials
+### External Cron Setup
+On free hosting tiers the service may sleep after periods of inactivity. Set up a
+cron job (e.g. on Render) to GET `/health` every 14 minutes. Schedule a nightly
+shutdown by POSTing to `/api/shutdown` at **12:05 AM America/Los_Angeles**. The
+backend also triggers an automatic shutdown three hours after the spa is turned
+on, so external cron is primarily needed for the nightly cutoff and keeping the
+service awake.
 
 
 

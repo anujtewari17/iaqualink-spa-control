@@ -1,6 +1,7 @@
 import express from 'express';
 import iaqualinkService from '../services/iaqualink.js';
 import { isLocationAllowed, locations } from '../services/location.js';
+import notificationService from '../services/notification.js';
 
 const router = express.Router();
 
@@ -36,16 +37,25 @@ router.get('/aux-status', async (req, res) => {
 
 // Toggle spa device
 let shutdownTimer = null;
+let notifyTimer = null;
 const AUTO_SHUTDOWN_MS = 3 * 60 * 60 * 1000; // 3 hours
+const NOTIFY_THRESHOLD_MS = 2.5 * 60 * 60 * 1000; // 2.5 hours
 
 function scheduleAutoShutdown() {
   if (shutdownTimer) {
     clearTimeout(shutdownTimer);
   }
+  if (notifyTimer) {
+    clearTimeout(notifyTimer);
+  }
+  notifyTimer = setTimeout(async () => {
+    await notificationService.notify(
+      'Spa equipment has been running for over 2.5 hours.'
+    );
+  }, NOTIFY_THRESHOLD_MS);
   shutdownTimer = setTimeout(async () => {
     try {
       console.log('Auto shutdown timer triggered');
-
       await iaqualinkService.turnOffAllEquipment();
     } catch (err) {
       console.error('Auto shutdown failed:', err.message);
@@ -80,9 +90,15 @@ router.post('/toggle/:device', async (req, res) => {
     if (device === 'spa-mode') {
       if (status.spaMode) {
         scheduleAutoShutdown();
-      } else if (shutdownTimer) {
-        clearTimeout(shutdownTimer);
-        shutdownTimer = null;
+      } else {
+        if (shutdownTimer) {
+          clearTimeout(shutdownTimer);
+          shutdownTimer = null;
+        }
+        if (notifyTimer) {
+          clearTimeout(notifyTimer);
+          notifyTimer = null;
+        }
       }
     }
 
