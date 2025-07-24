@@ -8,7 +8,10 @@ function formatDate(dateStr) {
 const AdminPanel = ({ reservations }) => {
   return (
     <div className="admin-panel">
-     <h2>Guest Access Links</h2>
+     <h2>Active Guest Link</h2>
+      {reservations.length === 0 ? (
+        <p>No active reservation.</p>
+      ) : (
       <table className="keys-table">
         <thead>
           <tr>
@@ -35,6 +38,7 @@ const AdminPanel = ({ reservations }) => {
           ))}
         </tbody>
       </table>
+      )}
     </div>
   );
 };

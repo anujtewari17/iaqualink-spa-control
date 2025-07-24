@@ -44,6 +44,10 @@ To rebuild the app and copy the output to the repository `docs/` folder, run:
 npm run deploy
 ```
 
+This command removes any old files in `docs/assets`, copies the new contents of
+`dist` to `docs/`, and also updates `docs/admin/index.html` by copying
+`dist/index.html` and adjusting asset paths from `./assets/` to `../assets/`.
+
 ## GitHub Pages Deployment
 
 1. Push your code to GitHub
