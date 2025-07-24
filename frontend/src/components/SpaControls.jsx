@@ -23,9 +23,17 @@ function SpaControls({ spaMode, jetPump, filterPump, onToggle }) {
           🌊 <span className="label">Filter</span>
         </button>
       </div>
-      <p className="label" style={{ marginTop: '.8rem' }}>
-        ⚠️ Jet status may lag after each press.
-      </p>
+      <ol
+        className="label"
+        style={{ marginTop: '.8rem', textAlign: 'left', paddingLeft: '1.2rem' }}
+      >
+        <li>Wait for the status indicator above to turn green.</li>
+        <li>
+          Toggle the Jet and Spa buttons in any order, allowing a few seconds
+          between actions.
+        </li>
+        <li>Remember to turn equipment off.</li>
+      </ol>
     </div>
   );
 }

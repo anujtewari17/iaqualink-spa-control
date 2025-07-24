@@ -9,7 +9,6 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
 import cron from 'node-cron';
 import iaqualinkService from './services/iaqualink.js';
-import axios from 'axios';
 
 dotenv.config();
 
@@ -94,15 +93,5 @@ cron.schedule(
   { timezone: 'America/Los_Angeles' }
 );
 
-// Heartbeat to keep Render service awake
-const HEARTBEAT_URL = process.env.HEARTBEAT_URL || `http://localhost:${PORT}/health`;
-cron.schedule('*/1 * * * *', async () => {
-  try {
-    await axios.get(HEARTBEAT_URL);
-    console.log(`Heartbeat ping to ${HEARTBEAT_URL}`);
-  } catch (err) {
-    console.error('Heartbeat failed:', err.message);
-  }
-});
 
 export default app;

@@ -9,9 +9,9 @@ router.get('/', (req, res) => {
   if (key !== process.env.ACCESS_KEY) {
     return res.status(403).json({ error: 'Forbidden' });
   }
-  const reservations = accessKeyService.getAllReservations().map((r) => ({
+  const reservations = accessKeyService.getActiveReservations().map((r) => ({
     code: r.code,
-    url: r.url,
+    url: accessKeyService.generateUrl(r.code),
     start: r.start,
     end: r.end,
   }));
