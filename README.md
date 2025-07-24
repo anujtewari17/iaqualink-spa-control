@@ -136,6 +136,18 @@ ICS_FEED_URL=
 # Base URL of the frontend for generating guest links
 # Include the protocol (e.g. https://). If omitted, https:// is assumed.
 FRONTEND_URL=
+# Email or phone number for overuse alerts
+NOTIFY_EMAIL=
+NOTIFY_PHONE=
+# SMTP settings for email notifications
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+# Twilio credentials for SMS alerts
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_FROM_NUMBER=
 
 ```
 
@@ -172,6 +184,8 @@ VITE_BACKEND_URL=https://your-backend-url.fly.dev
 - **Auto shutdown**: Spa turns off automatically 3 hours after being activated
 - **External cron**: Configure your hosting platform to ping the `/health` endpoint
   periodically so the free-tier backend stays awake
+- **Overuse alerts**: Sends email or SMS if equipment runs for more than 2.5 hours
+
 
 ### External Cron Setup
 On free hosting tiers the service may sleep after periods of inactivity. Set up a

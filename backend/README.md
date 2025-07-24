@@ -13,6 +13,7 @@ A Node.js/Express backend API server that interfaces with the iAqualink cloud se
 - **CORS**: Configurable CORS for frontend integration
 - **Scheduled Shutdown**: Cron job turns off all equipment nightly at 12 AM Pacific
 - **Auto Shutdown**: Spa turns off automatically 3 hours after activation
+- **Overuse Alerts**: Email or SMS notification when equipment runs more than 2.5 hours
 - **Geo Restriction**: Optional location checks to restrict access
 
 ## API Endpoints
@@ -122,6 +123,12 @@ Turns off all equipment. Useful for external schedulers.
 - `ALLOWED_LOCATIONS`: Semicolon separated latitude,longitude pairs. Leave empty to disable checks
 - `LOCATION_RADIUS_KM`: Radius in kilometers for location checks (default: 1)
 - `ICS_FEED_URL`: Airbnb iCal feed URL used to generate guest access codes
+- `FRONTEND_URL`: Base URL of the frontend for generating guest links
+- `NOTIFY_EMAIL`: Email address for overuse alerts
+- `NOTIFY_PHONE`: Mobile number for SMS alerts (E.164 format)
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`: SMTP settings for email
+- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`: Twilio SMS credentials
+
 ### External Cron Setup
 On free hosting tiers the service may sleep after periods of inactivity. Set up a
 cron job (e.g. on Render) to GET `/health` every 14 minutes. Schedule a nightly
