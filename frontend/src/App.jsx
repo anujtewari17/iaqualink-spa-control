@@ -202,8 +202,8 @@ const handleLogin = (key) => {
       <header className="app-header">
         <h1>🌊 Spa Control</h1>
         <p>Guest Control Panel</p>
+        <p>Connection Status: {spaData.connected ? '🟢 Connected' : '🔴 Disconnected'}</p>
       </header>
-
 
 
       <main className="app-main">
@@ -228,7 +228,6 @@ const handleLogin = (key) => {
 
       <footer className="app-footer">
         <p>🔄 Auto-refresh every 5 seconds</p>
-        <p>Status: {spaData.connected ? '🟢 Connected' : '🔴 Disconnected'}</p>
       </footer>
     </div>
   );
