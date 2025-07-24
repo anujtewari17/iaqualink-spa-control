@@ -128,6 +128,7 @@ Turns off all equipment. Useful for external schedulers.
 - `NOTIFY_PHONE`: Mobile number for SMS alerts (E.164 format)
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`: SMTP settings for email
 - `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`: Twilio SMS credentials
+
 ### External Cron Setup
 On free hosting tiers the service may sleep after periods of inactivity. Set up a
 cron job (e.g. on Render) to GET `/health` every 14 minutes. Schedule a nightly

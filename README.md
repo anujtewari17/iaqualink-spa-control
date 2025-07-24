@@ -186,6 +186,7 @@ VITE_BACKEND_URL=https://your-backend-url.fly.dev
   periodically so the free-tier backend stays awake
 - **Overuse alerts**: Sends email or SMS if equipment runs for more than 2.5 hours
 
+
 ### External Cron Setup
 On free hosting tiers the service may sleep after periods of inactivity. Set up a
 cron job (for example, on Render or Fly.io) to ping `/health` every 14 minutes.
