@@ -206,7 +206,6 @@ const handleLogin = (key) => {
       </header>
 
 
-
       <main className="app-main">
         <TemperatureDisplay
           airTemp={spaData.airTemp}
