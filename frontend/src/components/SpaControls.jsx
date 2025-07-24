@@ -1,6 +1,6 @@
 import React from 'react';
 
-function SpaControls({ spaMode, jetPump, filterPump, onToggle }) {
+function SpaControls({ spaMode, jetPump, filterPump, onToggle, disabled }) {
   const state = { spaMode, jetPump, filterPump };
 
   return (
@@ -9,17 +9,23 @@ function SpaControls({ spaMode, jetPump, filterPump, onToggle }) {
       <div className="ctrl-grid">
         <button
           className={`ctrl-btn ${spaMode ? 'active danger' : ''}`}
-          onClick={() => onToggle('spa')}>
+          onClick={() => onToggle('spa')}
+          disabled={disabled}
+        >
           🛁 <span className="label">Spa</span>
         </button>
         <button
           className={`ctrl-btn ${jetPump ? 'active' : ''}`}
-          onClick={() => onToggle('jet-pump')}>
+          onClick={() => onToggle('jet-pump')}
+          disabled={disabled}
+        >
           💨 <span className="label">Jet</span>
         </button>
         <button
           className={`ctrl-btn ${filterPump ? 'active' : ''}`}
-          onClick={() => onToggle('filter-pump')}>
+          onClick={() => onToggle('filter-pump')}
+          disabled={disabled}
+        >
           🌊 <span className="label">Filter</span>
         </button>
       </div>

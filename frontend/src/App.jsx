@@ -12,6 +12,11 @@ import {
   getAllKeys
 } from './services/spaAPI';
 
+const getWithinSpaHours = () => {
+  const hour = new Date().getHours();
+  return hour >= 6 && hour < 22; // 6am - 10pm
+};
+
 function App() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
@@ -22,6 +27,7 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(null);
   const [reservations, setReservations] = useState([]);
   const [locationAllowed, setLocationAllowed] = useState(null);
+  const [withinSpaHours, setWithinSpaHours] = useState(getWithinSpaHours());
   const [spaData, setSpaData] = useState({
     spaMode: false,
     spaHeater: false,
@@ -182,6 +188,13 @@ const handleLogin = (key) => {
   }, [authenticated]);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      setWithinSpaHours(getWithinSpaHours());
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
    if (!authenticated || !isAdminRoute) return;
     checkAdmin();
   }, [authenticated, isAdminRoute]);
@@ -203,6 +216,7 @@ const handleLogin = (key) => {
         <h1>🌊 Spa Control</h1>
         <p>Guest Control Panel</p>
         <p>Status: {spaData.connected ? '🟢 Connected' : '🔴 Disconnected'}</p>
+        <p>Spa hours: 6am-10pm</p>
       </header>
 
 
@@ -222,7 +236,7 @@ const handleLogin = (key) => {
           jetPump={spaData.jetPump}
           filterPump={spaData.filterPump}
           onToggle={handleToggle}
-          disabled={loading}
+          disabled={loading || !withinSpaHours}
         />
       </main>
 

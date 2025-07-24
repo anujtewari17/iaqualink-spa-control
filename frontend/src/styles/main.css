@@ -79,6 +79,7 @@ h2{
 .ctrl-btn:active{transform:scale(.96)}
 .ctrl-btn.active{background:var(--success);color:#fff}
 .ctrl-btn.danger.active{background:var(--danger)}
+.ctrl-btn:disabled{opacity:.5;pointer-events:none}
 
 /* grid wrapper */
 .ctrl-grid{
