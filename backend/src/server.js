@@ -80,7 +80,7 @@ app.listen(PORT, () => {
 
 // Cron job to turn off equipment nightly at 12 AM Pacific Time
 cron.schedule(
-  '0 0 * * *',
+  '0 22,0 * * *',
   async () => {
     try {
       console.log('Nightly shutdown triggered');
