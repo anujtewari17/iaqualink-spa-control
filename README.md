@@ -131,8 +131,6 @@ JET_PUMP_COMMAND=aux_4
 ALLOWED_LOCATIONS=
 # Distance in km allowed from each location (default 1km)
 LOCATION_RADIUS_KM=1
-# Optional URL to ping every 14 minutes to keep the backend awake
-HEARTBEAT_URL=
 # Optional Airbnb iCal feed URL for guest access codes
 ICS_FEED_URL=
 # Base URL of the frontend for generating guest links
@@ -172,13 +170,15 @@ VITE_BACKEND_URL=https://your-backend-url.fly.dev
 - **Session management**: Automatic token refresh
 - **Nightly shutdown**: Cron job turns off equipment at midnight
 - **Auto shutdown**: Spa turns off automatically 3 hours after being activated
-- **Render cron**: Scheduled jobs keep the free-tier backend awake
+- **External cron**: Configure your hosting platform to ping the `/health` endpoint
+  periodically so the free-tier backend stays awake
 
-### Render Cron Setup
-Render free services fall asleep after 15 minutes. Configure Render Cron jobs to:
-1. **Heartbeat** – GET `/health` every 14 minutes to keep the service awake.
-2. **Nightly shutdown** – POST `/api/shutdown` at **12:05 AM America/Los_Angeles**.
-The backend also issues an automatic shutdown three hours after the spa is turned on.
+### External Cron Setup
+On free hosting tiers the service may sleep after periods of inactivity. Set up a
+cron job (for example, on Render or Fly.io) to ping `/health` every 14 minutes.
+Also schedule a nightly shutdown by POSTing to `/api/shutdown` at **12:05 AM
+America/Los_Angeles**. The backend already performs an automatic shutdown three
+hours after the spa is turned on.
 
 
 ## 📱 iPad Setup for Guests
