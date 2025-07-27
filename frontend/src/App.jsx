@@ -9,7 +9,7 @@ import {
   toggleSpaDevice,
   setSpaTemperature,
   checkLocation,
-  getAllKeys
+  getActiveReservation
 } from './services/spaAPI';
 
 const getWithinSpaHours = () => {
@@ -66,8 +66,8 @@ const [loading, setLoading] = useState(true);
 
   const checkAdmin = async () => {
     try {
-      const res = await getAllKeys();
-      setReservations(res);
+      const res = await getActiveReservation();
+      setReservations(res ? [res] : []);
       setIsAdmin(true);
       return true;
     } catch (err) {
