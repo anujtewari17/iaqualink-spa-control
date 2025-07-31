@@ -2,6 +2,7 @@ import express from 'express';
 import iaqualinkService from '../services/iaqualink.js';
 import { isLocationAllowed, locations } from '../services/location.js';
 import notificationService from '../services/notification.js';
+import usageLogger from '../services/usageLogger.js';
 
 const router = express.Router();
 
@@ -89,8 +90,10 @@ router.post('/toggle/:device', async (req, res) => {
 
     if (device === 'spa-mode') {
       if (status.spaMode) {
+        usageLogger.startSession();
         scheduleAutoShutdown();
       } else {
+        usageLogger.endSession();
         if (shutdownTimer) {
           clearTimeout(shutdownTimer);
           shutdownTimer = null;

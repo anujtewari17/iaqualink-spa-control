@@ -9,6 +9,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
 import cron from 'node-cron';
 import iaqualinkService from './services/iaqualink.js';
+import usageLogger from './services/usageLogger.js';
 
 dotenv.config();
 
@@ -89,6 +90,15 @@ cron.schedule(
     } catch (err) {
       console.error('Cron job failed:', err.message);
     }
+  },
+  { timezone: 'America/Los_Angeles' }
+);
+
+// Daily usage report at 1:05 AM Pacific Time
+cron.schedule(
+  '5 1 * * *',
+  () => {
+    usageLogger.dailyReport();
   },
   { timezone: 'America/Los_Angeles' }
 );
