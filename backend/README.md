@@ -248,6 +248,14 @@ The server logs all important events:
 - 📱 Device selection
 - 📊 Status retrieval
 - 🔄 Device toggles
+- 📊 Daily usage reports printed with identifier `SPA_USAGE_LOG`
+
+### Usage Log
+
+Daily spa usage is tracked in `backend/usage-log.json`. Each report entry
+includes the guest identifier, start/end timestamps, and total minutes of use.
+At 1:05 AM Pacific Time a table is printed to the logs with the prefix
+`SPA_USAGE_LOG` showing all records from the last 60 days.
 
 ## Support
 

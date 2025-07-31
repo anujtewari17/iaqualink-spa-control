@@ -1,5 +1,6 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
+import usageLogger from './usageLogger.js';
 
 const http = axios.create({ timeout: 10000 });
 
@@ -265,6 +266,9 @@ class IaqualinkService {
       } catch (e) {
         console.error(`Failed to turn off ${device}:`, e.message);
       }
+    }
+    if (status.spaMode) {
+      usageLogger.endSession();
     }
   }
 }
