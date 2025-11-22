@@ -1,14 +1,20 @@
 import React from 'react';
 
-function SpaControls({ spaMode, jetPump, filterPump, onToggle, disabled }) {
-  const state = { spaMode, jetPump, filterPump };
+function SpaControls({ spaMode, spaTemp, jetPump, filterPump, onToggle, disabled }) {
+  const spaButtonClasses = ['ctrl-btn'];
+  if (spaMode) {
+    spaButtonClasses.push('active');
+    if (spaTemp < 100) {
+      spaButtonClasses.push('danger');
+    }
+  }
 
   return (
     <div className="card">
       <h2>🛠️ Controls</h2>
       <div className="ctrl-grid">
         <button
-          className={`ctrl-btn ${spaMode ? 'active danger' : ''}`}
+          className={spaButtonClasses.join(' ')}
           onClick={() => onToggle('spa')}
           disabled={disabled}
         >

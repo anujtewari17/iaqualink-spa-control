@@ -28,6 +28,8 @@ function App() {
   const [reservations, setReservations] = useState([]);
   const [locationAllowed, setLocationAllowed] = useState(null);
   const [withinSpaHours, setWithinSpaHours] = useState(getWithinSpaHours());
+  const [tempHistory, setTempHistory] = useState([]);
+  const [heatEstimate, setHeatEstimate] = useState(null);
   const [spaData, setSpaData] = useState({
     spaMode: false,
     spaHeater: false,
@@ -182,6 +184,72 @@ const handleLogin = (key) => {
     }
   };
 
+  // Track recent temperature readings for rate calculations
+  useEffect(() => {
+    if (spaData.spaTemp === null || !spaData.lastUpdate) return;
+
+    setTempHistory((prev) => {
+      const updated = [
+        ...prev,
+        { temp: spaData.spaTemp, time: spaData.lastUpdate }
+      ];
+      const cutoff = Date.now() - 30 * 60 * 1000; // last 30 minutes
+      return updated.filter(entry => new Date(entry.time).getTime() >= cutoff);
+    });
+  }, [spaData.spaTemp, spaData.lastUpdate]);
+
+  // Estimate time to reach 100°F based on recent heating rate
+  useEffect(() => {
+    if (spaData.spaTemp === null) {
+      setHeatEstimate(null);
+      return;
+    }
+
+    if (spaData.spaTemp >= 100) {
+      setHeatEstimate({ etaMinutes: 0, etaTimestamp: new Date(), ready: true });
+      return;
+    }
+
+    if (tempHistory.length < 2) {
+      setHeatEstimate(null);
+      return;
+    }
+
+    const validHistory = tempHistory
+      .filter((entry) => typeof entry.temp === 'number' && !Number.isNaN(entry.temp))
+      .sort((a, b) => new Date(a.time) - new Date(b.time));
+
+    if (validHistory.length < 2) {
+      setHeatEstimate(null);
+      return;
+    }
+
+    const first = validHistory[0];
+    const last = validHistory[validHistory.length - 1];
+    const minutesElapsed = (new Date(last.time) - new Date(first.time)) / 60000;
+    const tempRise = last.temp - first.temp;
+
+    if (minutesElapsed <= 0 || tempRise <= 0) {
+      setHeatEstimate(null);
+      return;
+    }
+
+    const ratePerMinute = tempRise / minutesElapsed;
+    const minutesRemaining = (100 - spaData.spaTemp) / ratePerMinute;
+
+    if (!isFinite(minutesRemaining) || minutesRemaining < 0) {
+      setHeatEstimate(null);
+      return;
+    }
+
+    setHeatEstimate({
+      etaMinutes: minutesRemaining,
+      etaTimestamp: new Date(Date.now() + minutesRemaining * 60000),
+      ready: false,
+      ratePerMinute
+    });
+  }, [tempHistory, spaData.spaTemp]);
+
   useEffect(() => {
     if (!authenticated) return;
     checkAdmin();
@@ -225,6 +293,8 @@ const handleLogin = (key) => {
           airTemp={spaData.airTemp}
           spaTemp={spaData.spaTemp}
           poolTemp={spaData.poolTemp}
+          heatEstimate={heatEstimate}
+          targetTemp={100}
           spaSetPoint={spaData.spaSetPoint}
           onTemperatureChange={handleTemperatureChange}
           disabled={loading}
@@ -232,6 +302,7 @@ const handleLogin = (key) => {
 
         <SpaControls
           spaMode={spaData.spaMode}
+          spaTemp={spaData.spaTemp}
           spaHeater={spaData.spaHeater}
           jetPump={spaData.jetPump}
           filterPump={spaData.filterPump}
