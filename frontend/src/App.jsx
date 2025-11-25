@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import SpaControls from './components/SpaControls';
-import TemperatureDisplay from './components/TemperatureDisplay';
 import Login from './components/Login';
 import AdminPanel from './components/AdminPanel';
 import {
@@ -200,105 +199,48 @@ const handleLogin = (key) => {
         hour: 'numeric',
         minute: '2-digit'
       }).format(spaData.lastUpdate)
-    : 'Awaiting data';
+    : 'pending';
 
   const locationLabel =
     locationAllowed === null
-      ? 'Checking location...'
+      ? 'Checking location'
       : locationAllowed
-      ? 'Location verified'
+      ? 'Location ok'
       : 'Location needed';
 
   const guestPage = (
     <div className="app-shell">
       <div className="gradient" aria-hidden></div>
-      <div className="app">
-        <header className="hero">
-          <div className="hero-copy">
+      <div className="app compact">
+        <header className="compact-hero card">
+          <div>
             <p className="eyebrow">Spa Control</p>
-            <h1>Spa status and controls</h1>
-            <p className="lede">
-              Confirm connectivity, check hours, and operate the spa from a straightforward
-              panel that works on phones, tablets, and laptops.
-            </p>
-            <div className="badge-row">
-              <span className={`pill ${spaData.connected ? 'pill-success' : 'pill-danger'}`}>
-                {spaData.connected ? '🟢 Online' : '🔴 Offline'}
-              </span>
-              <span className={`pill ${withinSpaHours ? 'pill-info' : 'pill-warning'}`}>
-                {withinSpaHours ? 'Within spa hours' : 'Outside spa hours'}
-              </span>
-              <span className="pill pill-ghost">🔄 Auto-refresh every 5s</span>
-            </div>
+            <h1>Quick access</h1>
           </div>
-          <div className="hero-card card">
-            <div className="stat-block">
-              <p className="label">Current spa temp</p>
-              <div className="stat highlight">{spaData.spaTemp ?? '--'}°F</div>
-              <p className="muted">Set point syncs when spa mode is active.</p>
-            </div>
-            <div className="status-grid">
-              <div className="status-tile">
-                <p className="small-label">Location</p>
-                <p className="status-value">{locationLabel}</p>
-              </div>
-              <div className="status-tile">
-                <p className="small-label">Last update</p>
-                <p className="status-value">{lastUpdatedLabel}</p>
-              </div>
-              <div className="status-tile">
-                <p className="small-label">Spa hours</p>
-                <p className="status-value">6am — 10pm</p>
-              </div>
-            </div>
+          <div className="badge-row tight">
+            <span className={`pill ${spaData.connected ? 'pill-success' : 'pill-danger'}`}>
+              {spaData.connected ? '🟢 Online' : '🔴 Offline'}
+            </span>
+            <span className={`pill ${withinSpaHours ? 'pill-info' : 'pill-warning'}`}>
+              {withinSpaHours ? '6a–10p' : 'Outside hours'}
+            </span>
+            <span className="pill pill-ghost">Updated {lastUpdatedLabel}</span>
           </div>
         </header>
 
-        <main className="app-main">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">Live status</p>
-              <h2>Conditions & controls</h2>
-            </div>
-            <p className="muted">Data refreshes every 5 seconds while connected.</p>
-          </div>
-          <div className="surface-grid">
-            <TemperatureDisplay
-              airTemp={spaData.airTemp}
-              spaTemp={spaData.spaTemp}
-              poolTemp={spaData.poolTemp}
-            />
-
-            <SpaControls
-              spaMode={spaData.spaMode}
-              spaTemp={spaData.spaTemp}
-              spaHeater={spaData.spaHeater}
-              jetPump={spaData.jetPump}
-              filterPump={spaData.filterPump}
-              onToggle={handleToggle}
-              disabled={loading || !withinSpaHours}
-            />
-
-            <div className="card info-card">
-              <div>
-                <p className="eyebrow">Guidance</p>
-                <h3>Operating tips</h3>
-                <p className="muted">
-                  Commands send immediately when the connection pill is green. If you move away
-                  from the spa, location checks may pause controls until verified again.
-                </p>
-              </div>
-              <div className="tip-row">
-                <span className="pill pill-ghost">Use short taps</span>
-                <span className="pill pill-ghost">Wait a few seconds between actions</span>
-              </div>
-            </div>
-          </div>
+        <main className="app-main compact-main">
+          <SpaControls
+            spaMode={spaData.spaMode}
+            spaTemp={spaData.spaTemp}
+            spaHeater={spaData.spaHeater}
+            jetPump={spaData.jetPump}
+            filterPump={spaData.filterPump}
+            connected={spaData.connected}
+            locationLabel={locationLabel}
+            onToggle={handleToggle}
+            disabled={loading || !withinSpaHours}
+          />
         </main>
-
-        <footer className="app-footer">
-          <p className="muted">Designed for quick checks and reliable spa control.</p>
-        </footer>
       </div>
     </div>
   );
