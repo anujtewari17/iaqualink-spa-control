@@ -10,8 +10,14 @@ function SpaControls({ spaMode, spaTemp, jetPump, filterPump, onToggle, disabled
   }
 
   return (
-    <div className="card">
-      <h2>🛠️ Controls</h2>
+    <div className="card control-card">
+      <div className="section-heading">
+        <div>
+          <p className="eyebrow">Equipment</p>
+          <h2>🛠️ Controls</h2>
+        </div>
+        <p className="muted">Toggle spa mode, jets, and filtration. Commands send instantly.</p>
+      </div>
       <div className="ctrl-grid">
         <button
           className={spaButtonClasses.join(' ')}
@@ -39,12 +45,9 @@ function SpaControls({ spaMode, spaTemp, jetPump, filterPump, onToggle, disabled
         className="label"
         style={{ marginTop: '.8rem', textAlign: 'left', paddingLeft: '1.2rem' }}
       >
-        <li>Wait for the status indicator above to turn green.</li>
-        <li>
-          Toggle the Jet and Spa buttons in any order, allowing a few seconds
-          between actions.
-        </li>
-        <li>Remember to turn equipment off.</li>
+        <li>Confirm the connection pill above is green before sending commands.</li>
+        <li>Use short taps and allow a few seconds between actions.</li>
+        <li>Turn equipment off when you leave the spa.</li>
       </ol>
     </div>
   );

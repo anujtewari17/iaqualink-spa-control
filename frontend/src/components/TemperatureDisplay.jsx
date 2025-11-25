@@ -2,9 +2,10 @@ import React from 'react';
 
 function TempCard({ icon, label, value }) {
   return (
-    <div className="card">
+    <div className="card temp-card">
       <h2>{icon} {label}</h2>
-      <div className="stat">{value ?? '--'}°F</div>
+      <div className="stat highlight">{value ?? '--'}°F</div>
+      <p className="muted">Live sensor reading</p>
     </div>
   );
 }
