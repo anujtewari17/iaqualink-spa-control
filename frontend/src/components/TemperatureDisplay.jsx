@@ -30,12 +30,13 @@ function TemperatureDisplay({ airTemp, spaTemp, poolTemp, heatEstimate, targetTe
         <TempCard icon="🛁" label="Spa" value={spaTemp} />
         <TempCard icon="🏊" label="Pool" value={poolTemp} />
       </div>
-      <div className="card">
-        <h2>⏱️ Heat ETA</h2>
-        <div className="stat">{formatEta(heatEstimate, targetTemp)}</div>
-        <p className="label" style={{ marginTop: '.35rem' }}>
-          Target: {targetTemp}°F
-        </p>
+      <div className="card eta-card">
+        <div className="eta-icon" aria-hidden>⏱️</div>
+        <div className="eta-copy">
+          <p className="label">Heat ETA</p>
+          <div className="eta-stat">{formatEta(heatEstimate, targetTemp)}</div>
+          <p className="eta-target">Target {targetTemp}°F</p>
+        </div>
       </div>
     </div>
   );
