@@ -263,6 +263,12 @@ const handleLogin = (key) => {
             <p className="muted">Data refreshes every 5 seconds while connected.</p>
           </div>
           <div className="surface-grid">
+            <TemperatureDisplay
+              airTemp={spaData.airTemp}
+              spaTemp={spaData.spaTemp}
+              poolTemp={spaData.poolTemp}
+            />
+
             <SpaControls
               spaMode={spaData.spaMode}
               spaTemp={spaData.spaTemp}
@@ -271,12 +277,6 @@ const handleLogin = (key) => {
               filterPump={spaData.filterPump}
               onToggle={handleToggle}
               disabled={loading || !withinSpaHours}
-            />
-
-            <TemperatureDisplay
-              airTemp={spaData.airTemp}
-              spaTemp={spaData.spaTemp}
-              poolTemp={spaData.poolTemp}
             />
 
             <div className="card info-card">

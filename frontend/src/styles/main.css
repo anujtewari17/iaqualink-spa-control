@@ -281,13 +281,6 @@ p { color: var(--text); margin: 0; }
 }
 
 /* Smaller screens */
-@media (max-width: 768px) {
-  .hero { padding: 1.1rem; gap: 1rem; }
-  .app-main { margin-top: 1rem; }
-  .surface-grid { grid-template-columns: 1fr; }
-  .control-card { order: -1; }
-}
-
 @media (max-width: 500px) {
   :root { font-size: 17px; }
 }
