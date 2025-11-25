@@ -18,7 +18,7 @@ function SpaControls({
     }
   }
 
-  const spaLabel = typeof spaTemp === 'number' ? `${spaTemp}°F` : 'Temp --°F';
+  const spaLabel = typeof spaTemp === 'number' ? `${spaTemp}°F live` : 'Live temp --°F';
 
   return (
     <div className="card control-card compact-card">
@@ -42,12 +42,6 @@ function SpaControls({
         >
           <span className="spa-label">🛁 Spa</span>
           <span className="spa-temp">{spaLabel}</span>
-          <div className="spa-meta">
-            <span className={`pill pill-inline ${connected ? 'pill-success' : 'pill-danger'}`}>
-              {connected ? 'Connected' : 'Offline'}
-            </span>
-            <span className="pill pill-inline pill-ghost">{locationLabel}</span>
-          </div>
         </button>
         <button
           className={`ctrl-btn ${jetPump ? 'active' : ''}`}
@@ -64,7 +58,6 @@ function SpaControls({
           🌊 <span className="label">Filter</span>
         </button>
       </div>
-      <p className="live-note">Spa temperature is a live reading.</p>
     </div>
   );
 }
