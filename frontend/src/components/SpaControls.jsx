@@ -4,7 +4,7 @@ function SpaControls({ spaMode, spaTemp, jetPump, filterPump, onToggle, disabled
   const spaButtonClasses = ['ctrl-btn'];
   if (spaMode) {
     spaButtonClasses.push('active');
-    if (spaTemp < 100) {
+    if (typeof spaTemp === 'number' && spaTemp < 100) {
       spaButtonClasses.push('danger');
     }
   }
