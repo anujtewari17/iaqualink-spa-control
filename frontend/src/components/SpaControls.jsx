@@ -1,7 +1,16 @@
 import React from 'react';
 
-function SpaControls({ spaMode, spaTemp, jetPump, filterPump, onToggle, disabled }) {
-  const spaButtonClasses = ['ctrl-btn'];
+function SpaControls({
+  spaMode,
+  spaTemp,
+  jetPump,
+  filterPump,
+  connected,
+  locationLabel,
+  onToggle,
+  disabled
+}) {
+  const spaButtonClasses = ['ctrl-btn', 'spa-btn'];
   if (spaMode) {
     spaButtonClasses.push('active');
     if (typeof spaTemp === 'number' && spaTemp < 100) {
@@ -9,14 +18,21 @@ function SpaControls({ spaMode, spaTemp, jetPump, filterPump, onToggle, disabled
     }
   }
 
+  const spaLabel = typeof spaTemp === 'number' ? `${spaTemp}°F` : 'Temp --°F';
+
   return (
-    <div className="card control-card">
-      <div className="section-heading">
+    <div className="card control-card compact-card">
+      <div className="control-header">
         <div>
-          <p className="eyebrow">Equipment</p>
-          <h2>🛠️ Controls</h2>
+          <p className="eyebrow">Spa</p>
+          <h2>Fast controls</h2>
         </div>
-        <p className="muted">Toggle spa mode, jets, and filtration. Commands send instantly.</p>
+        <div className="status-chips">
+          <span className={`pill ${connected ? 'pill-success' : 'pill-danger'}`}>
+            {connected ? 'Connected' : 'Offline'}
+          </span>
+          <span className="pill pill-ghost">{locationLabel}</span>
+        </div>
       </div>
       <div className="ctrl-grid">
         <button
@@ -24,7 +40,14 @@ function SpaControls({ spaMode, spaTemp, jetPump, filterPump, onToggle, disabled
           onClick={() => onToggle('spa')}
           disabled={disabled}
         >
-          🛁 <span className="label">Spa</span>
+          <span className="spa-label">🛁 Spa</span>
+          <span className="spa-temp">{spaLabel}</span>
+          <div className="spa-meta">
+            <span className={`pill pill-inline ${connected ? 'pill-success' : 'pill-danger'}`}>
+              {connected ? 'Connected' : 'Offline'}
+            </span>
+            <span className="pill pill-inline pill-ghost">{locationLabel}</span>
+          </div>
         </button>
         <button
           className={`ctrl-btn ${jetPump ? 'active' : ''}`}
@@ -41,14 +64,7 @@ function SpaControls({ spaMode, spaTemp, jetPump, filterPump, onToggle, disabled
           🌊 <span className="label">Filter</span>
         </button>
       </div>
-      <ol
-        className="label"
-        style={{ marginTop: '.8rem', textAlign: 'left', paddingLeft: '1.2rem' }}
-      >
-        <li>Confirm the connection pill above is green before sending commands.</li>
-        <li>Use short taps and allow a few seconds between actions.</li>
-        <li>Turn equipment off when you leave the spa.</li>
-      </ol>
+      <p className="live-note">Spa temperature is a live reading.</p>
     </div>
   );
 }
