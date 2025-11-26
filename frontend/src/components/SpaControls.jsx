@@ -18,7 +18,11 @@ function SpaControls({
     }
   }
 
-  const spaLabel = typeof spaTemp === 'number' ? `${spaTemp}°F live` : 'Live temp --°F';
+  const spaLabel = spaMode
+    ? typeof spaTemp === 'number'
+      ? `${spaTemp}°F live`
+      : 'Live temp --°F'
+    : 'Spa off';
 
   return (
     <div className="card control-card compact-card">
