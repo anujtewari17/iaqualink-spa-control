@@ -90,7 +90,7 @@ const handleLogin = (key) => {
         jetPump: !!status.jetPump,
         filterPump: !!status.filterPump,
         airTemp: status.airTemp,
-        spaTemp: status.spaTemp,
+        spaTemp: status.spaMode ? status.spaTemp : null,
         poolTemp: status.poolTemp,
         spaSetPoint: status.spaSetPoint,
         connected: true,
@@ -116,9 +116,10 @@ const handleLogin = (key) => {
 
       if (device === 'spa') {
         const newState = !spaData.spaMode;
-        optimisticUpdate({ 
-          spaMode: newState, 
+        optimisticUpdate({
+          spaMode: newState,
           spaHeater: newState,
+          spaTemp: null,
           // When spa turns off, also turn off filter pump
           filterPump: newState ? spaData.filterPump : false
         });
@@ -136,10 +137,11 @@ const handleLogin = (key) => {
             spaHeater: !!res.status.spaHeater,
             jetPump: !!res.status.jetPump,
             filterPump: !!res.status.filterPump,
+            spaTemp: res.status.spaMode ? res.status.spaTemp ?? null : null,
           });
         }
       } else {
-        const keyMap = { 
+        const keyMap = {
           'jet-pump': 'jetPump',
           'filter-pump': 'filterPump'
         };
