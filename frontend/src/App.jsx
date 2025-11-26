@@ -116,8 +116,15 @@ const handleLogin = (key) => {
 
       if (device === 'spa') {
         const newState = !spaData.spaMode;
-        optimisticUpdate({ 
-          spaMode: newState, 
+
+        if (newState && (!spaData.connected || !navigator.onLine)) {
+          alert('Please connect to the internet and spa system before turning on the spa.');
+          setLoading(false);
+          return;
+        }
+
+        optimisticUpdate({
+          spaMode: newState,
           spaHeater: newState,
           // When spa turns off, also turn off filter pump
           filterPump: newState ? spaData.filterPump : false
