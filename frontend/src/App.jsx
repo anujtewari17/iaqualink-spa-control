@@ -39,7 +39,31 @@ function App() {
     lastUpdate: null
   });
 
-const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [commandState, setCommandState] = useState({
+    active: false,
+    message: '',
+    device: null
+  });
+
+  const applyBackendStatus = (status) => {
+    setSpaData((prev) => ({
+      ...prev,
+      spaMode: !!status.spaMode,
+      spaHeater: !!status.spaHeater,
+      jetPump: !!status.jetPump,
+      filterPump: !!status.filterPump,
+      airTemp: Number.isFinite(status.airTemp) ? status.airTemp : null,
+      spaTemp:
+        status.spaMode && Number.isFinite(status.spaTemp) ? status.spaTemp : null,
+      poolTemp: Number.isFinite(status.poolTemp) ? status.poolTemp : null,
+      spaSetPoint: Number.isFinite(status.spaSetPoint) ? status.spaSetPoint : null,
+      connected: status.connected !== undefined ? !!status.connected : true,
+      lastUpdate: status.lastUpdate
+        ? new Date(status.lastUpdate)
+        : new Date()
+    }));
+  };
   const verifyLocation = () => {
     if (!navigator.geolocation) {
       setLocationAllowed(true); // treat as allowed when geolocation unsupported
@@ -74,28 +98,16 @@ const [loading, setLoading] = useState(true);
     }
   };
 
-const handleLogin = (key) => {
-  localStorage.setItem('accessKey', key);
-  setAuthenticated(true);
-};
+  const handleLogin = (key) => {
+    localStorage.setItem('accessKey', key);
+    setAuthenticated(true);
+  };
 
   const fetchSpaStatus = async () => {
     if (!authenticated) return;
     try {
       const status = await getSpaStatus();
-      setSpaData(prev => ({
-        ...prev,
-        spaMode: !!status.spaMode,
-        spaHeater: !!status.spaHeater,
-        jetPump: !!status.jetPump,
-        filterPump: !!status.filterPump,
-        airTemp: status.airTemp,
-        spaTemp: status.spaMode ? status.spaTemp : null,
-        poolTemp: status.poolTemp,
-        spaSetPoint: status.spaSetPoint,
-        connected: true,
-        lastUpdate: new Date()
-      }));
+      applyBackendStatus(status);
     } catch (err) {
       console.error('Failed to fetch spa status:', err);
       setSpaData(prev => ({ ...prev, connected: false }));
@@ -106,55 +118,93 @@ const handleLogin = (key) => {
 
   const handleToggle = async (device) => {
     if (!authenticated) return;
-    const prevState = { ...spaData };
+    if (commandState.active && commandState.device === device) {
+      setCommandState((prev) => ({
+        ...prev,
+        message: 'Working on your previous request...'
+      }));
+      return;
+    }
 
-    const optimisticUpdate = (updates) =>
-      setSpaData((p) => ({ ...p, ...updates, lastUpdate: new Date() }));
+    const setCommandMessage = (message) =>
+      setCommandState({ active: true, message, device });
+
+    const ensureSpaStarts = async (retries = 3) => {
+      let latestStatus = null;
+
+      for (let attempt = 0; attempt < retries; attempt++) {
+        const attemptLabel = attempt === 0
+          ? 'Starting spa...'
+          : `Retrying to start spa (attempt ${attempt + 1}/${retries})...`;
+        setCommandMessage(attemptLabel);
+
+        await toggleSpaDevice('spa-mode');
+        await toggleSpaDevice('spa-heater');
+        latestStatus = await getSpaStatus();
+
+        if (latestStatus?.spaMode && latestStatus?.spaHeater) {
+          break;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+
+      return latestStatus;
+    };
+
+    const ensureDeviceState = async (targetState, statusKey, retries = 3) => {
+      let latestStatus = null;
+      const friendlyName =
+        statusKey === 'jetPump' ? 'jet pump' : 'filter pump';
+
+      for (let attempt = 0; attempt < retries; attempt++) {
+        const attemptLabel = attempt === 0
+          ? `Sending ${friendlyName} command...`
+          : `Confirming ${friendlyName} change (attempt ${attempt + 1}/${retries})...`;
+        setCommandMessage(attemptLabel);
+
+        await toggleSpaDevice(device);
+        latestStatus = await getSpaStatus();
+        if (latestStatus && Boolean(latestStatus[statusKey]) === targetState) {
+          break;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+
+      return latestStatus;
+    };
 
     try {
       setLoading(true);
 
       if (device === 'spa') {
-        const newState = !spaData.spaMode;
-        optimisticUpdate({
-          spaMode: newState,
-          spaHeater: newState,
-          spaTemp: null,
-          // When spa turns off, also turn off filter pump
-          filterPump: newState ? spaData.filterPump : false
-        });
-        await toggleSpaDevice('spa-mode');
-        const res = await toggleSpaDevice('spa-heater');
-        
-        // If spa is being turned off, also turn off filter pump
-        if (!newState && spaData.filterPump) {
-          await toggleSpaDevice('filter-pump');
-        }
-        
-        if (res.status) {
-          optimisticUpdate({
-            spaMode: !!res.status.spaMode,
-            spaHeater: !!res.status.spaHeater,
-            jetPump: !!res.status.jetPump,
-            filterPump: !!res.status.filterPump,
-            spaTemp: res.status.spaMode ? res.status.spaTemp ?? null : null,
-          });
+        const targetOn = !spaData.spaMode;
+
+        if (targetOn) {
+          const status = await ensureSpaStarts();
+          if (status) applyBackendStatus(status);
+        } else {
+          setCommandState({ active: true, message: 'Shutting spa down...' });
+          await toggleSpaDevice('spa-mode');
+          await toggleSpaDevice('spa-heater');
+
+          if (spaData.filterPump) {
+            await toggleSpaDevice('filter-pump');
+          }
+
+          const status = await getSpaStatus();
+          if (status) applyBackendStatus(status);
         }
       } else {
-        const keyMap = {
-          'jet-pump': 'jetPump',
-          'filter-pump': 'filterPump'
-        };
-        optimisticUpdate({ [keyMap[device]]: !spaData[keyMap[device]] });
+        const targetOn = device === 'jet-pump' ? !spaData.jetPump : !spaData.filterPump;
+        const statusKey = device === 'jet-pump' ? 'jetPump' : 'filterPump';
+        const status = await ensureDeviceState(targetOn, statusKey);
 
-        const res = await toggleSpaDevice(device);
-        if (res.status) {
-          optimisticUpdate({
-            spaMode: !!res.status.spaMode,
-            spaHeater: !!res.status.spaHeater,
-            jetPump: !!res.status.jetPump,
-            filterPump: !!res.status.filterPump,
-          });
+        if (status) {
+          applyBackendStatus(status);
+        } else {
+          setCommandMessage('Waiting for backend reading...');
         }
       }
 
@@ -162,9 +212,9 @@ const handleLogin = (key) => {
       setTimeout(fetchSpaStatus, 2000);
     } catch (err) {
       console.error(`Failed to toggle ${device}:`, err);
-      setSpaData(prevState); // revert
     } finally {
       setLoading(false);
+      setCommandState({ active: false, message: '', device: null });
     }
   };
 
@@ -239,8 +289,10 @@ const handleLogin = (key) => {
             filterPump={spaData.filterPump}
             connected={spaData.connected}
             locationLabel={locationLabel}
+            commandMessage={commandState.message}
+            commandActive={commandState.active}
             onToggle={handleToggle}
-            disabled={loading || !withinSpaHours}
+            disabled={loading || !withinSpaHours || commandState.active}
           />
         </main>
       </div>

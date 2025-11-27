@@ -1,10 +1,11 @@
 import React from 'react';
 
 function TempCard({ icon, label, value }) {
+  const displayValue = Number.isFinite(value) ? `${value}°F` : '--';
   return (
     <div className="card temp-card">
       <h2>{icon} {label}</h2>
-      <div className="stat highlight">{value ?? '--'}°F</div>
+      <div className="stat highlight">{displayValue}</div>
       <p className="muted">Live sensor reading</p>
     </div>
   );
