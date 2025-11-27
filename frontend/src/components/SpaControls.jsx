@@ -7,6 +7,8 @@ function SpaControls({
   filterPump,
   connected,
   locationLabel,
+  commandMessage,
+  commandActive,
   onToggle,
   disabled
 }) {
@@ -21,7 +23,7 @@ function SpaControls({
   const spaLabel = spaMode
     ? typeof spaTemp === 'number'
       ? `${spaTemp}°F live`
-      : 'Live temp --°F'
+      : 'Waiting for backend reading'
     : 'Spa off';
 
   return (
@@ -38,6 +40,11 @@ function SpaControls({
           <span className="pill pill-ghost">{locationLabel}</span>
         </div>
       </div>
+      {commandMessage && (
+        <div className="muted" role="status">
+          {commandMessage}
+        </div>
+      )}
       <div className="ctrl-grid">
         <button
           className={spaButtonClasses.join(' ')}
@@ -50,14 +57,14 @@ function SpaControls({
         <button
           className={`ctrl-btn ${jetPump ? 'active' : ''}`}
           onClick={() => onToggle('jet-pump')}
-          disabled={disabled}
+          disabled={disabled || commandActive}
         >
           💨 <span className="label">Jet</span>
         </button>
         <button
           className={`ctrl-btn ${filterPump ? 'active' : ''}`}
           onClick={() => onToggle('filter-pump')}
-          disabled={disabled}
+          disabled={disabled || commandActive}
         >
           🌊 <span className="label">Filter</span>
         </button>
