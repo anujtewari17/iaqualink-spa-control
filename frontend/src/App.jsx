@@ -31,7 +31,7 @@ function App() {
     spaHeater: false,
     jetPump: false,
     filterPump: false,
-    connected: false,
+    connected: true,
     airTemp: null,
     spaTemp: null,
     poolTemp: null,
@@ -40,6 +40,7 @@ function App() {
   });
 
   const [loading, setLoading] = useState(true);
+  const [statusFailures, setStatusFailures] = useState(0);
   const [commandState, setCommandState] = useState({
     active: false,
     message: '',
@@ -47,6 +48,7 @@ function App() {
   });
 
   const applyBackendStatus = (status) => {
+    setStatusFailures(0);
     setSpaData((prev) => ({
       ...prev,
       spaMode: !!status.spaMode,
@@ -110,7 +112,13 @@ function App() {
       applyBackendStatus(status);
     } catch (err) {
       console.error('Failed to fetch spa status:', err);
-      setSpaData(prev => ({ ...prev, connected: false }));
+      setStatusFailures((prev) => {
+        const next = prev + 1;
+        if (next >= 3) {
+          setSpaData((prevData) => ({ ...prevData, connected: false }));
+        }
+        return next;
+      });
     } finally {
       setLoading(false);
     }
