@@ -7,6 +7,14 @@ dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 class PaymentService {
+    calculateNights(start, end) {
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        const diffTime = Math.abs(endDate - startDate);
+        const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return Math.max(nights, 1);
+    }
+
     async createCheckoutSession(accessKey, reservation) {
         if (!process.env.STRIPE_SECRET_KEY) {
             throw new Error('STRIPE_SECRET_KEY is not configured');
@@ -19,13 +27,7 @@ class PaymentService {
         frontendBase = frontendBase.replace(/\/?$/, '');
 
         // Calculate nights
-        const start = new Date(reservation.start);
-        const end = new Date(reservation.end);
-        const diffTime = Math.abs(end - start);
-        const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-        // Minimum 1 night
-        const count = Math.max(nights, 1);
+        const count = this.calculateNights(reservation.start, reservation.end);
         const totalPrice = count * 2500; // $25.00 in cents
 
         console.log('Creating checkout session for:', { accessKey, reservation, frontendBase });

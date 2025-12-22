@@ -95,7 +95,8 @@ function App() {
   const checkAdmin = async () => {
     try {
       const res = await getActiveReservation();
-      setReservations(res ? [res] : []);
+      // res is now { reservations: [...] }
+      setReservations(res.reservations || []);
       setIsAdmin(true);
       return true;
     } catch (err) {
