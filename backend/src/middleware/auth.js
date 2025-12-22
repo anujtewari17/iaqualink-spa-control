@@ -4,9 +4,7 @@ import paidAccessService from '../services/paidAccessService.js';
 
 dotenv.config();
 
-const ADMIN_KEY = process.env.ACCESS_KEY;
-
-if (!ADMIN_KEY) {
+if (!process.env.ACCESS_KEY) {
   console.error('ACCESS_KEY environment variable must be set for security');
   process.exit(1);
 }
@@ -18,7 +16,8 @@ export const authMiddleware = async (req, res, next) => {
   }
 
   // Admin bypass
-  if (key === ADMIN_KEY) {
+  const adminKey = process.env.ACCESS_KEY;
+  if (key === adminKey) {
     return next();
   }
 

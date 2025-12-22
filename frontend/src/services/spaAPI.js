@@ -50,7 +50,7 @@ export const checkLocation = async (latitude, longitude) => {
 
 export const getActiveReservation = async () => {
   const res = await api.get('/api/keys');
-  return res.data.reservation || null;
+  return res.data;
 };
 
 export const validateAccessKey = async (key) => {
