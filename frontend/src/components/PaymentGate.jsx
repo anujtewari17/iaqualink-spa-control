@@ -8,8 +8,10 @@ import { createCheckoutSession } from '../services/spaAPI';
 
 // Initialize Stripe outside of component
 const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-console.log('Stripe Publishable Key exists:', !!publishableKey);
-const stripePromise = loadStripe(publishableKey);
+const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
+if (!publishableKey) {
+    console.error('VITE_STRIPE_PUBLISHABLE_KEY is not defined in the environment.');
+}
 
 const PaymentGate = ({ message }) => {
     const [showCheckout, setShowCheckout] = useState(false);
