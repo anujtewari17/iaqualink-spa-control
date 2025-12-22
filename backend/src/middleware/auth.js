@@ -34,5 +34,14 @@ export const authMiddleware = async (req, res, next) => {
     });
   }
 
+  // Check if reservation is active for control routes
+  const isControlRoute = req.path.includes('/toggle') || req.path.includes('/set-temperature');
+  if (isControlRoute && !accessKeyService.isKeyActive(key)) {
+    return res.status(403).json({
+      error: 'Forbidden',
+      message: 'Your spa access window has not started yet or has already ended.'
+    });
+  }
+
   return next();
 };

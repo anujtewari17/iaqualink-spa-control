@@ -72,12 +72,24 @@ class AccessKeyService {
     return now >= start && now <= end;
   }
 
+  isKeyActive(key) {
+    if (key === this.adminKey) return true;
+    const testKeys = ['99999999', '88888888', '77777777'];
+    if (testKeys.includes(key)) return true;
+
+    const reservation = this.getReservationForKey(key);
+    return reservation && this.isActive(reservation);
+  }
+
   async validateKey(key) {
     if (key === this.adminKey) return true;
     const testKeys = ['99999999', '88888888', '77777777'];
     if (testKeys.includes(key)) return true;
-    const current = this.getCurrentReservation();
-    return current && current.code === key;
+
+    // Allow any key that exists in our records to be "valid" 
+    // This allows guests to log in and pay for future reservations.
+    const reservation = this.getReservationForKey(key);
+    return !!reservation;
   }
 
   getActiveReservations() {
