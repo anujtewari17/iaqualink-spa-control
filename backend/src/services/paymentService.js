@@ -40,12 +40,12 @@ class PaymentService {
                         price_data: {
                             currency: 'usd',
                             product_data: {
-                                name: 'Spa Access',
-                                description: `Access to spa controls for ${count} nights`,
+                                name: 'Spa Access (per night)',
+                                description: `Access to spa controls for your ${count} night stay`,
                             },
-                            unit_amount: totalPrice,
+                            unit_amount: 2500, // $25.00 per night
                         },
-                        quantity: 1,
+                        quantity: count, // Number of nights
                     },
                 ],
                 return_url: `${frontendBase}/?session_id={CHECKOUT_SESSION_ID}&key=${accessKey}`,
