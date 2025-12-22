@@ -28,9 +28,22 @@ router.get('/session-status', async (req, res) => {
         const { session_id } = req.query;
         if (!session_id) return res.status(400).json({ error: 'Missing session_id' });
 
-        const status = await paymentService.getSessionStatus(session_id);
-        res.json(status);
+        const session = await paymentService.getSessionStatus(session_id);
+
+        // If payment is complete, ensure it's recorded in our local DB
+        // This acts as a fallback for webhooks
+        if (session.status === 'complete' && session.payment_status === 'paid') {
+            const { accessKey, nights } = session.metadata;
+            if (accessKey) {
+                console.log(`Manual status check confirmed payment for key: ${accessKey}`);
+                const paidAccessService = (await import('../services/paidAccessService.js')).default;
+                paidAccessService.addPayment(accessKey, session.amount_total, nights, session_id);
+            }
+        }
+
+        res.json(session);
     } catch (err) {
+        console.error('Session Status Error:', err);
         res.status(500).json({ error: err.message });
     }
 });

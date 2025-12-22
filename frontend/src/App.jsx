@@ -8,7 +8,8 @@ import {
   getSpaStatus,
   toggleSpaDevice,
   checkLocation,
-  getActiveReservation
+  getActiveReservation,
+  getSessionStatus
 } from './services/spaAPI';
 
 const getWithinSpaHours = () => {
@@ -259,6 +260,30 @@ function App() {
     const interval = setInterval(fetchSpaStatus, 5000);
     return () => clearInterval(interval);
   }, [authenticated, isAdminRoute, paymentRequired]);
+
+  // Handle return from Stripe payment
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('session_id');
+
+    if (sessionId && authenticated) {
+      const verifyPayment = async () => {
+        try {
+          const status = await getSessionStatus(sessionId);
+          if (status.status === 'complete' && status.payment_status === 'paid') {
+            console.log('Payment verified successfully!');
+            // Clear URL and refresh
+            window.history.replaceState({}, document.title, window.location.pathname);
+            setPaymentRequired(false);
+            fetchSpaStatus();
+          }
+        } catch (err) {
+          console.error('Failed to verify payment session:', err);
+        }
+      };
+      verifyPayment();
+    }
+  }, [authenticated]);
 
   if (!authenticated) {
     return <Login onLogin={handleLogin} />;

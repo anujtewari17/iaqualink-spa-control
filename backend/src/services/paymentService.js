@@ -66,8 +66,10 @@ class PaymentService {
         const session = await stripe.checkout.sessions.retrieve(sessionId);
         return {
             status: session.status,
-            customer_email: session.customer_details.email,
-            payment_status: session.payment_status
+            customer_email: session.customer_details?.email,
+            payment_status: session.payment_status,
+            metadata: session.metadata,
+            amount_total: session.amount_total
         };
     }
 
