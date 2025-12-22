@@ -74,7 +74,8 @@ class AccessKeyService {
 
   async validateKey(key) {
     if (key === this.adminKey) return true;
-    if (key === '99999999') return true; // Special test key
+    const testKeys = ['99999999', '88888888', '77777777'];
+    if (testKeys.includes(key)) return true;
     const current = this.getCurrentReservation();
     return current && current.code === key;
   }
@@ -101,12 +102,16 @@ class AccessKeyService {
 
   // Helper for internal use to get reservation for a specific key
   getReservationForKey(key) {
-    if (key === '99999999') {
+    if (key === '99999999' || key === '88888888' || key === '77777777') {
+      let nights = 1;
+      if (key === '99999999') nights = 3;
+      if (key === '77777777') nights = 5;
+
       return {
-        id: 'test-reservation',
+        id: `test-${key}`,
         start: new Date(),
-        end: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        code: '99999999'
+        end: new Date(Date.now() + nights * 24 * 60 * 60 * 1000),
+        code: key
       };
     }
     return this.reservations.find(r => r.code === key) || null;
