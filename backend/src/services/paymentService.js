@@ -33,6 +33,7 @@ class PaymentService {
         try {
             const session = await stripe.checkout.sessions.create({
                 ui_mode: 'embedded',
+                mode: 'payment',
                 payment_method_types: ['card'],
                 line_items: [
                     {
