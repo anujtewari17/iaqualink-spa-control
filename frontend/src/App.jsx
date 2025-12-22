@@ -253,12 +253,12 @@ function App() {
   }, [authenticated, isAdminRoute]);
 
   useEffect(() => {
-    if (!authenticated || isAdminRoute) return;
+    if (!authenticated || isAdminRoute || paymentRequired) return;
     verifyLocation();
     fetchSpaStatus();
     const interval = setInterval(fetchSpaStatus, 5000);
     return () => clearInterval(interval);
-  }, [authenticated, isAdminRoute]);
+  }, [authenticated, isAdminRoute, paymentRequired]);
 
   if (!authenticated) {
     return <Login onLogin={handleLogin} />;

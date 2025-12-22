@@ -28,7 +28,7 @@ const PaymentGate = ({ message }) => {
         }
     }, []);
 
-    const options = { fetchClientSecret };
+    const options = React.useMemo(() => ({ fetchClientSecret }), [fetchClientSecret]);
 
     if (showCheckout) {
         return (
