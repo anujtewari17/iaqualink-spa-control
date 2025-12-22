@@ -22,7 +22,7 @@ export const authMiddleware = async (req, res, next) => {
   }
 
   const valid = await accessKeyService.validateKey(key);
-  if (!valid) {
+  if (!valid || accessKeyService.isKeyExpired(key)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
