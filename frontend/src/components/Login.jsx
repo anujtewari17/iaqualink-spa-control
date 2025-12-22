@@ -47,7 +47,7 @@ function Login({ onLogin }) {
           onChange={(e) => setKey(e.target.value)}
           placeholder="Access Key"
         />
-        <button type="submit">Unlock</button>
+        <button type="submit" className="btn-primary">Unlock</button>
         {error && <p className="error">{error}</p>}
       </form>
     </div>

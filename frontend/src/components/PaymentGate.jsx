@@ -92,11 +92,11 @@ const PaymentGate = ({ message }) => {
                         )}
 
                         <button
-                            className="control-button primary"
+                            className="btn-primary"
                             onClick={() => setShowCheckout(true)}
-                            style={{ width: '100%', maxWidth: '300px', margin: '0 auto' }}
+                            style={{ width: '100%', maxWidth: '320px' }}
                         >
-                            Unlock Features
+                            Unlock Features Now
                         </button>
                         <p className="eyebrow" style={{ marginTop: '1.5rem', fontSize: '0.8rem' }}>
                             Secure payment via Stripe. Features unlock instantly after payment.
