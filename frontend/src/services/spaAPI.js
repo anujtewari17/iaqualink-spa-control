@@ -29,39 +29,23 @@ api.interceptors.response.use(
 );
 
 export const getSpaStatus = async () => {
-  try {
-    const response = await api.get('/api/status');
-    return response.data;
-  } catch (error) {
-    throw new Error('Failed to fetch spa status');
-  }
+  const response = await api.get('/api/status');
+  return response.data;
 };
 
 export const toggleSpaDevice = async (device) => {
-  try {
-    const response = await api.post(`/api/toggle/${device}`);
-    return response.data;
-  } catch (error) {
-    throw new Error(`Failed to toggle ${device}`);
-  }
+  const response = await api.post(`/api/toggle/${device}`);
+  return response.data;
 };
 
 export const setSpaTemperature = async (temperature) => {
-  try {
-    const response = await api.post('/api/set-temperature', { temperature });
-    return response.data;
-  } catch (error) {
-    throw new Error('Failed to set spa temperature');
-  }
+  const response = await api.post('/api/set-temperature', { temperature });
+  return response.data;
 };
 
 export const checkLocation = async (latitude, longitude) => {
-  try {
-    const res = await api.post('/api/check-location', { latitude, longitude });
-    return res.data.allowed;
-  } catch (error) {
-    throw new Error('Failed to verify location');
-  }
+  const res = await api.post('/api/check-location', { latitude, longitude });
+  return res.data.allowed;
 };
 
 export const getActiveReservation = async () => {
@@ -77,21 +61,13 @@ export const validateAccessKey = async (key) => {
 };
 
 export const createCheckoutSession = async () => {
-  try {
-    const response = await api.post('/api/payments/create-checkout-session');
-    return response.data;
-  } catch (error) {
-    throw new Error('Failed to start payment process');
-  }
+  const response = await api.post('/api/payments/create-checkout-session');
+  return response.data;
 };
 
 export const getSessionStatus = async (sessionId) => {
-  try {
-    const response = await api.get(`/api/payments/session-status?session_id=${sessionId}`);
-    return response.data;
-  } catch (error) {
-    throw new Error('Failed to fetch session status');
-  }
+  const response = await api.get(`/api/payments/session-status?session_id=${sessionId}`);
+  return response.data;
 };
 
 export default api;
