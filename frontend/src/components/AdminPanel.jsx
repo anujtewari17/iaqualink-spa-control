@@ -56,19 +56,19 @@ const AdminPanel = ({ reservations = [] }) => {
                   ) : (
                     reservations.map((r) => (
                       <tr key={r.code}>
-                        <td>
+                        <td data-label="Guest">
                           <div className="guest-info">
                             <span className="guest-code">{r.code}</span>
                           </div>
                         </td>
-                        <td>
+                        <td data-label="Dates">
                           <div className="date-range">
                             {formatDate(r.start)} – {formatDate(r.end)}
                           </div>
                         </td>
-                        <td>{r.nights}</td>
-                        <td>${r.totalPrice?.toFixed(2)}</td>
-                        <td>
+                        <td data-label="Nights">{r.nights}</td>
+                        <td data-label="Amount">${r.totalPrice?.toFixed(2)}</td>
+                        <td data-label="Status">
                           <span className={`status-pill ${r.isPaid ? 'paid' : 'unpaid'}`}>
                             {r.isPaid ? 'Paid' : 'Unpaid'}
                           </span>

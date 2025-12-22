@@ -574,6 +574,58 @@ p {
   font-size: 1.1rem;
 }
 
+/* Mobile Admin Table Card-UI */
+@media (max-width: 760px) {
+  .admin-table thead {
+    display: none;
+    /* Hide headers on mobile */
+  }
+
+  .admin-table tr {
+    display: block;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 8px solid rgba(0, 0, 0, 0.2);
+  }
+
+  .admin-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: right;
+  }
+
+  .admin-table td:last-child {
+    border-bottom: none;
+    justify-content: center;
+    padding-top: 1.5rem;
+  }
+
+  .admin-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-align: left;
+  }
+
+  .admin-table td.text-right {
+    text-align: center;
+  }
+
+  .btn-action {
+    width: 100%;
+  }
+
+  .guest-code {
+    font-size: 0.8rem;
+  }
+}
+
 /* Accessibility tweaks */
 @media (prefers-reduced-motion: reduce) {
   .ctrl-btn {
