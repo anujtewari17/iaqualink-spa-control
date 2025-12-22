@@ -495,20 +495,27 @@ p {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.admin-table td {
-  padding: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+.guest-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.guest-name {
+  font-weight: 700;
   color: var(--text-primary);
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .guest-code {
   font-family: 'JetBrains Mono', monospace;
   background: rgba(255, 255, 255, 0.05);
-  padding: 0.4rem 0.6rem;
+  padding: 0.25rem 0.5rem;
   border-radius: 6px;
   font-weight: 500;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.8rem;
+  width: fit-content;
 }
 
 .date-range {

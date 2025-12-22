@@ -24,6 +24,7 @@ router.get('/', async (req, res) => {
       start: r.start,
       end: r.end,
       nights,
+      guestName: r.guestName || 'Guest',
       totalPrice: nights * 25.0,
       isPaid: paidAccessService.isPaid(r.code)
     };
