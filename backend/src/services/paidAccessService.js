@@ -1,0 +1,53 @@
+import fs from 'fs';
+import path from 'path';
+
+const PAYMENTS_FILE = path.resolve('payments.json');
+
+class PaidAccessService {
+    constructor() {
+        this.payments = [];
+        this.load();
+    }
+
+    load() {
+        try {
+            if (fs.existsSync(PAYMENTS_FILE)) {
+                const data = fs.readFileSync(PAYMENTS_FILE, 'utf8');
+                this.payments = JSON.parse(data);
+            } else {
+                this.payments = [];
+                this.save();
+            }
+        } catch (e) {
+            console.error('Failed to load payments:', e.message);
+            this.payments = [];
+        }
+    }
+
+    save() {
+        try {
+            fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(this.payments, null, 2));
+        } catch (e) {
+            console.error('Failed to save payments:', e.message);
+        }
+    }
+
+    addPayment(accessKey, amount, nights, sessionId) {
+        this.payments.push({
+            accessKey,
+            amount,
+            nights,
+            sessionId,
+            timestamp: new Date().toISOString()
+        });
+        this.save();
+    }
+
+    isPaid(accessKey) {
+        // Current simple logic: if there is any payment for this key, it's paid.
+        // In a real scenario, you'd check if the payment is sufficient for the stay.
+        return this.payments.some(p => p.accessKey === accessKey);
+    }
+}
+
+export default new PaidAccessService();

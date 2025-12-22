@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import accessKeyService from '../services/accessKeyService.js';
+import paidAccessService from '../services/paidAccessService.js';
 
 dotenv.config();
 
@@ -15,9 +16,24 @@ export const authMiddleware = async (req, res, next) => {
   if (!key) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  const valid = await accessKeyService.validateKey(key);
-  if (valid) {
+
+  // Admin bypass
+  if (key === ADMIN_KEY) {
     return next();
   }
-  return res.status(401).json({ error: 'Unauthorized' });
+
+  const valid = await accessKeyService.validateKey(key);
+  if (!valid) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // Check paid status for guest keys
+  if (!paidAccessService.isPaid(key)) {
+    return res.status(402).json({
+      error: 'Payment Required',
+      message: 'Access to spa controls requires a one-time payment for your stay.'
+    });
+  }
+
+  return next();
 };

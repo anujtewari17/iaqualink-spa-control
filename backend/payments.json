@@ -1,0 +1,9 @@
+[
+  {
+    "accessKey": "guest-123",
+    "amount": 2500,
+    "nights": 1,
+    "sessionId": "session-abc",
+    "timestamp": "2025-12-22T01:36:15.181Z"
+  }
+]

@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import SpaControls from './components/SpaControls';
 import Login from './components/Login';
 import AdminPanel from './components/AdminPanel';
+import PaymentGate from './components/PaymentGate';
 import {
   getSpaStatus,
   toggleSpaDevice,
@@ -46,6 +47,8 @@ function App() {
     message: '',
     device: null
   });
+  const [paymentRequired, setPaymentRequired] = useState(false);
+  const [paymentMessage, setPaymentMessage] = useState('');
 
   const applyBackendStatus = (status) => {
     setStatusFailures(0);
@@ -110,8 +113,14 @@ function App() {
     try {
       const status = await getSpaStatus();
       applyBackendStatus(status);
+      setPaymentRequired(false);
     } catch (err) {
       console.error('Failed to fetch spa status:', err);
+      if (err.response?.status === 402) {
+        setPaymentRequired(true);
+        setPaymentMessage(err.response.data.message);
+        return;
+      }
       setStatusFailures((prev) => {
         const next = prev + 1;
         if (next >= 3) {
@@ -256,17 +265,17 @@ function App() {
   }
   const lastUpdatedLabel = spaData.lastUpdate
     ? new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: '2-digit'
-      }).format(spaData.lastUpdate)
+      hour: 'numeric',
+      minute: '2-digit'
+    }).format(spaData.lastUpdate)
     : 'pending';
 
   const locationLabel =
     locationAllowed === null
       ? 'Checking location'
       : locationAllowed
-      ? 'Location ok'
-      : 'Location needed';
+        ? 'Location ok'
+        : 'Location needed';
 
   const guestPage = (
     <div className="app-shell">
@@ -321,7 +330,7 @@ function App() {
       <Route
         path="/admin"
         element={
-         isAdmin === null ? (
+          isAdmin === null ? (
             loadingScreen
           ) : isAdmin ? (
             <AdminPanel reservations={reservations} />
@@ -332,7 +341,15 @@ function App() {
       />
       <Route
         path="/"
-        element={loading && !spaData.lastUpdate ? loadingScreen : guestPage}
+        element={
+          loading && !spaData.lastUpdate ? (
+            loadingScreen
+          ) : paymentRequired ? (
+            <PaymentGate message={paymentMessage} />
+          ) : (
+            guestPage
+          )
+        }
       />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

@@ -80,4 +80,22 @@ export const validateAccessKey = async (key) => {
   }
 };
 
+export const createCheckoutSession = async () => {
+  try {
+    const response = await api.post('/api/payments/create-checkout-session');
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to start payment process');
+  }
+};
+
+export const getSessionStatus = async (sessionId) => {
+  try {
+    const response = await api.get(`/api/payments/session-status?session_id=${sessionId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch session status');
+  }
+};
+
 export default api;

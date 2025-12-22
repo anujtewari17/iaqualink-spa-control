@@ -9,6 +9,8 @@
     "deploy": "npm run build && rm -rf ../docs/assets && cp -r dist/* ../docs/ && cp dist/index.html ../docs/admin/index.html && sed -i 's#./assets/#../assets/#g' ../docs/admin/index.html"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^5.4.1",
+    "@stripe/stripe-js": "^8.6.0",
     "axios": "^1.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
