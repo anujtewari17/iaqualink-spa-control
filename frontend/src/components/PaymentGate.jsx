@@ -7,7 +7,9 @@ import {
 import { createCheckoutSession } from '../services/spaAPI';
 
 // Initialize Stripe outside of component
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+console.log('Stripe Publishable Key exists:', !!publishableKey);
+const stripePromise = loadStripe(publishableKey);
 
 const PaymentGate = ({ message }) => {
     const [showCheckout, setShowCheckout] = useState(false);
