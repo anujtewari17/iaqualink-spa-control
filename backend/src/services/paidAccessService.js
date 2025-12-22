@@ -44,8 +44,10 @@ class PaidAccessService {
     }
 
     isPaid(accessKey) {
+        // Special bypass key for complimentary access
+        if (accessKey === '948katmai') return true;
+
         // Current simple logic: if there is any payment for this key, it's paid.
-        // In a real scenario, you'd check if the payment is sufficient for the stay.
         return this.payments.some(p => p.accessKey === accessKey);
     }
 }
