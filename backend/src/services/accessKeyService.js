@@ -114,19 +114,22 @@ class AccessKeyService {
 
   // Helper for internal use to get reservation for a specific key
   getReservationForKey(key) {
-    if (key === '99999999' || key === '88888888' || key === '77777777') {
+    if (!key) return null;
+    const normalizedKey = String(key).trim();
+
+    if (normalizedKey === '99999999' || normalizedKey === '88888888' || normalizedKey === '77777777') {
       let nights = 1;
-      if (key === '99999999') nights = 3;
-      if (key === '77777777') nights = 5;
+      if (normalizedKey === '99999999') nights = 3;
+      if (normalizedKey === '77777777') nights = 5;
 
       return {
-        id: `test-${key}`,
+        id: `test-${normalizedKey}`,
         start: new Date(),
         end: new Date(Date.now() + nights * 24 * 60 * 60 * 1000),
-        code: key
+        code: normalizedKey
       };
     }
-    return this.reservations.find(r => r.code === key) || null;
+    return this.reservations.find(r => r.code === normalizedKey) || null;
   }
 
   getAllReservations() {
