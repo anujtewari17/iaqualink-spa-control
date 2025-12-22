@@ -12,8 +12,8 @@ router.post('/create-checkout-session', async (req, res) => {
         const isValid = await accessKeyService.validateKey(key);
         if (!isValid) return res.status(401).json({ error: 'Invalid access key' });
 
-        const reservation = accessKeyService.getCurrentReservation();
-        if (!reservation) return res.status(400).json({ error: 'No active reservation found' });
+        const reservation = accessKeyService.getReservationForKey(key);
+        if (!reservation) return res.status(400).json({ error: 'No active reservation found for this key' });
 
         const session = await paymentService.createCheckoutSession(key, reservation);
         res.json({ clientSecret: session.client_secret });
