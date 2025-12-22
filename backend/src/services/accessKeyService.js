@@ -25,13 +25,11 @@ class AccessKeyService {
       for (const key of Object.keys(events)) {
         const ev = events[key];
         if (ev.type === 'VEVENT' && ev.start && ev.end) {
-          const guestName = ev.summary ? ev.summary.replace('Reserved - ', '').trim() : 'Guest';
           reservations.push({
             id: ev.uid || key,
             start: new Date(ev.start),
             end: new Date(ev.end),
-            code: this.generateCode(new Date(ev.start), new Date(ev.end)),
-            guestName
+            code: this.generateCode(new Date(ev.start), new Date(ev.end))
           });
         }
       }
@@ -114,8 +112,7 @@ class AccessKeyService {
       id: 'test-reservation',
       start: new Date(),
       end: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      code: '99999999',
-      guestName: 'Test Guest (3 Nights)'
+      code: '99999999'
     };
     return current ? [current, test] : [test];
   }
@@ -136,19 +133,14 @@ class AccessKeyService {
 
     if (normalizedKey === '99999999' || normalizedKey === '88888888' || normalizedKey === '77777777' || normalizedKey === '948katmai') {
       let nights = 1;
-      let name = 'Test Guest';
-
-      if (normalizedKey === '99999999') { nights = 3; name = 'Test Guest (3 Nights)'; }
-      if (normalizedKey === '77777777') { nights = 5; name = 'Test Guest (5 Nights)'; }
-      if (normalizedKey === '88888888') { nights = 1; name = 'Test Guest (1 Night)'; }
-      if (normalizedKey === '948katmai') { nights = 1; name = 'Property Bypass (Complimentary)'; }
+      if (normalizedKey === '99999999') nights = 3;
+      if (normalizedKey === '77777777') nights = 5;
 
       return {
         id: `test-${normalizedKey}`,
         start: new Date(),
         end: new Date(Date.now() + nights * 24 * 60 * 60 * 1000),
-        code: normalizedKey,
-        guestName: name
+        code: normalizedKey
       };
     }
     return this.reservations.find(r => r.code === normalizedKey) || null;

@@ -58,7 +58,6 @@ const AdminPanel = ({ reservations = [] }) => {
                       <tr key={r.code}>
                         <td data-label="Guest">
                           <div className="guest-info">
-                            <span className="guest-name">{r.guestName}</span>
                             <span className="guest-code">{r.code}</span>
                           </div>
                         </td>
