@@ -28,30 +28,37 @@ class PaymentService {
         const count = Math.max(nights, 1);
         const totalPrice = count * 2500; // $25.00 in cents
 
-        const session = await stripe.checkout.sessions.create({
-            ui_mode: 'embedded',
-            payment_method_types: ['card'],
-            line_items: [
-                {
-                    price_data: {
-                        currency: 'usd',
-                        product_data: {
-                            name: 'Spa Access',
-                            description: `Access to spa controls for ${count} nights`,
-                        },
-                        unit_amount: totalPrice,
-                    },
-                    quantity: 1,
-                },
-            ],
-            return_url: `${frontendBase}/?session_id={CHECKOUT_SESSION_ID}&key=${accessKey}`,
-            metadata: {
-                accessKey,
-                nights: count
-            },
-        });
+        console.log('Creating checkout session for:', { accessKey, reservation, frontendBase });
 
-        return session;
+        try {
+            const session = await stripe.checkout.sessions.create({
+                ui_mode: 'embedded',
+                payment_method_types: ['card'],
+                line_items: [
+                    {
+                        price_data: {
+                            currency: 'usd',
+                            product_data: {
+                                name: 'Spa Access',
+                                description: `Access to spa controls for ${count} nights`,
+                            },
+                            unit_amount: totalPrice,
+                        },
+                        quantity: 1,
+                    },
+                ],
+                return_url: `${frontendBase}/?session_id={CHECKOUT_SESSION_ID}&key=${accessKey}`,
+                metadata: {
+                    accessKey,
+                    nights: count
+                },
+            });
+            console.log('Checkout session created successfully');
+            return session;
+        } catch (stripeError) {
+            console.error('Stripe SDK Error:', stripeError);
+            throw stripeError;
+        }
     }
 
     async getSessionStatus(sessionId) {
