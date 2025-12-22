@@ -95,11 +95,12 @@ function App() {
   const checkAdmin = async () => {
     try {
       const res = await getActiveReservation();
-      // res is now { reservations: [...] }
+      // If we got here, we are an admin (no 403 error)
       setReservations(res.reservations || []);
       setIsAdmin(true);
       return true;
     } catch (err) {
+      console.log('Not an admin, redirecting...');
       setIsAdmin(false);
       return false;
     }
@@ -121,6 +122,8 @@ function App() {
       if (err.response?.status === 402) {
         setPaymentRequired(true);
         setPaymentMessage(err.response.data.message);
+        // Clear spa data so we don't show stale info behind the gate
+        setSpaData(prev => ({ ...prev, lastUpdate: null }));
         return;
       }
       setStatusFailures((prev) => {
