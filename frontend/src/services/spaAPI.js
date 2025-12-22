@@ -70,14 +70,10 @@ export const getActiveReservation = async () => {
 };
 
 export const validateAccessKey = async (key) => {
-  try {
-    const res = await api.get('/api/status', {
-      headers: { 'x-access-key': key },
-    });
-    return res.data;
-  } catch (error) {
-    throw new Error('Invalid access key');
-  }
+  const res = await api.get('/api/status', {
+    headers: { 'x-access-key': key },
+  });
+  return res.data;
 };
 
 export const createCheckoutSession = async () => {

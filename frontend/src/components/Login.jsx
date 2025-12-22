@@ -10,6 +10,13 @@ function Login({ onLogin }) {
       await validateAccessKey(k);
       onLogin(k);
     } catch (err) {
+      // If it's a 402, the key is valid but payment is required.
+      // We should treat this as a successful login so the App can show the PaymentGate.
+      if (err.response?.status === 402) {
+        onLogin(k);
+        return;
+      }
+      console.error('Login Error:', err);
       setError('Invalid access key');
     }
   };
