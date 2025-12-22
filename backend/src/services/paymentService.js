@@ -31,11 +31,6 @@ class PaymentService {
         console.log('Creating checkout session for:', { accessKey, reservation, frontendBase });
 
         try {
-            const stripeOptions = {};
-            if (process.env.STRIPE_ACCOUNT_ID) {
-                stripeOptions.stripeAccount = process.env.STRIPE_ACCOUNT_ID;
-            }
-
             const session = await stripe.checkout.sessions.create({
                 ui_mode: 'embedded',
                 mode: 'payment',
@@ -58,7 +53,7 @@ class PaymentService {
                     accessKey,
                     nights: count
                 },
-            }, stripeOptions);
+            });
             console.log('Checkout session created successfully');
             return session;
         } catch (stripeError) {
@@ -68,11 +63,7 @@ class PaymentService {
     }
 
     async getSessionStatus(sessionId) {
-        const stripeOptions = {};
-        if (process.env.STRIPE_ACCOUNT_ID) {
-            stripeOptions.stripeAccount = process.env.STRIPE_ACCOUNT_ID;
-        }
-        const session = await stripe.checkout.sessions.retrieve(sessionId, stripeOptions);
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
         return {
             status: session.status,
             customer_email: session.customer_details.email,
