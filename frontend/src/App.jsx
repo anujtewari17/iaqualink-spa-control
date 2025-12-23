@@ -20,9 +20,18 @@ const getWithinSpaHours = () => {
 function App() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const [authenticated, setAuthenticated] = useState(
-    !!localStorage.getItem('accessKey')
-  );
+  const [authenticated, setAuthenticated] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlKey = params.get('key');
+    const storedKey = localStorage.getItem('accessKey');
+
+    // If no key anywhere, default to 'katmaiguest' to show payment gate immediately
+    if (!urlKey && !storedKey) {
+      localStorage.setItem('accessKey', 'katmaiguest');
+      return true;
+    }
+    return !!(urlKey || storedKey);
+  });
   // null -> checking, true -> admin, false -> guest
   const [isAdmin, setIsAdmin] = useState(null);
   const [currentGuest, setCurrentGuest] = useState(null);
