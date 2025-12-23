@@ -48,10 +48,15 @@ class PaidAccessService {
         const normalizedKey = String(accessKey).trim().toLowerCase();
 
         // Special bypass key for complimentary access
-        if (normalizedKey === '948katmai') return true;
+        if (normalizedKey === '948katmai') {
+            console.log('[PaidAccess] Bypass key 948katmai detected');
+            return true;
+        }
 
         // Simplified logic: any payment for this key unlocks it.
-        return this.payments.some(p => p.accessKey === normalizedKey);
+        const found = this.payments.some(p => p.accessKey === normalizedKey);
+        console.log(`[PaidAccess] Checking payment for ${normalizedKey}: ${found ? 'FOUND' : 'NOT FOUND'}`);
+        return found;
     }
 }
 

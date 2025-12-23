@@ -21,13 +21,23 @@ export const authMiddleware = async (req, res, next) => {
     return next();
   }
 
+  // 948katmai is a complimentary bypass key (house address)
+  if (key === '948katmai') {
+    console.log('[Auth] Bypassing payment for 948katmai');
+    return next();
+  }
+
   const valid = await accessKeyService.validateKey(key);
   if (!valid || accessKeyService.isKeyExpired(key)) {
+    console.log(`[Auth] Invalid or expired key: ${key}`);
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
   // Check paid status for guest keys
-  if (!paidAccessService.isPaid(key)) {
+  const paid = paidAccessService.isPaid(key);
+  console.log(`[Auth] Paid status for ${key}: ${paid}`);
+
+  if (!paid) {
     return res.status(402).json({
       error: 'Payment Required',
       message: 'Access to spa controls requires a one-time payment for your stay.'
