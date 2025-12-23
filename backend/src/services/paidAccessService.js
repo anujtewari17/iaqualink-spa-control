@@ -47,33 +47,18 @@ class PaidAccessService {
         if (!accessKey) return false;
         const normalizedKey = String(accessKey).trim().toLowerCase();
 
+
         // Special bypass key for complimentary access (no expiry)
         if (normalizedKey === '948katmai') {
             console.log('[PaidAccess] Bypass key 948katmai detected');
             return true;
         }
 
-        // Find all payments for this key and pick the most recent one
-        const userPayments = this.payments
-            .filter(p => p.accessKey === normalizedKey)
-            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-        if (userPayments.length === 0) return false;
-
-        const latest = userPayments[0];
-        const nights = latest.nights || 1;
-        const paymentTime = new Date(latest.timestamp);
-
-        // Access expires at 1 PM on the day after their last paid night
-        const expiryDate = new Date(paymentTime);
-        expiryDate.setDate(expiryDate.getDate() + nights);
-        expiryDate.setHours(13, 0, 0, 0); // 1 PM buffer
-
-        const isStillValid = new Date() <= expiryDate;
-
-        console.log(`[PaidAccess] Checking payment for ${normalizedKey}: ${isStillValid ? 'VALID' : 'EXPIRED'} (Paid for ${nights} nights on ${paymentTime.toLocaleDateString()})`);
-
-        return isStillValid;
+        // Honor System: If a payment exists for this specific key, it's unlocked for the trip.
+        // The reset happens when the 'accessKey' changes (next reservation) or via manual reset.
+        const found = this.payments.some(p => p.accessKey === normalizedKey);
+        console.log(`[PaidAccess] Checking payment for ${normalizedKey}: ${found ? 'PAID (Honor System)' : 'UNPAID'}`);
+        return found;
     }
 
     clearPayments(accessKey) {

@@ -82,12 +82,12 @@ const AdminPanel = ({ guestStatus, onRefresh }) => {
 
               {guestStatus?.isPaid && (
                 <div className="stat-block" style={{ marginTop: '1.5rem' }}>
-                  <p className="small-label">Access Expires (Checkout)</p>
-                  <p style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--info)' }}>
-                    {formatExpiry(guestStatus.expiry)}
+                  <p className="small-label">Access Duration</p>
+                  <p style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--success)' }}>
+                    ✅ Unlocked for Full Trip
                   </p>
                   <p className="muted" style={{ fontSize: '0.85rem', marginTop: '0.2rem' }}>
-                    Access locks automatically at 1:00 PM on the day after the last paid night.
+                    Access remains active as long as the current guest is in session.
                   </p>
                 </div>
               )}
