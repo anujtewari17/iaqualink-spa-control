@@ -14,22 +14,28 @@ router.get('/', async (req, res) => {
   const paymentService = (await import('../services/paymentService.js')).default;
   const paidAccessService = (await import('../services/paidAccessService.js')).default;
 
-  const allReservations = accessKeyService.getAllReservations();
-
-  const enrichedReservations = allReservations.map(r => {
-    const nights = paymentService.calculateNights(r.start, r.end);
-    return {
-      code: r.code,
-      url: r.url,
-      start: r.start,
-      end: r.end,
+  // Current Airbnb guest
+  const current = accessKeyService.getCurrentReservation();
+  let currentGuest = null;
+  if (current) {
+    const nights = paymentService.calculateNights(current.start, current.end);
+    currentGuest = {
+      code: current.code,
+      start: current.start,
+      end: current.end,
       nights,
-      totalPrice: nights * 25.0,
-      isPaid: paidAccessService.isPaid(r.code)
+      isPaid: paidAccessService.isPaid(current.code)
     };
-  });
+  }
 
-  res.json({ reservations: enrichedReservations });
+  // Shared generic guest link
+  const sharedStatus = {
+    code: 'katmaiguest',
+    url: accessKeyService.generateUrl('katmaiguest'),
+    isPaid: paidAccessService.isPaid('katmaiguest')
+  };
+
+  res.json({ currentGuest, sharedStatus });
 });
 
 export default router;

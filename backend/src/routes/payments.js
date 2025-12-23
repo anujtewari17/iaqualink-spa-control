@@ -7,15 +7,17 @@ const router = express.Router();
 router.post('/create-checkout-session', async (req, res) => {
     try {
         const key = req.headers['x-access-key'];
-        if (!key) return res.status(401).json({ error: 'Unauthorized' });
+        const { accessKey, nights } = req.body; // Extract accessKey and nights from request body
+        if (!accessKey) return res.status(400).json({ error: 'Missing accessKey in request body' });
 
-        const isValid = await accessKeyService.validateKey(key);
+        const isValid = await accessKeyService.validateKey(accessKey);
         if (!isValid) return res.status(401).json({ error: 'Invalid access key' });
 
-        const reservation = accessKeyService.getReservationForKey(key);
+        const reservation = accessKeyService.getReservationForKey(accessKey);
         if (!reservation) return res.status(400).json({ error: 'No active reservation found for this key' });
 
-        const session = await paymentService.createCheckoutSession(key, reservation);
+        // Pass accessKey, reservation, and nights to the payment service
+        const session = await paymentService.createCheckoutSession(accessKey, reservation, nights || 1);
         res.json({ clientSecret: session.client_secret });
     } catch (err) {
         console.error('Checkout Error:', err);

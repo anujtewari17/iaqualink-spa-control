@@ -47,7 +47,7 @@ class PaidAccessService {
         // Special bypass key for complimentary access
         if (accessKey === '948katmai') return true;
 
-        // Current simple logic: if there is any payment for this key, it's paid.
+        // Simplified logic: any payment for this key unlocks it.
         return this.payments.some(p => p.accessKey === accessKey);
     }
 }

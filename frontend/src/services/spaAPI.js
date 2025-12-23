@@ -60,9 +60,10 @@ export const validateAccessKey = async (key) => {
   return res.data;
 };
 
-export const createCheckoutSession = async () => {
-  const response = await api.post('/api/payments/create-checkout-session');
-  return response.data;
+export const createCheckoutSession = async (nights = 1) => {
+  const accessKey = getAccessKey();
+  const res = await api.post('/api/payments/create-checkout-session', { accessKey, nights });
+  return res.data;
 };
 
 export const getSessionStatus = async (sessionId) => {

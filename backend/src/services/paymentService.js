@@ -15,7 +15,7 @@ class PaymentService {
         return Math.max(nights, 1);
     }
 
-    async createCheckoutSession(accessKey, reservation) {
+    async createCheckoutSession(accessKey, reservation, requestedNights) {
         if (!process.env.STRIPE_SECRET_KEY) {
             throw new Error('STRIPE_SECRET_KEY is not configured');
         }
@@ -26,11 +26,10 @@ class PaymentService {
         }
         frontendBase = frontendBase.replace(/\/?$/, '');
 
-        // Calculate nights
-        const count = this.calculateNights(reservation.start, reservation.end);
-        const totalPrice = count * 2500; // $25.00 in cents
+        // Use requested nights if provided, otherwise calculate from reservation
+        const count = requestedNights ? parseInt(requestedNights) : this.calculateNights(reservation.start, reservation.end);
 
-        console.log('Creating checkout session for:', { accessKey, reservation, frontendBase });
+        console.log('Creating checkout session for:', { accessKey, reservation, requestedNights, finalCount: count });
 
         try {
             const session = await stripe.checkout.sessions.create({
@@ -43,11 +42,11 @@ class PaymentService {
                             currency: 'usd',
                             product_data: {
                                 name: 'Spa Access (per night)',
-                                description: `Access to spa controls for your ${count} night stay`,
+                                description: `Access to spa controls for ${count} night(s)`,
                             },
                             unit_amount: 2500, // $25.00 per night
                         },
-                        quantity: count, // Number of nights
+                        quantity: count,
                     },
                 ],
                 return_url: `${frontendBase}/?session_id={CHECKOUT_SESSION_ID}&key=${accessKey}`,

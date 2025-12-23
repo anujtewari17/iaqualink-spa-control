@@ -122,11 +122,19 @@ p {
 .pill-success {
   background: rgba(34, 211, 163, 0.15);
   border-color: rgba(34, 211, 163, 0.35);
+  color: #22d3a3;
 }
 
 .pill-danger {
   background: rgba(255, 107, 107, 0.18);
   border-color: rgba(255, 107, 107, 0.4);
+  color: #ff6b6b;
+}
+
+.status-chips {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: -1rem;
 }
 
 .pill-info {

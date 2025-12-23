@@ -15,20 +15,25 @@ if (!publishableKey) {
 
 const PaymentGate = ({ message }) => {
     const [showCheckout, setShowCheckout] = useState(false);
+    const [nights, setNights] = useState(3);
     const [error, setError] = useState(null);
 
     const fetchClientSecret = useCallback(async () => {
         try {
-            const { clientSecret } = await createCheckoutSession();
+            const { clientSecret } = await createCheckoutSession(nights);
             return clientSecret;
         } catch (err) {
             console.error('Payment Error:', err);
             setError('Could not start payment. Please try again or contact support.');
             throw err;
         }
-    }, []);
+    }, [nights]);
 
     const options = React.useMemo(() => ({ fetchClientSecret }), [fetchClientSecret]);
+
+    const handleNightsChange = (delta) => {
+        setNights(prev => Math.max(1, Math.min(14, prev + delta)));
+    };
 
     if (showCheckout) {
         return (
@@ -75,28 +80,63 @@ const PaymentGate = ({ message }) => {
                 </header>
 
                 <main className="app-main">
-                    <div className="card status-card" style={{ textAlign: 'center', padding: '2rem' }}>
-                        <div className="status-value" style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+                    <div className="card status-card" style={{ textAlign: 'center', padding: '2.5rem' }}>
+                        <div className="status-value" style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>
                             🌊
                         </div>
-                        <p style={{ fontSize: '1.2rem', marginBottom: '1.5rem', opacity: 0.9 }}>
+                        <h2 style={{ marginBottom: '1rem' }}>Welcome!</h2>
+                        <p style={{ fontSize: '1.1rem', marginBottom: '2rem', opacity: 0.9 }}>
                             {message || 'Access to spa controls requires a one-time payment for your stay.'}
                         </p>
-                        <div className="temp-display" style={{ marginBottom: '2rem' }}>
-                            <span className="temp-value">$25</span>
-                            <span className="temp-unit">/night</span>
+
+                        <div className="night-selector" style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '1rem',
+                            marginBottom: '2.5rem',
+                            background: 'rgba(255,255,255,0.04)',
+                            padding: '1.5rem',
+                            borderRadius: '16px',
+                            border: '1px solid rgba(255,255,255,0.06)'
+                        }}>
+                            <p className="eyebrow" style={{ fontSize: '0.75rem' }}>Select number of nights</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                                <button
+                                    className="pill pill-ghost"
+                                    onClick={() => handleNightsChange(-1)}
+                                    style={{ fontSize: '1.5rem', width: '45px', height: '45px', justifyContent: 'center', cursor: 'pointer' }}
+                                >
+                                    −
+                                </button>
+                                <div style={{ textAlign: 'center' }}>
+                                    <span style={{ fontSize: '2.5rem', fontWeight: '700', display: 'block' }}>{nights}</span>
+                                    <span className="label" style={{ fontSize: '0.9rem' }}>{nights === 1 ? 'NIGHT' : 'NIGHTS'}</span>
+                                </div>
+                                <button
+                                    className="pill pill-ghost"
+                                    onClick={() => handleNightsChange(1)}
+                                    style={{ fontSize: '1.5rem', width: '45px', height: '45px', justifyContent: 'center', cursor: 'pointer' }}
+                                >
+                                    +
+                                </button>
+                            </div>
+                            <div className="temp-display" style={{ marginTop: '0.5rem' }}>
+                                <span className="temp-value" style={{ fontSize: '1.8rem' }}>${nights * 25}</span>
+                                <span className="temp-unit" style={{ fontSize: '1rem' }}> TOTAL</span>
+                            </div>
                         </div>
 
                         {error && (
-                            <p style={{ color: '#ff4d4d', marginBottom: '1rem' }}>{error}</p>
+                            <p style={{ color: '#ff4d4d', marginBottom: '1.5rem' }}>{error}</p>
                         )}
 
                         <button
                             className="btn-primary"
                             onClick={() => setShowCheckout(true)}
-                            style={{ width: '100%', maxWidth: '320px' }}
+                            style={{ width: '100%', maxWidth: '340px' }}
                         >
-                            Unlock Features Now
+                            Unlock Features for {nights} {nights === 1 ? 'Night' : 'Nights'}
                         </button>
                         <p className="eyebrow" style={{ marginTop: '1.5rem', fontSize: '0.8rem' }}>
                             Secure payment via Stripe. Features unlock instantly after payment.

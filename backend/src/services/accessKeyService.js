@@ -9,6 +9,7 @@ class AccessKeyService {
     this.feedUrl = process.env.ICS_FEED_URL;
     this.frontendUrl = process.env.FRONTEND_URL || '';
     this.adminKey = process.env.ACCESS_KEY;
+    this.testKeys = ['99999999', '88888888', '77777777', '948katmai', 'katmaiguest'];
     this.reservations = [];
     if (this.feedUrl) {
       this.updateReservations();
@@ -74,8 +75,7 @@ class AccessKeyService {
 
   isKeyActive(key) {
     if (key === this.adminKey) return true;
-    const testKeys = ['99999999', '88888888', '77777777', '948katmai'];
-    if (testKeys.includes(key)) return true;
+    if (this.testKeys.includes(key)) return true;
 
     const reservation = this.getReservationForKey(key);
     return reservation && this.isActive(reservation);
@@ -83,8 +83,7 @@ class AccessKeyService {
 
   isKeyExpired(key) {
     if (key === this.adminKey) return false;
-    const testKeys = ['99999999', '88888888', '77777777', '948katmai'];
-    if (testKeys.includes(key)) return false;
+    if (this.testKeys.includes(key)) return false;
 
     const reservation = this.getReservationForKey(key);
     if (!reservation) return true;
@@ -97,8 +96,7 @@ class AccessKeyService {
 
   async validateKey(key) {
     if (key === this.adminKey) return true;
-    const testKeys = ['99999999', '88888888', '77777777', '948katmai'];
-    if (testKeys.includes(key)) return true;
+    if (this.testKeys.includes(key)) return true;
 
     // Allow any key that exists in our records to be "valid" 
     // This allows guests to log in and pay for future reservations.
@@ -126,12 +124,11 @@ class AccessKeyService {
     return null;
   }
 
-  // Helper for internal use to get reservation for a specific key
   getReservationForKey(key) {
     if (!key) return null;
     const normalizedKey = String(key).trim();
 
-    if (normalizedKey === '99999999' || normalizedKey === '88888888' || normalizedKey === '77777777' || normalizedKey === '948katmai') {
+    if (this.testKeys.includes(normalizedKey)) {
       let nights = 1;
       if (normalizedKey === '99999999') nights = 3;
       if (normalizedKey === '77777777') nights = 5;

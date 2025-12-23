@@ -9,7 +9,7 @@ function formatDate(dateStr) {
   });
 }
 
-const AdminPanel = ({ reservations = [] }) => {
+const AdminPanel = ({ currentGuest, sharedStatus }) => {
   const [copiedCode, setCopiedCode] = useState(null);
 
   const handleCopy = (url, code) => {
@@ -24,69 +24,67 @@ const AdminPanel = ({ reservations = [] }) => {
       <div className="app admin-view">
         <header className="compact-hero card">
           <div>
-            <p className="eyebrow">Admin Panel</p>
-            <h1>Reservation History</h1>
+            <p className="eyebrow">Admin Dashboard</p>
+            <h1>Current Access Status</h1>
           </div>
           <div className="badge-row tight">
-            <span className="pill pill-info">Total Reservations: {reservations.length}</span>
+            <span className="pill pill-info">Active Mode</span>
           </div>
         </header>
 
         <main className="app-main">
-          <div className="card glass-card admin-card">
-            <div className="table-responsive">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Guest Details</th>
-                    <th>Stay Dates</th>
-                    <th>Nights</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th className="text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {reservations.length === 0 ? (
-                    <tr>
-                      <td colSpan="6" className="empty-state">
-                        No reservations found in the system.
-                      </td>
-                    </tr>
-                  ) : (
-                    reservations.map((r) => (
-                      <tr key={r.code}>
-                        <td data-label="Guest">
-                          <div className="guest-info">
-                            <span className="guest-code">{r.code}</span>
-                          </div>
-                        </td>
-                        <td data-label="Dates">
-                          <div className="date-range">
-                            {formatDate(r.start)} – {formatDate(r.end)}
-                          </div>
-                        </td>
-                        <td data-label="Nights">{r.nights}</td>
-                        <td data-label="Amount">${r.totalPrice?.toFixed(2)}</td>
-                        <td data-label="Status">
-                          <span className={`status-pill ${r.isPaid ? 'paid' : 'unpaid'}`}>
-                            {r.isPaid ? 'Paid' : 'Unpaid'}
-                          </span>
-                        </td>
-                        <td className="text-right">
-                          <button
-                            className={`btn-action ${copiedCode === r.code ? 'copied' : ''}`}
-                            onClick={() => handleCopy(r.url, r.code)}
-                          >
-                            {copiedCode === r.code ? 'Copied!' : 'Copy Link'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+          <div className="surface-grid">
+            {/* Shared Guest Link Card */}
+            <div className="card glass-card">
+              <div className="status-chips">
+                <span className={`pill ${sharedStatus?.isPaid ? 'pill-success' : 'pill-ghost'}`}>
+                  {sharedStatus?.isPaid ? 'Paid' : 'Unpaid'}
+                </span>
+              </div>
+              <div style={{ marginTop: '0.5rem' }}>
+                <p className="eyebrow">Master Shared Link</p>
+                <h3 style={{ margin: '0.5rem 0', fontSize: '1.4rem' }}>katmaiguest</h3>
+                <p className="muted" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                  The permanent link for all non-Airbnb guests.
+                </p>
+                <button
+                  className={`btn-primary ${copiedCode === 'katmaiguest' ? 'copied' : ''}`}
+                  onClick={() => handleCopy(sharedStatus?.url, 'katmaiguest')}
+                  style={{ width: '100%', background: copiedCode === 'katmaiguest' ? 'var(--success)' : '' }}
+                >
+                  {copiedCode === 'katmaiguest' ? 'URL Copied!' : 'Copy Master Link'}
+                </button>
+              </div>
             </div>
+
+            {/* Current Active Guest Card */}
+            {currentGuest ? (
+              <div className="card glass-card">
+                <div className="status-chips">
+                  <span className={`pill ${currentGuest.isPaid ? 'pill-success' : 'pill-danger'}`}>
+                    {currentGuest.isPaid ? 'Paid' : 'Payment Required'}
+                  </span>
+                </div>
+                <div style={{ marginTop: '0.5rem' }}>
+                  <p className="eyebrow">Current Airbnb Guest</p>
+                  <h3 style={{ margin: '0.5rem 0', fontSize: '1.4rem' }}>{currentGuest.code}</h3>
+                  <div className="stat-block" style={{ marginTop: '1rem' }}>
+                    <p className="small-label">Stay Duration</p>
+                    <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>
+                      {formatDate(currentGuest.start)} – {formatDate(currentGuest.end)}
+                    </p>
+                    <p className="muted" style={{ fontSize: '0.85rem' }}>({currentGuest.nights} nights)</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="card glass-card">
+                <p className="eyebrow">Current Airbnb Guest</p>
+                <div className="empty-state" style={{ padding: '2rem 1rem' }}>
+                  No active Airbnb reservation found for today.
+                </div>
+              </div>
+            )}
           </div>
         </main>
       </div>
