@@ -25,12 +25,17 @@ function App() {
     const urlKey = params.get('key');
     const storedKey = localStorage.getItem('accessKey');
 
+    if (urlKey) {
+      localStorage.setItem('accessKey', urlKey);
+      return true;
+    }
+
     // If no key anywhere, default to 'katmaiguest' to show payment gate immediately
-    if (!urlKey && !storedKey) {
+    if (!storedKey) {
       localStorage.setItem('accessKey', 'katmaiguest');
       return true;
     }
-    return !!(urlKey || storedKey);
+    return true; // We always have at least 'katmaiguest' now
   });
   // null -> checking, true -> admin, false -> guest
   const [isAdmin, setIsAdmin] = useState(null);
@@ -120,6 +125,8 @@ function App() {
   const handleLogin = (key) => {
     localStorage.setItem('accessKey', key);
     setAuthenticated(true);
+    // Explicitly re-check admin status after a manual login
+    checkAdmin();
   };
 
   const fetchSpaStatus = async () => {
@@ -264,9 +271,10 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!authenticated || !isAdminRoute) return;
+    const key = localStorage.getItem('accessKey');
+    if (!authenticated || !isAdminRoute || !key) return;
     checkAdmin();
-  }, [authenticated, isAdminRoute]);
+  }, [authenticated, isAdminRoute, localStorage.getItem('accessKey')]);
 
   useEffect(() => {
     if (!authenticated || isAdminRoute || paymentRequired) return;
@@ -392,7 +400,7 @@ function App() {
           ) : isAdmin ? (
             <AdminPanel currentGuest={currentGuest} sharedStatus={sharedStatus} onRefresh={checkAdmin} />
           ) : (
-            <Navigate to="/" />
+            <Login onLogin={handleLogin} />
           )
         }
       />
