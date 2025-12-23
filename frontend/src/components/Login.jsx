@@ -29,13 +29,8 @@ function Login({ onLogin }) {
   };
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const urlKey = params.get('key');
-    if (urlKey) {
-      setKey(urlKey);
-      attemptLogin(urlKey);
-    }
-  }, []);
+    setError('');
+  }, [key]);
 
   return (
     <div className="login-screen">

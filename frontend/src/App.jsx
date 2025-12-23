@@ -25,7 +25,8 @@ function App() {
   );
   // null -> checking, true -> admin, false -> guest
   const [isAdmin, setIsAdmin] = useState(null);
-  const [reservations, setReservations] = useState([]);
+  const [currentGuest, setCurrentGuest] = useState(null);
+  const [sharedStatus, setSharedStatus] = useState(null);
   const [locationAllowed, setLocationAllowed] = useState(null);
   const [withinSpaHours, setWithinSpaHours] = useState(getWithinSpaHours());
   const [spaData, setSpaData] = useState({
@@ -96,7 +97,8 @@ function App() {
     try {
       const res = await getActiveReservation();
       // If we got here, we are an admin (no 403 error)
-      setReservations(res.reservations || []);
+      setSharedStatus(res.sharedStatus);
+      setCurrentGuest(res.currentGuest);
       setIsAdmin(true);
       return true;
     } catch (err) {
@@ -265,6 +267,23 @@ function App() {
     return () => clearInterval(interval);
   }, [authenticated, isAdminRoute, paymentRequired]);
 
+  // Priority: Handle new keys in the URL even if already authenticated
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlKey = params.get('key');
+    const currentKey = localStorage.getItem('accessKey');
+
+    if (urlKey && urlKey !== currentKey) {
+      console.log('New key detected in URL, updating session...');
+      handleLogin(urlKey);
+      // Reset critical states for the new identity
+      setPaymentRequired(false);
+      setLoading(true);
+      setIsAdmin(null);
+      fetchSpaStatus();
+    }
+  }, [location.search]);
+
   // Handle return from Stripe payment
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -362,7 +381,7 @@ function App() {
           isAdmin === null ? (
             loadingScreen
           ) : isAdmin ? (
-            <AdminPanel reservations={reservations} />
+            <AdminPanel currentGuest={currentGuest} sharedStatus={sharedStatus} />
           ) : (
             <Navigate to="/" />
           )

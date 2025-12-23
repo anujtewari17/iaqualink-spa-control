@@ -21,6 +21,7 @@ router.get('/', async (req, res) => {
     const nights = paymentService.calculateNights(current.start, current.end);
     currentGuest = {
       code: current.code,
+      url: accessKeyService.generateUrl(current.code),
       start: current.start,
       end: current.end,
       nights,

@@ -73,7 +73,14 @@ const AdminPanel = ({ currentGuest, sharedStatus }) => {
                     <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>
                       {formatDate(currentGuest.start)} – {formatDate(currentGuest.end)}
                     </p>
-                    <p className="muted" style={{ fontSize: '0.85rem' }}>({currentGuest.nights} nights)</p>
+                    <p className="muted" style={{ fontSize: '0.85rem', marginBottom: '1.5rem' }}>({currentGuest.nights} nights)</p>
+                    <button
+                      className={`btn-action ${copiedCode === currentGuest.code ? 'copied' : ''}`}
+                      onClick={() => handleCopy(currentGuest.url, currentGuest.code)}
+                      style={{ width: '100%' }}
+                    >
+                      {copiedCode === currentGuest.code ? 'URL Copied!' : 'Copy Guest Link'}
+                    </button>
                   </div>
                 </div>
               </div>
