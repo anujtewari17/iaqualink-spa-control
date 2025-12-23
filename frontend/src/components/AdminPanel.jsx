@@ -38,6 +38,14 @@ const AdminPanel = ({ guestStatus, onRefresh }) => {
     }).format(new Date(iso));
   };
 
+  const formatDateRange = (start, end) => {
+    if (!start || !end) return null;
+    const s = new Date(start);
+    const e = new Date(end);
+    const options = { month: 'short', day: 'numeric' };
+    return `${s.toLocaleDateString('en-US', options)} – ${e.toLocaleDateString('en-US', options)}`;
+  };
+
   return (
     <div className="app-shell">
       <div className="gradient" aria-hidden></div>
@@ -59,10 +67,17 @@ const AdminPanel = ({ guestStatus, onRefresh }) => {
 
             <div style={{ marginTop: '1.5rem' }}>
               <div className="stat-block">
-                <p className="small-label">Session Details</p>
+                <p className="small-label">
+                  {guestStatus?.start ? 'Current Reservation' : 'Session Status'}
+                </p>
                 <h2 style={{ fontSize: '1.8rem', margin: '0.5rem 0' }}>
-                  {guestStatus?.isPaid ? `${guestStatus.nights} Night Stay` : 'Idle'}
+                  {guestStatus?.start ? formatDateRange(guestStatus.start, guestStatus.end) : 'Idle / No active reservation'}
                 </h2>
+                {guestStatus?.isPaid && (
+                  <p className="muted" style={{ fontSize: '1rem' }}>
+                    {guestStatus.nights} night stay confirmed.
+                  </p>
+                )}
               </div>
 
               {guestStatus?.isPaid && (

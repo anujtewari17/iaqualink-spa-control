@@ -15,13 +15,16 @@ router.get('/', async (req, res) => {
   const paidAccessService = (await import('../services/paidAccessService.js')).default;
 
   // Current Airbnb guest
-  // We now use a universal 'katmaiguest' identity for all guest interactions
-  const guestKey = 'katmaiguest';
-  const isPaid = paidAccessService.isPaid(guestKey);
+  // We now use a universal model: Admin sees the current reservation slot
+  const currentRes = accessKeyService.getCurrentReservation();
+  const guestKey = currentRes ? currentRes.code : 'katmaiguest';
 
-  // Find the latest payment to determine expiry
+  // Check if EITHER the current specific reservation is paid OR the generic guest key is paid
+  const isPaid = paidAccessService.isPaid(guestKey) || paidAccessService.isPaid('katmaiguest');
+
+  // Find the latest payment for the determined key
   const latestPayment = (paidAccessService.payments || [])
-    .filter(p => p.accessKey === guestKey)
+    .filter(p => p.accessKey === guestKey || p.accessKey === 'katmaiguest')
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
 
   let expiry = null;
@@ -39,7 +42,10 @@ router.get('/', async (req, res) => {
       code: guestKey,
       isPaid,
       expiry,
-      nights: latestPayment?.nights || 0
+      nights: latestPayment?.nights || 0,
+      // Provide dates if we have them from a reservation
+      start: currentRes?.start,
+      end: currentRes?.end
     }
   });
 });
