@@ -61,8 +61,11 @@ router.post('/clear-payment', async (req, res) => {
         const { targetKey } = req.body;
         if (!targetKey) return res.status(400).json({ error: 'Missing targetKey' });
 
+        console.log(`[Admin] Reset request received for key: ${targetKey}`);
         const paidAccessService = (await import('../services/paidAccessService.js')).default;
         paidAccessService.clearPayments(targetKey);
+
+        console.log(`[Admin] Successfully cleared payments for: ${targetKey}`);
         res.json({ success: true, message: `Payments cleared for ${targetKey}` });
     } catch (err) {
         console.error('Clear Payment Error:', err);

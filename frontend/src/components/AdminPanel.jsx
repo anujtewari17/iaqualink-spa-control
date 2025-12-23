@@ -15,11 +15,14 @@ const AdminPanel = ({ guestStatus, onRefresh }) => {
   const [resetting, setResetting] = useState(false);
 
   const handleReset = async () => {
-    if (!window.confirm(`Are you sure you want to clear the guest payment status?`)) return;
+    const codeToReset = guestStatus?.code || 'katmaiguest';
+    if (!window.confirm(`Are you sure you want to clear the payment status for ${codeToReset}?`)) return;
     setResetting(true);
     try {
-      await clearPayment('katmaiguest');
+      await clearPayment(codeToReset);
+      await clearPayment('katmaiguest'); // Clean up both just in case
       if (onRefresh) await onRefresh();
+      alert(`Success: Payment status for ${codeToReset} has been reset.`);
     } catch (err) {
       console.error('Failed to reset payment:', err);
       alert('Failed to reset payment status.');
