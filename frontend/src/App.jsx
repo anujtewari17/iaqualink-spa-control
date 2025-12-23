@@ -381,7 +381,7 @@ function App() {
           isAdmin === null ? (
             loadingScreen
           ) : isAdmin ? (
-            <AdminPanel currentGuest={currentGuest} sharedStatus={sharedStatus} />
+            <AdminPanel currentGuest={currentGuest} sharedStatus={sharedStatus} onRefresh={checkAdmin} />
           ) : (
             <Navigate to="/" />
           )

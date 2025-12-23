@@ -50,6 +50,26 @@ router.get('/session-status', async (req, res) => {
     }
 });
 
+// Administrative: Clear payments for a key
+router.post('/clear-payment', async (req, res) => {
+    try {
+        const key = req.headers['x-access-key'];
+        if (key !== process.env.ACCESS_KEY) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+
+        const { targetKey } = req.body;
+        if (!targetKey) return res.status(400).json({ error: 'Missing targetKey' });
+
+        const paidAccessService = (await import('../services/paidAccessService.js')).default;
+        paidAccessService.clearPayments(targetKey);
+        res.json({ success: true, message: `Payments cleared for ${targetKey}` });
+    } catch (err) {
+        console.error('Clear Payment Error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Stripe webhook (requires raw body for signature verification)
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];

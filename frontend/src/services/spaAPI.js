@@ -73,4 +73,9 @@ export const getSessionStatus = async (sessionId) => {
   return response.data;
 };
 
+export const clearPayment = async (targetKey) => {
+  const response = await api.post('/api/payments/clear-payment', { targetKey });
+  return response.data;
+};
+
 export default api;
