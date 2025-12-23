@@ -15,28 +15,33 @@ router.get('/', async (req, res) => {
   const paidAccessService = (await import('../services/paidAccessService.js')).default;
 
   // Current Airbnb guest
-  const current = accessKeyService.getCurrentReservation();
-  let currentGuest = null;
-  if (current) {
-    const nights = paymentService.calculateNights(current.start, current.end);
-    currentGuest = {
-      code: current.code,
-      url: accessKeyService.generateUrl(current.code),
-      start: current.start,
-      end: current.end,
-      nights,
-      isPaid: paidAccessService.isPaid(current.code)
-    };
+  // We now use a universal 'katmaiguest' identity for all guest interactions
+  const guestKey = 'katmaiguest';
+  const isPaid = paidAccessService.isPaid(guestKey);
+
+  // Find the latest payment to determine expiry
+  const latestPayment = (paidAccessService.payments || [])
+    .filter(p => p.accessKey === guestKey)
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+
+  let expiry = null;
+  if (isPaid && latestPayment) {
+    const nights = latestPayment.nights || 1;
+    const paymentTime = new Date(latestPayment.timestamp);
+    const expiryDate = new Date(paymentTime);
+    expiryDate.setDate(expiryDate.getDate() + nights);
+    expiryDate.setHours(13, 0, 0, 0); // 1 PM checkout
+    expiry = expiryDate.toISOString();
   }
 
-  // Shared generic guest link
-  const sharedStatus = {
-    code: 'katmaiguest',
-    url: accessKeyService.generateUrl('katmaiguest'),
-    isPaid: paidAccessService.isPaid('katmaiguest')
-  };
-
-  res.json({ currentGuest, sharedStatus });
+  res.json({
+    guestStatus: {
+      code: guestKey,
+      isPaid,
+      expiry,
+      nights: latestPayment?.nights || 0
+    }
+  });
 });
 
 export default router;

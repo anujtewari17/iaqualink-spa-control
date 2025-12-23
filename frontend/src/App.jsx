@@ -39,8 +39,7 @@ function App() {
   });
   // null -> checking, true -> admin, false -> guest
   const [isAdmin, setIsAdmin] = useState(null);
-  const [currentGuest, setCurrentGuest] = useState(null);
-  const [sharedStatus, setSharedStatus] = useState(null);
+  const [guestStatus, setGuestStatus] = useState(null);
   const [locationAllowed, setLocationAllowed] = useState(null);
   const [withinSpaHours, setWithinSpaHours] = useState(getWithinSpaHours());
   const [spaData, setSpaData] = useState({
@@ -111,8 +110,7 @@ function App() {
     try {
       const res = await getActiveReservation();
       // If we got here, we are an admin (no 403 error)
-      setSharedStatus(res.sharedStatus);
-      setCurrentGuest(res.currentGuest);
+      setGuestStatus(res.guestStatus);
       setIsAdmin(true);
       return true;
     } catch (err) {
@@ -398,7 +396,7 @@ function App() {
           isAdmin === null ? (
             loadingScreen
           ) : isAdmin ? (
-            <AdminPanel currentGuest={currentGuest} sharedStatus={sharedStatus} onRefresh={checkAdmin} />
+            <AdminPanel guestStatus={guestStatus} onRefresh={checkAdmin} />
           ) : (
             <Login onLogin={handleLogin} />
           )
