@@ -60,6 +60,8 @@ export const validateAccessKey = async (key) => {
   return res.data;
 };
 
+export const getAccessKey = () => localStorage.getItem('accessKey');
+
 export const createCheckoutSession = async (nights = 1) => {
   const accessKey = getAccessKey();
   const res = await api.post('/api/payments/create-checkout-session', { accessKey, nights });
