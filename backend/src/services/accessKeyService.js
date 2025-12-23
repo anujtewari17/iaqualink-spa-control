@@ -74,18 +74,22 @@ class AccessKeyService {
   }
 
   isKeyActive(key) {
-    if (key === this.adminKey) return true;
-    if (this.testKeys.includes(key)) return true;
+    if (!key) return false;
+    const normalizedKey = String(key).trim().toLowerCase();
+    if (normalizedKey === this.adminKey) return true;
+    if (this.testKeys.includes(normalizedKey)) return true;
 
-    const reservation = this.getReservationForKey(key);
+    const reservation = this.getReservationForKey(normalizedKey);
     return reservation && this.isActive(reservation);
   }
 
   isKeyExpired(key) {
-    if (key === this.adminKey) return false;
-    if (this.testKeys.includes(key)) return false;
+    if (!key) return true;
+    const normalizedKey = String(key).trim().toLowerCase();
+    if (normalizedKey === this.adminKey) return false;
+    if (this.testKeys.includes(normalizedKey)) return false;
 
-    const reservation = this.getReservationForKey(key);
+    const reservation = this.getReservationForKey(normalizedKey);
     if (!reservation) return true;
 
     const now = new Date();
@@ -95,12 +99,14 @@ class AccessKeyService {
   }
 
   async validateKey(key) {
-    if (key === this.adminKey) return true;
-    if (this.testKeys.includes(key)) return true;
+    if (!key) return false;
+    const normalizedKey = String(key).trim().toLowerCase();
+    if (normalizedKey === this.adminKey) return true;
+    if (this.testKeys.includes(normalizedKey)) return true;
 
     // Allow any key that exists in our records to be "valid" 
     // This allows guests to log in and pay for future reservations.
-    const reservation = this.getReservationForKey(key);
+    const reservation = this.getReservationForKey(normalizedKey);
     return !!reservation;
   }
 
@@ -126,7 +132,7 @@ class AccessKeyService {
 
   getReservationForKey(key) {
     if (!key) return null;
-    const normalizedKey = String(key).trim();
+    const normalizedKey = String(key).trim().toLowerCase();
 
     if (this.testKeys.includes(normalizedKey)) {
       let nights = 1;

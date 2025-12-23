@@ -44,11 +44,14 @@ class PaidAccessService {
     }
 
     isPaid(accessKey) {
+        if (!accessKey) return false;
+        const normalizedKey = String(accessKey).trim().toLowerCase();
+
         // Special bypass key for complimentary access
-        if (accessKey === '948katmai') return true;
+        if (normalizedKey === '948katmai') return true;
 
         // Simplified logic: any payment for this key unlocks it.
-        return this.payments.some(p => p.accessKey === accessKey);
+        return this.payments.some(p => p.accessKey === normalizedKey);
     }
 }
 
