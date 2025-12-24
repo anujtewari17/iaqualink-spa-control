@@ -74,6 +74,7 @@ export const getSessionStatus = async (sessionId) => {
 };
 
 export const clearPayment = async (targetKey) => {
+  console.log(`[API] Sending clear-payment request for: ${targetKey} to ${API_BASE_URL}/api/payments/clear-payment`);
   const response = await api.post('/api/payments/clear-payment', { targetKey });
   return response.data;
 };
