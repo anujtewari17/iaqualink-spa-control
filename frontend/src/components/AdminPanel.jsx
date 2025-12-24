@@ -16,15 +16,18 @@ const AdminPanel = ({ guestStatus, onRefresh }) => {
 
   const handleReset = async () => {
     const codeToReset = guestStatus?.code || 'katmaiguest';
+    console.log(`[AdminUI] Initiating reset for: ${codeToReset}`);
     if (!window.confirm(`Are you sure you want to clear the payment status for ${codeToReset}?`)) return;
     setResetting(true);
     try {
+      console.log(`[AdminUI] Sending clearPayment request...`);
       await clearPayment(codeToReset);
       await clearPayment('katmaiguest'); // Clean up both just in case
+      console.log(`[AdminUI] Reset successful, refreshing status...`);
       if (onRefresh) await onRefresh();
       alert(`Success: Payment status for ${codeToReset} has been reset.`);
     } catch (err) {
-      console.error('Failed to reset payment:', err);
+      console.error('[AdminUI] Reset failed:', err);
       alert('Failed to reset payment status.');
     } finally {
       setResetting(false);
@@ -102,7 +105,7 @@ const AdminPanel = ({ guestStatus, onRefresh }) => {
                 <button
                   className="btn-action"
                   onClick={handleReset}
-                  disabled={resetting || !guestStatus?.isPaid}
+                  disabled={resetting}
                   style={{ width: '100%', justifyContent: 'center', background: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d' }}
                 >
                   {resetting ? 'Resetting...' : 'Reset Payment Status'}
