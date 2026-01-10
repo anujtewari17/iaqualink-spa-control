@@ -13,8 +13,12 @@ import {
 } from './services/spaAPI';
 
 const getWithinSpaHours = () => {
+  // Bypassed for now: Always return true
+  return true;
+  /*
   const hour = new Date().getHours();
   return hour >= 6 && hour < 22; // 6am - 10pm
+  */
 };
 
 function App() {
@@ -353,8 +357,8 @@ function App() {
             <span className={`pill ${spaData.connected ? 'pill-success' : 'pill-danger'}`}>
               {spaData.connected ? '🟢 Online' : '🔴 Offline'}
             </span>
-            <span className={`pill ${withinSpaHours ? 'pill-info' : 'pill-warning'}`}>
-              {withinSpaHours ? '6a–10p' : 'Outside hours'}
+            <span className="pill pill-info">
+              24/7 Access
             </span>
             <span className="pill pill-ghost">Updated {lastUpdatedLabel}</span>
           </div>
