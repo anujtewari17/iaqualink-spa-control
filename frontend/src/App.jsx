@@ -58,6 +58,7 @@ function App() {
     spaSetPoint: null,
     lastUpdate: null
   });
+  const [heatingHistory, setHeatingHistory] = useState([]); // Array of { temp, time }
 
   const [loading, setLoading] = useState(true);
   const [statusFailures, setStatusFailures] = useState(0);
@@ -71,6 +72,9 @@ function App() {
 
   const applyBackendStatus = (status) => {
     setStatusFailures(0);
+    const now = status.lastUpdate ? new Date(status.lastUpdate) : new Date();
+    const currentTemp = status.spaMode && Number.isFinite(status.spaTemp) ? status.spaTemp : null;
+
     setSpaData((prev) => ({
       ...prev,
       spaMode: !!status.spaMode,
@@ -78,15 +82,29 @@ function App() {
       jetPump: !!status.jetPump,
       filterPump: !!status.filterPump,
       airTemp: Number.isFinite(status.airTemp) ? status.airTemp : null,
-      spaTemp:
-        status.spaMode && Number.isFinite(status.spaTemp) ? status.spaTemp : null,
+      spaTemp: currentTemp,
       poolTemp: Number.isFinite(status.poolTemp) ? status.poolTemp : null,
       spaSetPoint: Number.isFinite(status.spaSetPoint) ? status.spaSetPoint : null,
       connected: status.connected !== undefined ? !!status.connected : true,
-      lastUpdate: status.lastUpdate
-        ? new Date(status.lastUpdate)
-        : new Date()
+      lastUpdate: now
     }));
+
+    // Track history if heating
+    if (!!status.spaHeater && currentTemp !== null) {
+      setHeatingHistory(prev => {
+        const newEntry = { temp: currentTemp, time: now.getTime() };
+        // Keep last 30 minutes of history
+        const filtered = prev.filter(h => now.getTime() - h.time < 30 * 60 * 1000);
+        // Only add if temp changed or it's been a while (5 mins)
+        const last = filtered[filtered.length - 1];
+        if (!last || last.temp !== currentTemp || now.getTime() - last.time > 5 * 60 * 1000) {
+          return [...filtered, newEntry];
+        }
+        return filtered;
+      });
+    } else if (!status.spaHeater) {
+      setHeatingHistory([]); // Reset when heater is off
+    }
   };
   const verifyLocation = () => {
     if (!navigator.geolocation) {
@@ -129,6 +147,36 @@ function App() {
     setAuthenticated(true);
     // Explicitly re-check admin status after a manual login
     checkAdmin();
+  };
+
+  const calculateHeatEstimate = () => {
+    if (!spaData.spaHeater || !spaData.spaTemp) return null;
+    const target = 101; // Default target
+    if (spaData.spaTemp >= target) return "Ready!";
+
+    const diff = target - spaData.spaTemp;
+
+    // Default rate: 3 degrees per hour (0.05 per minute)
+    let ratePerMin = 0.05;
+
+    if (heatingHistory.length >= 2) {
+      const first = heatingHistory[0];
+      const last = heatingHistory[heatingHistory.length - 1];
+      const tempDiff = last.temp - first.temp;
+      const timeDiff = (last.time - first.time) / (1000 * 60); // minutes
+
+      if (timeDiff > 5 && tempDiff > 0) {
+        ratePerMin = tempDiff / timeDiff;
+      }
+    }
+
+    const minsRemaining = Math.ceil(diff / ratePerMin);
+
+    // Format "Ready by X:XX PM"
+    const readyTime = new Date(Date.now() + minsRemaining * 60 * 1000);
+    const timeStr = readyTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+    return `Ready around ${timeStr} (~${minsRemaining} mins)`;
   };
 
   const fetchSpaStatus = async () => {
@@ -351,7 +399,18 @@ function App() {
         <header className="compact-hero card">
           <div>
             <p className="eyebrow">Spa Control</p>
-            <h1>Quick access</h1>
+            <h1 style={{ marginBottom: '1rem' }}>Quick access</h1>
+
+            {spaData.spaHeater && spaData.spaTemp && spaData.spaTemp < 101 && (
+              <div className="card" style={{ background: 'rgba(255,165,0,0.1)', border: '1px solid rgba(255,165,0,0.2)', padding: '0.8rem', marginBottom: '1.2rem' }}>
+                <p style={{ color: 'var(--accent)', fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>
+                  🔥 {calculateHeatEstimate()}
+                </p>
+                <p className="muted" style={{ fontSize: '0.75rem', margin: '0.2rem 0 0 0' }}>
+                  Target: 101°F
+                </p>
+              </div>
+            )}
           </div>
           <div className="badge-row tight">
             <span className={`pill ${spaData.connected ? 'pill-success' : 'pill-danger'}`}>

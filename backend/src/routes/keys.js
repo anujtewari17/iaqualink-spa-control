@@ -20,15 +20,18 @@ router.get('/', async (req, res) => {
   const guestKey = currentRes ? currentRes.code : 'katmaiguest';
 
   // Check if EITHER the current specific reservation is paid OR the generic guest key is paid
-  const isPaid = paidAccessService.isPaid(guestKey) || paidAccessService.isPaid('katmaiguest');
+  const isSpecificPaid = paidAccessService.isPaid(guestKey);
+  const isGenericPaid = paidAccessService.isPaid('katmaiguest');
+  const isPaid = isSpecificPaid || isGenericPaid;
 
-  // Find the latest payment for the determined key
-  const latestPayment = (paidAccessService.payments || [])
-    .filter(p => p.accessKey === guestKey || p.accessKey === 'katmaiguest')
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+  // Get the correct metadata from the paid source
+  const activeKey = isSpecificPaid ? guestKey : (isGenericPaid ? 'katmaiguest' : null);
+  const latestPayment = activeKey ? (paidAccessService.payments || [])
+    .filter(p => p.accessKey === activeKey)
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0] : null;
 
   let expiry = null;
-  if (isPaid && latestPayment) {
+  if (latestPayment) {
     const nights = latestPayment.nights || 1;
     const paymentTime = new Date(latestPayment.timestamp);
     const expiryDate = new Date(paymentTime);
