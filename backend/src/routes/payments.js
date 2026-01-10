@@ -4,7 +4,7 @@ import accessKeyService from '../services/accessKeyService.js';
 
 const router = express.Router();
 
-router.post('/create-checkout-session', async (req, res) => {
+router.post('/create-checkout-session', express.json(), async (req, res) => {
     try {
         const key = req.headers['x-access-key'];
         const { accessKey, nights } = req.body; // Extract accessKey and nights from request body
@@ -25,7 +25,7 @@ router.post('/create-checkout-session', async (req, res) => {
     }
 });
 
-router.get('/session-status', async (req, res) => {
+router.get('/session-status', express.json(), async (req, res) => {
     try {
         const { session_id } = req.query;
         if (!session_id) return res.status(400).json({ error: 'Missing session_id' });
@@ -51,7 +51,7 @@ router.get('/session-status', async (req, res) => {
 });
 
 // Administrative: Clear payments for a key
-router.post('/clear-payment', async (req, res) => {
+router.post('/clear-payment', express.json(), async (req, res) => {
     try {
         const key = req.headers['x-access-key'];
         if (key !== process.env.ACCESS_KEY) {

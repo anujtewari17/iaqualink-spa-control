@@ -38,8 +38,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 // Basic request logging
 app.use((req, res, next) => {
   console.log(
@@ -51,18 +49,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    version: process.env.npm_package_version || '1.0.0'
-  });
-});
-
 // API routes
 // Payment routes (Webhook needs to be registered BEFORE express.json() for raw body)
 app.use('/api/payments', paymentRoutes);
+
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Authentication middleware (uses ACCESS_KEY if set)
 app.use('/api', authMiddleware, spaRoutes);
