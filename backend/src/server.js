@@ -85,14 +85,14 @@ app.listen(PORT, () => {
 
 // Cron job to turn off equipment nightly at 12 AM Pacific Time
 cron.schedule(
-  '0 22,0 * * *',
+  '0 22,0,1,2,3,4,5 * * *',
   async () => {
     try {
-      console.log('Nightly shutdown triggered');
+      console.log('[Cron] Nightly shutdown triggered');
       await iaqualinkService.turnOffAllEquipment();
-      console.log('Nightly shutdown completed');
+      console.log('[Cron] Nightly shutdown completed');
     } catch (err) {
-      console.error('Cron job failed:', err.message);
+      console.error('[Cron] Nightly shutdown failed:', err.message);
     }
   },
   { timezone: 'America/Los_Angeles' }
