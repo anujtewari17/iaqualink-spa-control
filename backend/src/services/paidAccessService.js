@@ -61,7 +61,7 @@ class PaidAccessService {
         if (userPayments.length === 0) return false;
 
         const latest = userPayments[0];
-        const nights = latest.nights || 1;
+        const nights = Number(latest.nights) || 1;
         const paymentTime = new Date(latest.timestamp);
 
         // Access expires at 1 PM on the day after their last paid night (Trip-Based)
@@ -69,9 +69,14 @@ class PaidAccessService {
         expiryDate.setDate(expiryDate.getDate() + nights);
         expiryDate.setHours(13, 0, 0, 0); // 1 PM buffer
 
-        const isStillValid = new Date() <= expiryDate;
+        const now = new Date();
+        const isStillValid = now <= expiryDate;
 
-        console.log(`[PaidAccess] Checking payment for ${normalizedKey}: ${isStillValid ? 'VALID' : 'EXPIRED'} (Paid for ${nights} nights on ${paymentTime.toLocaleDateString()})`);
+        console.log(`[PaidAccess] Checking ${normalizedKey}: ${isStillValid ? 'VALID' : 'EXPIRED'}`);
+        console.log(`  - Paid on: ${paymentTime.toLocaleString()}`);
+        console.log(`  - Nights: ${nights}`);
+        console.log(`  - Expires: ${expiryDate.toLocaleString()}`);
+        console.log(`  - Current Time: ${now.toLocaleString()}`);
 
         return isStillValid;
     }

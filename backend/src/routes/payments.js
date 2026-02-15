@@ -4,7 +4,7 @@ import accessKeyService from '../services/accessKeyService.js';
 
 const router = express.Router();
 
-router.post('/create-checkout-session', express.json(), async (req, res) => {
+router.post('/create-checkout-session', async (req, res) => {
     try {
         const key = req.headers['x-access-key'];
         const { accessKey, nights } = req.body; // Extract accessKey and nights from request body
@@ -25,7 +25,7 @@ router.post('/create-checkout-session', express.json(), async (req, res) => {
     }
 });
 
-router.get('/session-status', express.json(), async (req, res) => {
+router.get('/session-status', async (req, res) => {
     try {
         const { session_id } = req.query;
         if (!session_id) return res.status(400).json({ error: 'Missing session_id' });
@@ -51,7 +51,7 @@ router.get('/session-status', express.json(), async (req, res) => {
 });
 
 // Administrative: Clear payments for a key
-router.post('/clear-payment', express.json(), async (req, res) => {
+router.post('/clear-payment', async (req, res) => {
     try {
         const key = req.headers['x-access-key'];
         if (key !== process.env.ACCESS_KEY) {
@@ -74,12 +74,15 @@ router.post('/clear-payment', express.json(), async (req, res) => {
 });
 
 // Stripe webhook (requires raw body for signature verification)
-router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+router.post('/webhook', async (req, res) => {
     const sig = req.headers['stripe-signature'];
     try {
-        const result = await paymentService.handleWebhook(req.body, sig);
+        // Use req.rawBody captured in server.js verify callback
+        const payload = req.rawBody || req.body;
+        const result = await paymentService.handleWebhook(payload, sig);
         res.json(result);
     } catch (err) {
+        console.error('Webhook processing failed:', err.message);
         res.status(400).send(`Webhook Error: ${err.message}`);
     }
 });

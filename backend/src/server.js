@@ -38,7 +38,19 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-// Basic request logging
+
+// 1. Body Parsing (Must be early to capture rawBody for webhooks)
+app.use(express.json({
+  limit: '10kb',
+  verify: (req, res, buf) => {
+    if (req.originalUrl.startsWith('/api/payments/webhook')) {
+      req.rawBody = buf;
+    }
+  }
+}));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// 2. Logging
 app.use((req, res, next) => {
   console.log(
     `[${new Date().toISOString()}] ${req.ip} ${req.method} ${req.originalUrl}`
@@ -50,13 +62,7 @@ app.use((req, res, next) => {
 });
 
 // API routes
-// Payment routes (Webhook needs to be registered BEFORE express.json() for raw body)
 app.use('/api/payments', paymentRoutes);
-
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
-
-// Authentication middleware (uses ACCESS_KEY if set)
 app.use('/api', authMiddleware, spaRoutes);
 app.use('/api/keys', authMiddleware, keyRoutes);
 
