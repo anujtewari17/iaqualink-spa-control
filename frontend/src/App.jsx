@@ -152,28 +152,41 @@ function App() {
 
     const diff = target - spaData.spaTemp;
 
-    // Need at least 5 minutes of real data before trusting the rate
     if (heatingHistory.length >= 2) {
       const first = heatingHistory[0];
       const last = heatingHistory[heatingHistory.length - 1];
       const tempDiff = last.temp - first.temp;
       const timeDiffMin = (last.time - first.time) / (1000 * 60);
 
-      if (timeDiffMin >= 5 && tempDiff > 0) {
-        const ratePerMin = tempDiff / timeDiffMin;
-        const ratePerHr = ratePerMin * 60;
-        const minsRemaining = Math.ceil(diff / ratePerMin);
-        const readyTime = new Date(Date.now() + minsRemaining * 60 * 1000);
-        const timeStr = readyTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-        return {
-          eta: `~${minsRemaining} min  ·  ready by ${timeStr}`,
-          ratePerHr: ratePerHr.toFixed(1),
-          hasRealData: true
-        };
+      if (timeDiffMin >= 5) {
+        if (tempDiff > 0) {
+          // Good measurable rate
+          const ratePerMin = tempDiff / timeDiffMin;
+          const ratePerHr = ratePerMin * 60;
+          const minsRemaining = Math.ceil(diff / ratePerMin);
+          const readyTime = new Date(Date.now() + minsRemaining * 60 * 1000);
+          const timeStr = readyTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+          return {
+            eta: `~${minsRemaining} min  ·  ready by ${timeStr}`,
+            ratePerHr: ratePerHr.toFixed(1),
+            hasRealData: true
+          };
+        } else {
+          // Have 5+ min of history but temp is stable/cycling near setpoint
+          // Use conservative 0.5°F/hr so we don't stay stuck on "Gathering data…"
+          const minsRemaining = Math.ceil(diff / (0.5 / 60));
+          const readyTime = new Date(Date.now() + minsRemaining * 60 * 1000);
+          const timeStr = readyTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+          return {
+            eta: `Almost ready  ·  ~${minsRemaining} min`,
+            ratePerHr: null,
+            hasRealData: false
+          };
+        }
       }
     }
 
-    // Not enough data yet — say so rather than guessing
+    // Not enough time elapsed yet
     return { eta: 'Gathering data…', ratePerHr: null, hasRealData: false };
   };
 
