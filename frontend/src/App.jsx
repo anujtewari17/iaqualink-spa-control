@@ -85,8 +85,8 @@ function App() {
       lastUpdate: now
     }));
 
-    // Track history if heating
-    if (!!status.spaHeater && currentTemp !== null) {
+    // Track history if spa mode active (heater may not always report separately)
+    if ((!!status.spaHeater || !!status.spaMode) && currentTemp !== null) {
       setHeatingHistory(prev => {
         const newEntry = { temp: currentTemp, time: now.getTime() };
         // Keep last 30 minutes of history
@@ -146,8 +146,8 @@ function App() {
   };
 
   const calculateHeatEstimate = () => {
-    if (!spaData.spaHeater || !spaData.spaTemp) return null;
-    const target = 101;
+    if ((!spaData.spaHeater && !spaData.spaMode) || !spaData.spaTemp) return null;
+    const target = spaData.spaSetPoint || 101;
     if (spaData.spaTemp >= target) return { eta: 'Ready! 🎉', ratePerHr: null, hasRealData: true };
 
     const diff = target - spaData.spaTemp;
@@ -399,10 +399,10 @@ function App() {
             <p className="eyebrow">Spa Control</p>
             <h1 style={{ marginBottom: '1rem' }}>Quick access</h1>
 
-            {spaData.spaHeater && spaData.spaTemp && spaData.spaTemp < 101 && (() => {
+            {(spaData.spaHeater || spaData.spaMode) && spaData.spaTemp && spaData.spaTemp < (spaData.spaSetPoint || 101) && (() => {
               const estimate = calculateHeatEstimate();
               if (!estimate) return null;
-              const progressPct = Math.min(100, Math.max(0, ((spaData.spaTemp - 60) / (101 - 60)) * 100));
+              const progressPct = Math.min(100, Math.max(0, ((spaData.spaTemp - 60) / ((spaData.spaSetPoint || 101) - 60)) * 100));
               return (
                 <div className="card" style={{
                   background: 'rgba(255,165,0,0.08)',
@@ -437,7 +437,7 @@ function App() {
                   {/* Labels under bar */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.3rem' }}>
                     <span className="muted" style={{ fontSize: '0.7rem' }}>{spaData.spaTemp}°F now</span>
-                    <span className="muted" style={{ fontSize: '0.7rem' }}>Target: 101°F</span>
+                    <span className="muted" style={{ fontSize: '0.7rem' }}>Target: {spaData.spaSetPoint || 101}°F</span>
                   </div>
                 </div>
               );
