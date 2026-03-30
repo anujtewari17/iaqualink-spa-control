@@ -33,10 +33,17 @@ class PaidAccessService {
     }
 
     addPayment(accessKey, amount, nights, sessionId) {
+        // Normalize key so it matches the lowercase lookup in isPaid()
+        const normalizedKey = String(accessKey).trim().toLowerCase();
+        // Deduplicate: skip if this sessionId has already been recorded
+        if (sessionId && this.payments.some(p => p.sessionId === sessionId)) {
+            console.log(`[PaidAccess] Payment for session ${sessionId} already recorded, skipping duplicate.`);
+            return;
+        }
         this.payments.push({
-            accessKey,
+            accessKey: normalizedKey,
             amount,
-            nights,
+            nights: Number(nights) || 1,   // ensure numeric, not string
             sessionId,
             timestamp: new Date().toISOString()
         });
@@ -64,10 +71,12 @@ class PaidAccessService {
         const nights = Number(latest.nights) || 1;
         const paymentTime = new Date(latest.timestamp);
 
-        // Access expires at 1 PM on the day after their last paid night (Trip-Based)
+        // Access expires at 20:00 UTC on the day after their last paid night.
+        // 20:00 UTC = 1:00 PM PDT (UTC-7) = 4:00 PM EDT (UTC-4).
+        // Using UTC avoids server-timezone ambiguity (Render runs in UTC).
         const expiryDate = new Date(paymentTime);
-        expiryDate.setDate(expiryDate.getDate() + nights);
-        expiryDate.setHours(13, 0, 0, 0); // 1 PM buffer
+        expiryDate.setUTCDate(expiryDate.getUTCDate() + nights);
+        expiryDate.setUTCHours(20, 0, 0, 0); // 1 PM PDT / 4 PM EDT
 
         const now = new Date();
         const isStillValid = now <= expiryDate;
