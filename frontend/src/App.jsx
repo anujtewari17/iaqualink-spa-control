@@ -158,7 +158,7 @@ function App() {
       const tempDiff = last.temp - first.temp;
       const timeDiffMin = (last.time - first.time) / (1000 * 60);
 
-      if (timeDiffMin >= 5) {
+      if (timeDiffMin >= 1) {
         if (tempDiff > 0) {
           // Good measurable rate
           const ratePerMin = tempDiff / timeDiffMin;
