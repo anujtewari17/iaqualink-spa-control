@@ -147,32 +147,34 @@ function App() {
 
   const calculateHeatEstimate = () => {
     if (!spaData.spaHeater || !spaData.spaTemp) return null;
-    const target = 101; // Default target
-    if (spaData.spaTemp >= target) return "Ready!";
+    const target = 101;
+    if (spaData.spaTemp >= target) return { eta: 'Ready! 🎉', ratePerHr: null, hasRealData: true };
 
     const diff = target - spaData.spaTemp;
 
-    // Default rate: 3 degrees per hour (0.05 per minute)
-    let ratePerMin = 0.05;
-
+    // Need at least 5 minutes of real data before trusting the rate
     if (heatingHistory.length >= 2) {
       const first = heatingHistory[0];
       const last = heatingHistory[heatingHistory.length - 1];
       const tempDiff = last.temp - first.temp;
-      const timeDiff = (last.time - first.time) / (1000 * 60); // minutes
+      const timeDiffMin = (last.time - first.time) / (1000 * 60);
 
-      if (timeDiff > 5 && tempDiff > 0) {
-        ratePerMin = tempDiff / timeDiff;
+      if (timeDiffMin >= 5 && tempDiff > 0) {
+        const ratePerMin = tempDiff / timeDiffMin;
+        const ratePerHr = ratePerMin * 60;
+        const minsRemaining = Math.ceil(diff / ratePerMin);
+        const readyTime = new Date(Date.now() + minsRemaining * 60 * 1000);
+        const timeStr = readyTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        return {
+          eta: `~${minsRemaining} min  ·  ready by ${timeStr}`,
+          ratePerHr: ratePerHr.toFixed(1),
+          hasRealData: true
+        };
       }
     }
 
-    const minsRemaining = Math.ceil(diff / ratePerMin);
-
-    // Format "Ready by X:XX PM"
-    const readyTime = new Date(Date.now() + minsRemaining * 60 * 1000);
-    const timeStr = readyTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-
-    return `Ready around ${timeStr} (~${minsRemaining} mins)`;
+    // Not enough data yet — say so rather than guessing
+    return { eta: 'Gathering data…', ratePerHr: null, hasRealData: false };
   };
 
   const fetchSpaStatus = async () => {
@@ -397,16 +399,49 @@ function App() {
             <p className="eyebrow">Spa Control</p>
             <h1 style={{ marginBottom: '1rem' }}>Quick access</h1>
 
-            {spaData.spaHeater && spaData.spaTemp && spaData.spaTemp < 101 && (
-              <div className="card" style={{ background: 'rgba(255,165,0,0.1)', border: '1px solid rgba(255,165,0,0.2)', padding: '0.8rem', marginBottom: '1.2rem' }}>
-                <p style={{ color: 'var(--accent)', fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>
-                  🔥 {calculateHeatEstimate()}
-                </p>
-                <p className="muted" style={{ fontSize: '0.75rem', margin: '0.2rem 0 0 0' }}>
-                  Target: 101°F
-                </p>
-              </div>
-            )}
+            {spaData.spaHeater && spaData.spaTemp && spaData.spaTemp < 101 && (() => {
+              const estimate = calculateHeatEstimate();
+              if (!estimate) return null;
+              const progressPct = Math.min(100, Math.max(0, ((spaData.spaTemp - 60) / (101 - 60)) * 100));
+              return (
+                <div className="card" style={{
+                  background: 'rgba(255,165,0,0.08)',
+                  border: '1px solid rgba(255,165,0,0.25)',
+                  padding: '0.9rem 1rem',
+                  marginBottom: '1.2rem',
+                  borderRadius: '12px'
+                }}>
+                  {/* ETA row */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.55rem' }}>
+                    <p style={{ color: 'var(--accent)', fontSize: '0.95rem', fontWeight: 700, margin: 0 }}>
+                      🔥 {estimate.eta}
+                    </p>
+                    {estimate.ratePerHr && (
+                      <span style={{ fontSize: '0.75rem', color: 'rgba(255,165,0,0.8)', fontWeight: 500 }}>
+                        {estimate.ratePerHr}°F/hr
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Progress bar */}
+                  <div style={{ position: 'relative', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '99px', overflow: 'hidden' }}>
+                    <div style={{
+                      position: 'absolute', left: 0, top: 0, height: '100%',
+                      width: `${progressPct}%`,
+                      background: 'linear-gradient(90deg, rgba(255,140,0,0.6), rgba(255,200,0,0.9))',
+                      borderRadius: '99px',
+                      transition: 'width 1s ease'
+                    }} />
+                  </div>
+
+                  {/* Labels under bar */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.3rem' }}>
+                    <span className="muted" style={{ fontSize: '0.7rem' }}>{spaData.spaTemp}°F now</span>
+                    <span className="muted" style={{ fontSize: '0.7rem' }}>Target: 101°F</span>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
           <div className="badge-row tight">
             <span className={`pill ${spaData.connected ? 'pill-success' : 'pill-danger'}`}>
