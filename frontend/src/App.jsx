@@ -91,15 +91,15 @@ function App() {
         const newEntry = { temp: currentTemp, time: now.getTime() };
         // Keep last 30 minutes of history
         const filtered = prev.filter(h => now.getTime() - h.time < 30 * 60 * 1000);
-        // Only add if temp changed or it's been a while (5 mins)
+        // Only add if temp changed or it's been a while (1 min)
         const last = filtered[filtered.length - 1];
-        if (!last || last.temp !== currentTemp || now.getTime() - last.time > 5 * 60 * 1000) {
+        if (!last || last.temp !== currentTemp || now.getTime() - last.time >= 60000) {
           return [...filtered, newEntry];
         }
         return filtered;
       });
-    } else if (!status.spaHeater) {
-      setHeatingHistory([]); // Reset when heater is off
+    } else {
+      setHeatingHistory([]); // Reset when both are off
     }
   };
   const verifyLocation = () => {
