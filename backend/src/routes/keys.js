@@ -20,8 +20,8 @@ router.get('/', async (req, res) => {
   const guestKey = currentRes ? currentRes.code : 'katmaiguest';
 
   // Check if EITHER the current specific reservation is paid OR the generic guest key is paid
-  const isSpecificPaid = paidAccessService.isPaid(guestKey);
-  const isGenericPaid = paidAccessService.isPaid('katmaiguest');
+  const isSpecificPaid = await paidAccessService.isPaid(guestKey);
+  const isGenericPaid = await paidAccessService.isPaid('katmaiguest');
   const isPaid = isSpecificPaid || isGenericPaid;
 
   // Get the correct metadata from the paid source
@@ -35,8 +35,8 @@ router.get('/', async (req, res) => {
     const nights = latestPayment.nights || 1;
     const paymentTime = new Date(latestPayment.timestamp);
     const expiryDate = new Date(paymentTime);
-    expiryDate.setDate(expiryDate.getDate() + nights);
-    expiryDate.setHours(13, 0, 0, 0); // 1 PM checkout
+    expiryDate.setUTCDate(expiryDate.getUTCDate() + nights);
+    expiryDate.setUTCHours(20, 0, 0, 0); // 1 PM PDT
     expiry = expiryDate.toISOString();
   }
 

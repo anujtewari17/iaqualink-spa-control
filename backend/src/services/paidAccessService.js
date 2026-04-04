@@ -6,61 +6,100 @@ const PAYMENTS_FILE = path.resolve('payments.json');
 class PaidAccessService {
     constructor() {
         this.payments = [];
-        this.load();
+        this.redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+        this.redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+        this.ready = this.load();
     }
 
-    load() {
-        try {
-            if (fs.existsSync(PAYMENTS_FILE)) {
-                const data = fs.readFileSync(PAYMENTS_FILE, 'utf8');
-                this.payments = JSON.parse(data);
-            } else {
+    async load() {
+        if (this.redisUrl && this.redisToken) {
+            try {
+                const response = await fetch(this.redisUrl, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${this.redisToken}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(['GET', 'payments'])
+                });
+                const data = await response.json();
+                if (data.result) {
+                    this.payments = JSON.parse(data.result);
+                    console.log(`[PaidAccess] Loaded ${this.payments.length} payments from Upstash Redis.`);
+                } else {
+                    console.log('[PaidAccess] No existing payments in Upstash. Starting fresh.');
+                    this.payments = [];
+                }
+            } catch (e) {
+                console.error('[PaidAccess] Failed to load payments from Redis:', e.message);
                 this.payments = [];
-                this.save();
             }
-        } catch (e) {
-            console.error('Failed to load payments:', e.message);
-            this.payments = [];
+        } else {
+            // Local fallback
+            try {
+                if (fs.existsSync(PAYMENTS_FILE)) {
+                    const data = fs.readFileSync(PAYMENTS_FILE, 'utf8');
+                    this.payments = JSON.parse(data);
+                    console.log(`[PaidAccess] Loaded ${this.payments.length} payments from local storage.`);
+                } else {
+                    this.payments = [];
+                }
+            } catch (e) {
+                console.error('[PaidAccess] Failed to load payments locally:', e.message);
+                this.payments = [];
+            }
         }
     }
 
-    save() {
-        try {
-            fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(this.payments, null, 2));
-        } catch (e) {
-            console.error('Failed to save payments:', e.message);
+    async save() {
+        if (this.redisUrl && this.redisToken) {
+            try {
+                await fetch(this.redisUrl, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${this.redisToken}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(['SET', 'payments', JSON.stringify(this.payments)])
+                });
+            } catch (e) {
+                console.error('[PaidAccess] Failed to save payments to Redis:', e.message);
+            }
+        } else {
+            // Local fallback
+            try {
+                fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(this.payments, null, 2));
+            } catch (e) {
+                console.error('[PaidAccess] Failed to save payments locally:', e.message);
+            }
         }
     }
 
-    addPayment(accessKey, amount, nights, sessionId) {
-        // Normalize key so it matches the lowercase lookup in isPaid()
+    async addPayment(accessKey, amount, nights, sessionId) {
+        await this.ready;
         const normalizedKey = String(accessKey).trim().toLowerCase();
-        // Deduplicate: skip if this sessionId has already been recorded
+        
         if (sessionId && this.payments.some(p => p.sessionId === sessionId)) {
-            console.log(`[PaidAccess] Payment for session ${sessionId} already recorded, skipping duplicate.`);
+            console.log(`[PaidAccess] Payment for session ${sessionId} already recorded, skipping.`);
             return;
         }
+        
         this.payments.push({
             accessKey: normalizedKey,
             amount,
-            nights: Number(nights) || 1,   // ensure numeric, not string
+            nights: Number(nights) || 1,
             sessionId,
             timestamp: new Date().toISOString()
         });
-        this.save();
+        
+        await this.save();
     }
 
-    isPaid(accessKey) {
+    async isPaid(accessKey) {
+        await this.ready;
         if (!accessKey) return false;
+        
         const normalizedKey = String(accessKey).trim().toLowerCase();
 
-        // Special bypass key for complimentary access (no expiry)
         if (normalizedKey === '948katmai') {
             console.log('[PaidAccess] Bypass key 948katmai detected');
             return true;
         }
 
-        // Find all payments for this key and pick the most recent one
         const userPayments = this.payments
             .filter(p => p.accessKey === normalizedKey)
             .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -71,30 +110,23 @@ class PaidAccessService {
         const nights = Number(latest.nights) || 1;
         const paymentTime = new Date(latest.timestamp);
 
-        // Access expires at 20:00 UTC on the day after their last paid night.
-        // 20:00 UTC = 1:00 PM PDT (UTC-7) = 4:00 PM EDT (UTC-4).
-        // Using UTC avoids server-timezone ambiguity (Render runs in UTC).
         const expiryDate = new Date(paymentTime);
         expiryDate.setUTCDate(expiryDate.getUTCDate() + nights);
-        expiryDate.setUTCHours(20, 0, 0, 0); // 1 PM PDT / 4 PM EDT
+        expiryDate.setUTCHours(20, 0, 0, 0); // 1 PM PDT
 
         const now = new Date();
         const isStillValid = now <= expiryDate;
 
         console.log(`[PaidAccess] Checking ${normalizedKey}: ${isStillValid ? 'VALID' : 'EXPIRED'}`);
-        console.log(`  - Paid on: ${paymentTime.toLocaleString()}`);
-        console.log(`  - Nights: ${nights}`);
-        console.log(`  - Expires: ${expiryDate.toLocaleString()}`);
-        console.log(`  - Current Time: ${now.toLocaleString()}`);
-
         return isStillValid;
     }
 
-    clearPayments(accessKey) {
+    async clearPayments(accessKey) {
+        await this.ready;
         if (!accessKey) return;
         const normalizedKey = String(accessKey).trim().toLowerCase();
         this.payments = this.payments.filter(p => p.accessKey !== normalizedKey);
-        this.save();
+        await this.save();
         console.log(`[PaidAccess] Cleared all payments for key: ${normalizedKey}`);
     }
 }

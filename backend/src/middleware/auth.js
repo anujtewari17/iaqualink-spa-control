@@ -34,7 +34,7 @@ export const authMiddleware = async (req, res, next) => {
   }
 
   // Check paid status for guest keys
-  const paid = paidAccessService.isPaid(key);
+  const paid = await paidAccessService.isPaid(key);
   console.log(`[Auth] Paid status for ${key}: ${paid}`);
 
   if (!paid) {
