@@ -79,4 +79,9 @@ export const clearPayment = async (targetKey) => {
   return response.data;
 };
 
+export const manualAddPayment = async (targetKey, nights = 1) => {
+  const response = await api.post('/api/payments/manual-add', { targetKey, nights });
+  return response.data;
+};
+
 export default api;

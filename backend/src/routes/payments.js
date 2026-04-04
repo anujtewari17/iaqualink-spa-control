@@ -73,6 +73,30 @@ router.post('/clear-payment', async (req, res) => {
     }
 });
 
+// Administrative: Manually mark as paid
+router.post('/manual-add', async (req, res) => {
+    try {
+        const key = req.headers['x-access-key'];
+        if (key !== process.env.ACCESS_KEY) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+
+        const { targetKey, nights } = req.body;
+        if (!targetKey) return res.status(400).json({ error: 'Missing targetKey' });
+
+        console.log(`[Admin] Manual unlock request received for key: ${targetKey}`);
+        const paidAccessService = (await import('../services/paidAccessService.js')).default;
+        
+        // Use a dummy session ID and 0 amount for manual unlocks
+        await paidAccessService.addPayment(targetKey, 0, nights || 1, `manual_${Date.now()}`);
+
+        res.json({ success: true, message: `Payment manually mapped for ${targetKey}` });
+    } catch (err) {
+        console.error('Manual Add Error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Stripe webhook (requires raw body for signature verification)
 router.post('/webhook', async (req, res) => {
     const sig = req.headers['stripe-signature'];

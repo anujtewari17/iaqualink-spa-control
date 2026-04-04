@@ -9,10 +9,30 @@ function formatDate(dateStr) {
   });
 }
 
-import { clearPayment } from '../services/spaAPI';
+import { clearPayment, manualAddPayment } from '../services/spaAPI';
 
 const AdminPanel = ({ guestStatus, onRefresh }) => {
   const [resetting, setResetting] = useState(false);
+  const [adding, setAdding] = useState(false);
+
+  const handleManualAdd = async () => {
+    const codeToReset = guestStatus?.code || 'katmaiguest';
+    const nights = prompt(`Enter number of nights to manually unlock for ${codeToReset}:`, "3");
+    if (!nights) return;
+
+    setAdding(true);
+    try {
+      await manualAddPayment(codeToReset, Number(nights));
+      await manualAddPayment('katmaiguest', Number(nights)); // Guarantee it works for the standard code
+      alert(`Success: Manually unlocked for ${nights} nights.`);
+      if (onRefresh) await onRefresh();
+    } catch (err) {
+      console.error('[AdminUI] Manual add failed:', err);
+      alert('Failed to manually unlock.');
+    } finally {
+      setAdding(false);
+    }
+  };
 
   const handleReset = async () => {
     const codeToReset = guestStatus?.code || 'katmaiguest';
@@ -110,6 +130,19 @@ const AdminPanel = ({ guestStatus, onRefresh }) => {
                 >
                   {resetting ? 'Resetting...' : 'Reset Payment Status'}
                 </button>
+                <div style={{ marginTop: '1rem', borderTop: '1px dotted rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
+                  <p className="muted" style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>
+                    Manually unlock access if a guest pays via Venmo, CashApp, or if a Stripe payment was missed.
+                  </p>
+                  <button
+                    className="btn-action"
+                    onClick={handleManualAdd}
+                    disabled={adding}
+                    style={{ width: '100%', justifyContent: 'center', background: 'rgba(77, 255, 148, 0.1)', color: '#4dff94' }}
+                  >
+                    {adding ? 'Unlocking...' : 'Manually Unlock Status'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
