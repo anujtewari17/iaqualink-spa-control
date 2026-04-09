@@ -61,6 +61,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // API routes
 app.use('/api/payments', paymentRoutes);
 app.use('/api', authMiddleware, spaRoutes);
