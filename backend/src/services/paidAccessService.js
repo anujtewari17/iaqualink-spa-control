@@ -9,6 +9,27 @@ class PaidAccessService {
         this.redisUrl = process.env.UPSTASH_REDIS_REST_URL;
         this.redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
         this.ready = this.load();
+
+        if (this.redisUrl && this.redisToken) {
+            // Ping Redis once every 12 hours to prevent Upstash from pausing the DB
+            // due to inactivity, since the backend now stays awake.
+            setInterval(() => {
+                this.pingRedis();
+            }, 12 * 60 * 60 * 1000);
+        }
+    }
+
+    async pingRedis() {
+        try {
+            await fetch(this.redisUrl, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${this.redisToken}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(['PING'])
+            });
+            console.log('[PaidAccess] Pinged Upstash Redis to keep DB active.');
+        } catch (e) {
+            console.error('[PaidAccess] Failed to ping Redis:', e.message);
+        }
     }
 
     async load() {
