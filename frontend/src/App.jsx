@@ -54,7 +54,21 @@ function App() {
     spaSetPoint: null,
     lastUpdate: null
   });
-  const [heatingHistory, setHeatingHistory] = useState([]); // Array of { temp, time }
+  const [heatingHistory, setHeatingHistory] = useState(() => {
+    try {
+      const saved = localStorage.getItem('spaHeatingHistory');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Clean out stale data immediately on load to prevent weird ETA jumps
+        return parsed.filter(h => Date.now() - h.time < 30 * 60 * 1000);
+      }
+    } catch (e) {}
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('spaHeatingHistory', JSON.stringify(heatingHistory));
+  }, [heatingHistory]);
 
   const [loading, setLoading] = useState(true);
   const [statusFailures, setStatusFailures] = useState(0);
