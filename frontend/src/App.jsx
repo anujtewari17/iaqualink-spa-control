@@ -200,8 +200,17 @@ function App() {
       }
     }
 
-    // Not enough time elapsed yet
-    return { eta: 'Gathering data…', ratePerHr: null, hasRealData: false };
+    // Not enough time elapsed yet - Default to 45°F/hr
+    const defaultRatePerMin = 45 / 60;
+    const minsRemaining = Math.ceil(diff / defaultRatePerMin);
+    const readyTime = new Date(Date.now() + minsRemaining * 60 * 1000);
+    const timeStr = readyTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    
+    return { 
+      eta: `~${minsRemaining} min  ·  ready by ${timeStr}`, 
+      ratePerHr: '45.0 (est)', 
+      hasRealData: false 
+    };
   };
 
   const fetchSpaStatus = async () => {
