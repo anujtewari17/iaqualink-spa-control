@@ -43,6 +43,11 @@ export const setSpaTemperature = async (temperature) => {
   return response.data;
 };
 
+export const setHeatingRate = async (rate) => {
+  const response = await api.post('/api/set-heating-rate', { rate });
+  return response.data;
+};
+
 export const checkLocation = async (latitude, longitude) => {
   const res = await api.post('/api/check-location', { latitude, longitude });
   return res.data.allowed;

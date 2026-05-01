@@ -3,6 +3,7 @@ import iaqualinkService from '../services/iaqualink.js';
 import { isLocationAllowed, locations } from '../services/location.js';
 import notificationService from '../services/notification.js';
 import usageLogger from '../services/usageLogger.js';
+import rateService from '../services/rateService.js';
 
 const router = express.Router();
 
@@ -11,6 +12,7 @@ router.get('/status', async (req, res) => {
   console.log(`Status request from ${req.ip}`);
   try {
     const status = await iaqualinkService.getSpaStatus();
+    status.lastHeatingRate = await rateService.getRate();
     res.json(status);
   } catch (error) {
     console.error('Error getting spa status:', error);
@@ -209,6 +211,22 @@ router.post('/check-location', (req, res) => {
   const allowed = isLocationAllowed(latNum, lonNum);
   console.log(`Location allowed: ${allowed}`);
   res.json({ allowed });
+});
+
+// Update stored heating rate
+router.post('/set-heating-rate', async (req, res) => {
+  try {
+    const { rate } = req.body;
+    if (rate) {
+      await rateService.setRate(rate);
+      res.json({ success: true, rate });
+    } else {
+      res.status(400).json({ error: 'Missing rate parameter' });
+    }
+  } catch (error) {
+    console.error('Error setting heating rate:', error);
+    res.status(500).json({ error: 'Failed to set heating rate' });
+  }
 });
 
 

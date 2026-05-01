@@ -9,7 +9,8 @@ import {
   toggleSpaDevice,
   checkLocation,
   getActiveReservation,
-  getSessionStatus
+  getSessionStatus,
+  setHeatingRate
 } from './services/spaAPI';
 
 const getWithinSpaHours = () => {
@@ -54,6 +55,7 @@ function App() {
     spaSetPoint: null,
     lastUpdate: null
   });
+  const [lastKnownRate, setLastKnownRate] = useState(null);
   const [heatingHistory, setHeatingHistory] = useState(() => {
     try {
       const saved = localStorage.getItem('spaHeatingHistory');
@@ -68,7 +70,28 @@ function App() {
 
   useEffect(() => {
     localStorage.setItem('spaHeatingHistory', JSON.stringify(heatingHistory));
-  }, [heatingHistory]);
+
+    // Sync newly calculated rates to the backend
+    if (heatingHistory.length >= 2) {
+      const first = heatingHistory[0];
+      const last = heatingHistory[heatingHistory.length - 1];
+      const timeDiffMin = (last.time - first.time) / 60000;
+      
+      if (timeDiffMin >= 1) {
+        const ratePerMin = (last.temp - first.temp) / timeDiffMin;
+        const ratePerHr = ratePerMin * 60;
+        
+        if (ratePerHr > 0) {
+          // Only update if we don't have a rate or it differs by more than 2 degrees
+          // to avoid spamming the backend with minor fluctuations
+          if (!lastKnownRate || Math.abs(ratePerHr - lastKnownRate) > 2) {
+            setLastKnownRate(ratePerHr);
+            setHeatingRate(ratePerHr).catch(e => console.error('Failed to sync rate', e));
+          }
+        }
+      }
+    }
+  }, [heatingHistory, lastKnownRate]);
 
   const [loading, setLoading] = useState(true);
   const [statusFailures, setStatusFailures] = useState(0);
@@ -98,6 +121,10 @@ function App() {
       connected: status.connected !== undefined ? !!status.connected : true,
       lastUpdate: now
     }));
+
+    if (status.lastHeatingRate && status.lastHeatingRate !== lastKnownRate) {
+      setLastKnownRate(status.lastHeatingRate);
+    }
 
     // Track history if spa mode active (heater may not always report separately)
     if ((!!status.spaHeater || !!status.spaMode) && currentTemp !== null) {
@@ -200,15 +227,17 @@ function App() {
       }
     }
 
-    // Not enough time elapsed yet - Default to 45°F/hr
-    const defaultRatePerMin = 45 / 60;
+    // Not enough time elapsed yet - Default to stored rate or 45°F/hr
+    const defaultRatePerMin = (lastKnownRate || 45) / 60;
     const minsRemaining = Math.ceil(diff / defaultRatePerMin);
     const readyTime = new Date(Date.now() + minsRemaining * 60 * 1000);
     const timeStr = readyTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
     
+    const displayRate = lastKnownRate ? `${Number(lastKnownRate).toFixed(1)} (stored)` : '45.0 (est)';
+
     return { 
       eta: `~${minsRemaining} min  ·  ready by ${timeStr}`, 
-      ratePerHr: '45.0 (est)', 
+      ratePerHr: displayRate, 
       hasRealData: false 
     };
   };
