@@ -255,6 +255,28 @@ class IaqualinkService {
     }
   }
 
+  async turnOnSpa() {
+    await this.ensureAuthenticated();
+    console.log('[Iaqualink] Starting spa system...');
+    
+    // 1. Turn on Spa Pump (Mode)
+    await this.toggleDevice('spa-mode');
+    await new Promise(r => setTimeout(r, 1500));
+    
+    // 2. Turn on Spa Heater
+    await this.toggleDevice('spa-heater');
+    await new Promise(r => setTimeout(r, 1500));
+    
+    // 3. Ensure Filter Pump is off (usually required for spa mode)
+    const status = await this.getSpaStatus();
+    if (status.filterPump) {
+      await this.toggleDevice('filter-pump');
+    }
+    
+    console.log('[Iaqualink] Spa system started successfully.');
+    usageLogger.startSession();
+  }
+
   async turnOffAllEquipment() {
     await this.ensureAuthenticated();
     const status = await this.getSpaStatus();

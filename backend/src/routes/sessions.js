@@ -1,5 +1,6 @@
 import express from 'express';
 import sessionService from '../services/sessionService.js';
+import iaqualinkService from '../services/iaqualink.js';
 
 const router = express.Router();
 
@@ -16,6 +17,16 @@ router.post('/start', async (req, res) => {
         }
 
         await sessionService.startSession(key, duration);
+        
+        // Automatically turn on the spa hardware
+        try {
+            await iaqualinkService.turnOnSpa();
+        } catch (spaErr) {
+            console.error('[Sessions] Failed to auto-start hardware:', spaErr.message);
+            // We don't fail the session start if the hardware fails to respond,
+            // the user can still try to toggle it manually from the dashboard.
+        }
+
         res.json({ success: true, message: `Session started for ${duration} hours.` });
     } catch (err) {
         console.error('Session Start Error:', err);
