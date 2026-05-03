@@ -34,6 +34,7 @@ function App() {
   // null -> checking, true -> admin, false -> guest
   const [isAdmin, setIsAdmin] = useState(null);
   const [guestStatus, setGuestStatus] = useState(null);
+  const [monthlyStats, setMonthlyStats] = useState(null);
 
   const [withinSpaHours, setWithinSpaHours] = useState(getWithinSpaHours());
   const [spaData, setSpaData] = useState({
@@ -143,6 +144,7 @@ function App() {
       const res = await getActiveReservation();
       // If we got here, we are an admin (no 403 error)
       setGuestStatus(res.guestStatus);
+      setMonthlyStats(res.monthlyStats);
       setIsAdmin(true);
       return true;
     } catch (err) {
@@ -503,7 +505,7 @@ function App() {
           isAdmin === null ? (
             loadingScreen
           ) : isAdmin ? (
-            <AdminPanel guestStatus={guestStatus} onRefresh={checkAdmin} />
+            <AdminPanel guestStatus={guestStatus} monthlyStats={monthlyStats} onRefresh={checkAdmin} />
           ) : (
             <Login onLogin={handleLogin} />
           )

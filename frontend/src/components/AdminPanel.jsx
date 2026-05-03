@@ -10,7 +10,7 @@ function formatDate(dateStr) {
   });
 }
 
-const AdminPanel = ({ guestStatus, onRefresh }) => {
+const AdminPanel = ({ guestStatus, monthlyStats, onRefresh }) => {
   const [clearing, setClearing] = useState(false);
 
   const handleClearSession = async () => {
@@ -38,13 +38,7 @@ const AdminPanel = ({ guestStatus, onRefresh }) => {
     }).format(new Date(iso));
   };
 
-  const formatDateRange = (start, end) => {
-    if (!start || !end) return null;
-    const s = new Date(start);
-    const e = new Date(end);
-    const options = { month: 'short', day: 'numeric' };
-    return `${s.toLocaleDateString('en-US', options)} – ${e.toLocaleDateString('en-US', options)}`;
-  };
+
 
   const handleLogout = () => {
     localStorage.removeItem('accessKey');
@@ -77,40 +71,60 @@ const AdminPanel = ({ guestStatus, onRefresh }) => {
               </span>
             </div>
 
-            <div style={{ marginTop: '1.5rem' }}>
+            <div style={{ marginTop: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
               <div className="stat-block">
                 <p className="small-label">
                   Guest Session Status
                 </p>
-                <h2 style={{ fontSize: '1.8rem', margin: '0.5rem 0' }}>
-                  {guestStatus?.active ? 'Active Session' : 'Idle / No active session'}
+                <h2 style={{ fontSize: '1.6rem', margin: '0.5rem 0' }}>
+                  {guestStatus?.active ? 'Active' : 'Idle'}
                 </h2>
-                {guestStatus?.active && guestStatus.endTime && (
-                  <p className="muted" style={{ fontSize: '1rem' }}>
-                    Session expires at: {formatExpiry(guestStatus.endTime)}
+                {guestStatus?.active && guestStatus.endTime ? (
+                  <p className="muted" style={{ fontSize: '0.9rem' }}>
+                    Expires: {formatExpiry(guestStatus.endTime)}
+                  </p>
+                ) : (
+                  <p className="muted" style={{ fontSize: '0.9rem' }}>
+                    Waiting for guest
                   </p>
                 )}
               </div>
+
+              {monthlyStats && (
+                <div className="stat-block">
+                  <p className="small-label">
+                    Usage this Month ({monthlyStats.monthName})
+                  </p>
+                  <h2 style={{ fontSize: '1.6rem', margin: '0.5rem 0' }}>
+                    {monthlyStats.totalHours} <span style={{ fontSize: '1rem', opacity: 0.7 }}>Hours</span>
+                  </h2>
+                  <p className="muted" style={{ fontSize: '0.9rem' }}>
+                    {monthlyStats.sessionCount} total sessions
+                  </p>
+                </div>
+              )}
+            </div>
 
               <div style={{ marginTop: '2.5rem', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1.5rem' }}>
                 <p className="muted" style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>
                   The guest session system is now fully automated. Guests select up to 3 hours of access, and the system auto-locks when time expires.
                 </p>
+              <div style={{ display: 'flex', gap: '1rem', flexDirection: window.innerWidth < 600 ? 'column' : 'row' }}>
                 <button
                     className="btn-action"
                     onClick={() => { if (onRefresh) onRefresh() }}
-                    style={{ width: '100%', justifyContent: 'center', background: 'rgba(255, 255, 255, 0.1)', color: '#fff', marginBottom: '1rem' }}
+                    style={{ flex: 1, justifyContent: 'center', background: 'rgba(255, 255, 255, 0.1)', color: '#fff' }}
                   >
-                    Refresh Status
+                    Refresh Dashboard
                 </button>
                 {guestStatus?.active && (
                   <button
                       className="btn-action"
                       onClick={handleClearSession}
                       disabled={clearing}
-                      style={{ width: '100%', justifyContent: 'center', background: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d' }}
+                      style={{ flex: 1, justifyContent: 'center', background: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d' }}
                     >
-                      {clearing ? 'Ending Session...' : 'End Guest Session Early'}
+                      {clearing ? 'Ending Session...' : 'End Session Early'}
                   </button>
                 )}
               </div>
