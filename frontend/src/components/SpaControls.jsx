@@ -52,7 +52,7 @@ function SpaControls({
           disabled={disabled}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', textAlign: 'left' }}>
-            <span className="spa-label">🛁 Master Toggle</span>
+            <span className="spa-label">🛁 Spa System</span>
             <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>Mode & Heater</span>
           </div>
           <span className="spa-temp">{spaLabel}</span>
