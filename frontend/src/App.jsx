@@ -7,7 +7,6 @@ import AccessGate from './components/AccessGate';
 import {
   getSpaStatus,
   toggleSpaDevice,
-  checkLocation,
   getActiveReservation,
   setHeatingRate
 } from './services/spaAPI';
@@ -35,7 +34,7 @@ function App() {
   // null -> checking, true -> admin, false -> guest
   const [isAdmin, setIsAdmin] = useState(null);
   const [guestStatus, setGuestStatus] = useState(null);
-  const [locationAllowed, setLocationAllowed] = useState(null);
+
   const [withinSpaHours, setWithinSpaHours] = useState(getWithinSpaHours());
   const [spaData, setSpaData] = useState({
     spaMode: false,
@@ -137,27 +136,7 @@ function App() {
       setHeatingHistory([]); // Reset when both are off
     }
   };
-  const verifyLocation = () => {
-    if (!navigator.geolocation) {
-      setLocationAllowed(true); // treat as allowed when geolocation unsupported
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const allowed = await checkLocation(
-            pos.coords.latitude,
-            pos.coords.longitude
-          );
-          setLocationAllowed(allowed);
-        } catch (err) {
-          console.error('Location check failed', err);
-          setLocationAllowed(true); // default to allowed on error
-        }
-      },
-      () => setLocationAllowed(true)
-    );
-  };
+
 
   const checkAdmin = async () => {
     try {
@@ -391,7 +370,6 @@ function App() {
 
   useEffect(() => {
     if (!authenticated || isAdminRoute || sessionRequired) return;
-    verifyLocation();
     fetchSpaStatus();
     const interval = setInterval(fetchSpaStatus, 5000);
     return () => clearInterval(interval);
@@ -424,12 +402,7 @@ function App() {
     }).format(spaData.lastUpdate)
     : 'pending';
 
-  const locationLabel =
-    locationAllowed === null
-      ? 'Checking location'
-      : locationAllowed
-        ? 'Location ok'
-        : 'Location needed';
+
 
   const guestPage = (
     <div className="app-shell">
@@ -503,7 +476,6 @@ function App() {
             jetPump={spaData.jetPump}
             filterPump={spaData.filterPump}
             connected={spaData.connected}
-            locationLabel={locationLabel}
             commandMessage={commandState.message}
             commandActive={commandState.active}
             onToggle={handleToggle}
