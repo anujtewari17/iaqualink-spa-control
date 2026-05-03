@@ -67,25 +67,13 @@ export const validateAccessKey = async (key) => {
 
 export const getAccessKey = () => localStorage.getItem('accessKey');
 
-export const createCheckoutSession = async (nights = 1) => {
-  const accessKey = getAccessKey();
-  const res = await api.post('/api/payments/create-checkout-session', { accessKey, nights });
+export const startSpaSession = async (hours = 1) => {
+  const res = await api.post('/api/sessions/start', { hours });
   return res.data;
 };
 
-export const getSessionStatus = async (sessionId) => {
-  const response = await api.get(`/api/payments/session-status?session_id=${sessionId}`);
-  return response.data;
-};
-
-export const clearPayment = async (targetKey) => {
-  console.log(`[API] Sending clear-payment request for: ${targetKey} to ${API_BASE_URL}/api/payments/clear-payment`);
-  const response = await api.post('/api/payments/clear-payment', { targetKey });
-  return response.data;
-};
-
-export const manualAddPayment = async (targetKey, nights = 1) => {
-  const response = await api.post('/api/payments/manual-add', { targetKey, nights });
+export const getSpaSessionStatus = async () => {
+  const response = await api.get(`/api/sessions/status`);
   return response.data;
 };
 

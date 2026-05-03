@@ -5,11 +5,12 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import spaRoutes from './routes/spa.js';
 import keyRoutes from './routes/keys.js';
-import paymentRoutes from './routes/payments.js';
+import sessionRoutes from './routes/sessions.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
 import cron from 'node-cron';
 import iaqualinkService from './services/iaqualink.js';
+import sessionService from './services/sessionService.js';
 import usageLogger from './services/usageLogger.js';
 
 dotenv.config();
@@ -39,18 +40,11 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// 1. Body Parsing (Must be early to capture rawBody for webhooks)
-app.use(express.json({
-  limit: '10kb',
-  verify: (req, res, buf) => {
-    if (req.originalUrl.startsWith('/api/payments/webhook')) {
-      req.rawBody = buf;
-    }
-  }
-}));
+// Body Parsing
+app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-// 2. Logging
+// Logging
 app.use((req, res, next) => {
   console.log(
     `[${new Date().toISOString()}] ${req.ip} ${req.method} ${req.originalUrl}`
@@ -67,7 +61,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/api/payments', paymentRoutes);
+app.use('/api/sessions', authMiddleware, sessionRoutes);
 app.use('/api', authMiddleware, spaRoutes);
 app.use('/api/keys', authMiddleware, keyRoutes);
 
@@ -86,7 +80,20 @@ app.listen(PORT, () => {
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
-// Cron job to turn off equipment nightly at 12 AM Pacific Time
+// Auto-shutdown for expired sessions (runs every minute)
+cron.schedule('* * * * *', async () => {
+  try {
+    const expired = await sessionService.getAndClearNewlyExpiredSessions();
+    if (expired.length > 0) {
+      console.log(`[Cron] Found ${expired.length} newly expired sessions. Shutting down spa...`);
+      await iaqualinkService.turnOffAllEquipment();
+    }
+  } catch (err) {
+    console.error('[Cron] Session expiration check failed:', err.message);
+  }
+});
+
+// Cron job to turn off equipment nightly at 12 AM Pacific Time (failsafe)
 cron.schedule(
   '0 22,0,1,2,3,4,5 * * *',
   async () => {
@@ -109,6 +116,5 @@ cron.schedule(
   },
   { timezone: 'America/Los_Angeles' }
 );
-
 
 export default app;

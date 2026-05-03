@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import SpaControls from './components/SpaControls';
 import Login from './components/Login';
 import AdminPanel from './components/AdminPanel';
-import PaymentGate from './components/PaymentGate';
+import AccessGate from './components/AccessGate';
 import {
   getSpaStatus,
   toggleSpaDevice,
@@ -100,8 +100,8 @@ function App() {
     message: '',
     device: null
   });
-  const [paymentRequired, setPaymentRequired] = useState(false);
-  const [paymentMessage, setPaymentMessage] = useState('');
+  const [sessionRequired, setSessionRequired] = useState(false);
+  const [sessionMessage, setSessionMessage] = useState('');
 
   const applyBackendStatus = (status) => {
     setStatusFailures(0);
@@ -247,12 +247,12 @@ function App() {
     try {
       const status = await getSpaStatus();
       applyBackendStatus(status);
-      setPaymentRequired(false);
+      setSessionRequired(false);
     } catch (err) {
       console.error('Failed to fetch spa status:', err);
       if (err.response?.status === 402) {
-        setPaymentRequired(true);
-        setPaymentMessage(err.response.data.message);
+        setSessionRequired(true);
+        setSessionMessage(err.response.data.message);
         // Clear spa data so we don't show stale info behind the gate
         setSpaData(prev => ({ ...prev, lastUpdate: null }));
         return;
@@ -390,12 +390,12 @@ function App() {
   }, [authenticated, isAdminRoute, localStorage.getItem('accessKey')]);
 
   useEffect(() => {
-    if (!authenticated || isAdminRoute || paymentRequired) return;
+    if (!authenticated || isAdminRoute || sessionRequired) return;
     verifyLocation();
     fetchSpaStatus();
     const interval = setInterval(fetchSpaStatus, 5000);
     return () => clearInterval(interval);
-  }, [authenticated, isAdminRoute, paymentRequired]);
+  }, [authenticated, isAdminRoute, sessionRequired]);
 
   // Priority: Handle new keys in the URL even if already authenticated
   useEffect(() => {
@@ -407,36 +407,12 @@ function App() {
       console.log('New key detected in URL, updating session...');
       handleLogin(urlKey);
       // Reset critical states for the new identity
-      setPaymentRequired(false);
+      setSessionRequired(false);
       setLoading(true);
       setIsAdmin(null);
       fetchSpaStatus();
     }
   }, [location.search]);
-
-  // Handle return from Stripe payment
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const sessionId = params.get('session_id');
-
-    if (sessionId && authenticated) {
-      const verifyPayment = async () => {
-        try {
-          const status = await getSessionStatus(sessionId);
-          if (status.status === 'complete' && status.payment_status === 'paid') {
-            console.log('Payment verified successfully!');
-            // Clear URL and refresh
-            window.history.replaceState({}, document.title, window.location.pathname);
-            setPaymentRequired(false);
-            fetchSpaStatus();
-          }
-        } catch (err) {
-          console.error('Failed to verify payment session:', err);
-        }
-      };
-      verifyPayment();
-    }
-  }, [authenticated]);
 
   if (!authenticated) {
     return <Login onLogin={handleLogin} />;
@@ -566,8 +542,8 @@ function App() {
         element={
           loading && !spaData.lastUpdate ? (
             loadingScreen
-          ) : paymentRequired ? (
-            <PaymentGate message={paymentMessage} />
+          ) : sessionRequired ? (
+            <AccessGate onUnlocked={fetchSpaStatus} />
           ) : (
             guestPage
           )
