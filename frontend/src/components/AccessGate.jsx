@@ -31,7 +31,7 @@ const AccessGate = ({ onUnlocked }) => {
                 <header className="compact-hero card">
                     <div>
                         <p className="eyebrow">Access Required</p>
-                        <h1>Unlock Spa Controls</h1>
+                        <h1>Turn On Spa</h1>
                     </div>
                 </header>
 
@@ -42,7 +42,7 @@ const AccessGate = ({ onUnlocked }) => {
                         </div>
                         <h2 style={{ marginBottom: '1rem' }}>Welcome!</h2>
                         <p style={{ fontSize: '1.1rem', marginBottom: '2rem', opacity: 0.9 }}>
-                            Select how many hours you would like to activate the spa controls.
+                            Select how many hours you would like to turn on the spa for.
                         </p>
 
                         <div className="night-selector" style={{
@@ -91,7 +91,7 @@ const AccessGate = ({ onUnlocked }) => {
                             disabled={loading}
                             style={{ width: '100%', maxWidth: '340px' }}
                         >
-                            {loading ? 'Starting...' : `Unlock for ${hours} ${hours === 1 ? 'Hour' : 'Hours'}`}
+                            {loading ? 'Starting...' : `Turn On for ${hours} ${hours === 1 ? 'Hour' : 'Hours'}`}
                         </button>
                     </div>
                 </main>
