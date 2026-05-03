@@ -249,6 +249,12 @@ function App() {
       setSessionRequired(false);
     } catch (err) {
       console.error('Failed to fetch spa status:', err);
+      if (err.response?.status === 401) {
+        // The stored key is no longer valid, clear it and reload to get the default guest key
+        localStorage.removeItem('accessKey');
+        window.location.href = '/';
+        return;
+      }
       if (err.response?.status === 402) {
         setSessionRequired(true);
         setSessionMessage(err.response.data.message);

@@ -4,7 +4,7 @@ dotenv.config();
 
 class AccessKeyService {
   constructor() {
-    this.adminKey = process.env.ACCESS_KEY;
+    this.adminKey = process.env.ACCESS_KEY ? process.env.ACCESS_KEY.toLowerCase().trim() : null;
     this.guestKey = 'katmaiguest';
   }
 
