@@ -47,7 +47,8 @@ function App() {
     spaTemp: null,
     poolTemp: null,
     spaSetPoint: null,
-    lastUpdate: null
+    lastUpdate: null,
+    session: null
   });
   const [lastKnownRate, setLastKnownRate] = useState(null);
   const [heatingHistory, setHeatingHistory] = useState(() => {
@@ -113,7 +114,8 @@ function App() {
       poolTemp: Number.isFinite(status.poolTemp) ? status.poolTemp : null,
       spaSetPoint: Number.isFinite(status.spaSetPoint) ? status.spaSetPoint : null,
       connected: status.connected !== undefined ? !!status.connected : true,
-      lastUpdate: now
+      lastUpdate: now,
+      session: status.session || null
     }));
 
     if (status.lastHeatingRate && status.lastHeatingRate !== lastKnownRate) {
@@ -466,6 +468,11 @@ function App() {
             <span className={`pill ${withinSpaHours ? 'pill-info' : 'pill-warning'}`}>
               {withinSpaHours ? '5a–12a Access' : 'Outside hours (12a-5a)'}
             </span>
+            {spaData.session?.active && (
+              <span className="pill pill-ghost" style={{ border: '1px solid rgba(255,255,255,0.2)', color: 'var(--brand)' }}>
+                ⏳ {Math.ceil(spaData.session.timeRemainingMs / 60000)}m remaining
+              </span>
+            )}
             <span className="pill pill-ghost">Updated {lastUpdatedLabel}</span>
           </div>
         </header>
