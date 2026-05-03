@@ -77,4 +77,9 @@ export const getSpaSessionStatus = async () => {
   return response.data;
 };
 
+export const clearSpaSession = async () => {
+  const response = await api.post(`/api/sessions/clear`);
+  return response.data;
+};
+
 export default api;

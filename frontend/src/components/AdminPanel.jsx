@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { clearSpaSession } from '../services/spaAPI';
 
 function formatDate(dateStr) {
   const date = new Date(dateStr);
@@ -10,6 +11,23 @@ function formatDate(dateStr) {
 }
 
 const AdminPanel = ({ guestStatus, onRefresh }) => {
+  const [clearing, setClearing] = useState(false);
+
+  const handleClearSession = async () => {
+    if (!window.confirm("Are you sure you want to end the active guest session early?")) return;
+    setClearing(true);
+    try {
+      await clearSpaSession();
+      alert("Session ended successfully.");
+      if (onRefresh) onRefresh();
+    } catch (err) {
+      console.error("Failed to clear session:", err);
+      alert("Failed to end the session.");
+    } finally {
+      setClearing(false);
+    }
+  };
+
   const formatExpiry = (iso) => {
     if (!iso) return 'Not set';
     return new Intl.DateTimeFormat('en-US', {
@@ -69,10 +87,20 @@ const AdminPanel = ({ guestStatus, onRefresh }) => {
                 <button
                     className="btn-action"
                     onClick={() => { if (onRefresh) onRefresh() }}
-                    style={{ width: '100%', justifyContent: 'center', background: 'rgba(255, 255, 255, 0.1)', color: '#fff' }}
+                    style={{ width: '100%', justifyContent: 'center', background: 'rgba(255, 255, 255, 0.1)', color: '#fff', marginBottom: '1rem' }}
                   >
                     Refresh Status
                 </button>
+                {guestStatus?.active && (
+                  <button
+                      className="btn-action"
+                      onClick={handleClearSession}
+                      disabled={clearing}
+                      style={{ width: '100%', justifyContent: 'center', background: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d' }}
+                    >
+                      {clearing ? 'Ending Session...' : 'End Guest Session Early'}
+                  </button>
+                )}
               </div>
             </div>
           </div>
