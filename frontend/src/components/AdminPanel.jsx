@@ -9,51 +9,7 @@ function formatDate(dateStr) {
   });
 }
 
-import { clearPayment, manualAddPayment } from '../services/spaAPI';
-
 const AdminPanel = ({ guestStatus, onRefresh }) => {
-  const [resetting, setResetting] = useState(false);
-  const [adding, setAdding] = useState(false);
-
-  const handleManualAdd = async () => {
-    const codeToReset = guestStatus?.code || 'katmaiguest';
-    const nights = prompt(`Enter number of nights to manually unlock for ${codeToReset}:`, "3");
-    if (!nights) return;
-
-    setAdding(true);
-    try {
-      await manualAddPayment(codeToReset, Number(nights));
-      await manualAddPayment('katmaiguest', Number(nights)); // Guarantee it works for the standard code
-      alert(`Success: Manually unlocked for ${nights} nights.`);
-      if (onRefresh) await onRefresh();
-    } catch (err) {
-      console.error('[AdminUI] Manual add failed:', err);
-      alert('Failed to manually unlock.');
-    } finally {
-      setAdding(false);
-    }
-  };
-
-  const handleReset = async () => {
-    const codeToReset = guestStatus?.code || 'katmaiguest';
-    console.log(`[AdminUI] Initiating reset for: ${codeToReset}`);
-    if (!window.confirm(`Are you sure you want to clear the payment status for ${codeToReset}?`)) return;
-    setResetting(true);
-    try {
-      console.log(`[AdminUI] Sending clearPayment request...`);
-      await clearPayment(codeToReset);
-      await clearPayment('katmaiguest'); // Clean up both just in case
-      console.log(`[AdminUI] Reset successful, refreshing status...`);
-      if (onRefresh) await onRefresh();
-      alert(`Success: Payment status for ${codeToReset} has been reset.`);
-    } catch (err) {
-      console.error('[AdminUI] Reset failed:', err);
-      alert('Failed to reset payment status.');
-    } finally {
-      setResetting(false);
-    }
-  };
-
   const formatExpiry = (iso) => {
     if (!iso) return 'Not set';
     return new Intl.DateTimeFormat('en-US', {
@@ -86,63 +42,37 @@ const AdminPanel = ({ guestStatus, onRefresh }) => {
         <main className="app-main">
           <div className="card glass-card" style={{ padding: '2rem' }}>
             <div className="status-chips">
-              <span className={`pill ${guestStatus?.isPaid ? 'pill-success' : 'pill-danger'}`}>
-                {guestStatus?.isPaid ? 'Paid & Unlocked' : 'Payment Required'}
+              <span className={`pill pill-success`}>
+                Admin Mode Active
               </span>
             </div>
 
             <div style={{ marginTop: '1.5rem' }}>
               <div className="stat-block">
                 <p className="small-label">
-                  {guestStatus?.start ? 'Current Reservation' : 'Session Status'}
+                  Guest Session Status
                 </p>
                 <h2 style={{ fontSize: '1.8rem', margin: '0.5rem 0' }}>
-                  {guestStatus?.start ? formatDateRange(guestStatus.start, guestStatus.end) : 'Idle / No active reservation'}
+                  {guestStatus?.active ? 'Active Session' : 'Idle / No active session'}
                 </h2>
-                {guestStatus?.isPaid && (
+                {guestStatus?.active && guestStatus.endTime && (
                   <p className="muted" style={{ fontSize: '1rem' }}>
-                    {guestStatus.nights} night stay confirmed.
+                    Session expires at: {formatExpiry(guestStatus.endTime)}
                   </p>
                 )}
               </div>
 
-              {guestStatus?.isPaid && (
-                <div className="stat-block" style={{ marginTop: '1.5rem' }}>
-                  <p className="small-label">Access Duration</p>
-                  <p style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--success)' }}>
-                    ✅ Unlocked for Full Trip
-                  </p>
-                  <p className="muted" style={{ fontSize: '0.85rem', marginTop: '0.2rem' }}>
-                    Access remains active as long as the current guest is in session.
-                  </p>
-                </div>
-              )}
-
               <div style={{ marginTop: '2.5rem', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1.5rem' }}>
                 <p className="muted" style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>
-                  Clear the current payment if a guest leaves early or to reset for a new arrival.
+                  The guest session system is now fully automated. Guests select up to 3 hours of access, and the system auto-locks when time expires.
                 </p>
                 <button
-                  className="btn-action"
-                  onClick={handleReset}
-                  disabled={resetting}
-                  style={{ width: '100%', justifyContent: 'center', background: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d' }}
-                >
-                  {resetting ? 'Resetting...' : 'Reset Payment Status'}
-                </button>
-                <div style={{ marginTop: '1rem', borderTop: '1px dotted rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
-                  <p className="muted" style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>
-                    Manually unlock access if a guest pays via Venmo, CashApp, or if a Stripe payment was missed.
-                  </p>
-                  <button
                     className="btn-action"
-                    onClick={handleManualAdd}
-                    disabled={adding}
-                    style={{ width: '100%', justifyContent: 'center', background: 'rgba(77, 255, 148, 0.1)', color: '#4dff94' }}
+                    onClick={() => { if (onRefresh) onRefresh() }}
+                    style={{ width: '100%', justifyContent: 'center', background: 'rgba(255, 255, 255, 0.1)', color: '#fff' }}
                   >
-                    {adding ? 'Unlocking...' : 'Manually Unlock Status'}
-                  </button>
-                </div>
+                    Refresh Status
+                </button>
               </div>
             </div>
           </div>

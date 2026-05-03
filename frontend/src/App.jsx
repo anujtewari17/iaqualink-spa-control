@@ -9,7 +9,6 @@ import {
   toggleSpaDevice,
   checkLocation,
   getActiveReservation,
-  getSessionStatus,
   setHeatingRate
 } from './services/spaAPI';
 
