@@ -258,7 +258,7 @@ function App() {
       }
       setStatusFailures((prev) => {
         const next = prev + 1;
-        if (next >= 3) {
+        if (next >= 5) {
           setSpaData((prevData) => ({ ...prevData, connected: false }));
         }
         return next;
