@@ -30,12 +30,7 @@ function App() {
       return true;
     }
 
-    // If no key anywhere, default to 'katmaiguest' to show payment gate immediately
-    if (!storedKey) {
-      localStorage.setItem('accessKey', 'katmaiguest');
-      return true;
-    }
-    return true; // We always have at least 'katmaiguest' now
+    return !!storedKey;
   });
   // null -> checking, true -> admin, false -> guest
   const [isAdmin, setIsAdmin] = useState(null);
