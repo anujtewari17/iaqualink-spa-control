@@ -4,6 +4,7 @@ import { isLocationAllowed, locations } from '../services/location.js';
 import notificationService from '../services/notification.js';
 import usageLogger from '../services/usageLogger.js';
 import rateService from '../services/rateService.js';
+import sessionService from '../services/sessionService.js';
 
 const router = express.Router();
 
@@ -11,8 +12,22 @@ const router = express.Router();
 router.get('/status', async (req, res) => {
   console.log(`Status request from ${req.ip}`);
   try {
+    const key = req.headers['x-access-key'];
     const status = await iaqualinkService.getSpaStatus();
     status.lastHeatingRate = await rateService.getRate();
+    
+    // Attach session info
+    if (key) {
+      const session = await sessionService.getSession(key);
+      if (session) {
+        status.session = {
+          active: true,
+          endTime: session.endTime,
+          timeRemainingMs: session.timeRemainingMs
+        };
+      }
+    }
+    
     res.json(status);
   } catch (error) {
     console.error('Error getting spa status:', error);
