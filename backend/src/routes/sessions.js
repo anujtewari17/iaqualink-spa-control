@@ -56,4 +56,23 @@ router.get('/status', async (req, res) => {
     }
 });
 
+router.post('/clear', async (req, res) => {
+    try {
+        const key = req.headers['x-access-key'];
+        if (!key) return res.status(401).json({ error: 'Missing access key' });
+        
+        // Ensure only admin can clear sessions manually
+        if (key !== process.env.ACCESS_KEY) {
+            return res.status(403).json({ error: 'Only admins can clear sessions.' });
+        }
+
+        // Clear the guest session
+        await sessionService.clearSession('katmaiguest');
+        res.json({ success: true, message: 'Session cleared successfully.' });
+    } catch (err) {
+        console.error('Session Clear Error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 export default router;
