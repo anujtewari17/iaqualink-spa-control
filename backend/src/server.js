@@ -117,4 +117,28 @@ cron.schedule(
   { timezone: 'America/Los_Angeles' }
 );
 
+// Hourly safety check: Turn off spa if it's running but no active guest session exists
+cron.schedule('0 * * * *', async () => {
+  try {
+    console.log('[Cron] Running hourly safety check...');
+    const status = await iaqualinkService.getSpaStatus();
+    
+    // Only care if the spa is actually running
+    if (status.spaMode || status.spaHeater) {
+      const activeSession = await sessionService.getSession('katmaiguest');
+      
+      if (!activeSession) {
+        console.log('[Cron] Spa found running with NO active guest session. Triggering safety shutdown...');
+        await iaqualinkService.turnOffAllEquipment();
+      } else {
+        console.log('[Cron] Spa is running, but an active guest session exists. All good.');
+      }
+    } else {
+      console.log('[Cron] Spa is off. Safety check passed.');
+    }
+  } catch (err) {
+    console.error('[Cron] Hourly safety check failed:', err.message);
+  }
+});
+
 export default app;
