@@ -46,11 +46,23 @@ const AdminPanel = ({ guestStatus, onRefresh }) => {
     return `${s.toLocaleDateString('en-US', options)} – ${e.toLocaleDateString('en-US', options)}`;
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('accessKey');
+    window.location.href = '/';
+  };
+
   return (
     <div className="app-shell">
       <div className="gradient" aria-hidden></div>
       <div className="app">
-        <header className="compact-hero card">
+        <header className="compact-hero card" style={{ position: 'relative' }}>
+          <button 
+            className="btn-action" 
+            onClick={handleLogout}
+            style={{ position: 'absolute', top: '1rem', right: '1rem', padding: '0.4rem 0.8rem', fontSize: '0.8rem', background: 'rgba(255,255,255,0.1)' }}
+          >
+            Logout
+          </button>
           <div>
             <p className="eyebrow">Admin Dashboard</p>
             <h1>Guest Access Status</h1>
