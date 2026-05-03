@@ -168,7 +168,12 @@ class IaqualinkService {
       const rawJet = jetKey ? flatStatus[jetKey] : undefined;
       const jetPumpStatus = ['1', 1, 'on', 'ON', true].includes(rawJet);
 
-      const auxDetails = await this.getDeviceStatus();
+      let auxDetails = null;
+      try {
+        auxDetails = await this.getDeviceStatus();
+      } catch (auxErr) {
+        console.warn('⚠️ AUX status fetch failed (non-fatal):', auxErr.message);
+      }
 
       // Prefer AUX circuit status for jet pump if available
       let jetPumpActual = jetPumpStatus;
