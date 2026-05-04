@@ -13,7 +13,7 @@ import {
 
 const getWithinSpaHours = () => {
   const hour = new Date().getHours();
-  return hour >= 5 && hour <= 23; // 5am - 12am (lockout 12a-5a)
+  return hour >= 5 && hour < 22; // 5am - 10pm (lockout 10p-5a)
 };
 
 function App() {
@@ -466,7 +466,7 @@ function App() {
               {spaData.connected ? '🟢 Online' : '🔴 Offline'}
             </span>
             <span className={`pill ${withinSpaHours ? 'pill-info' : 'pill-warning'}`}>
-              {withinSpaHours ? '5a–12a Access' : 'Outside hours (12a-5a)'}
+              {withinSpaHours ? '5a–10p Access' : 'Outside hours (10p-5a)'}
             </span>
             {spaData.session?.active && (
               <span className="pill pill-ghost" style={{ border: '1px solid rgba(255,255,255,0.2)', color: 'var(--brand)' }}>
