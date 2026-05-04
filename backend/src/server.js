@@ -83,13 +83,74 @@ app.listen(PORT, () => {
 // Auto-shutdown for expired sessions (runs every minute)
 cron.schedule('* * * * *', async () => {
   try {
+    // 1. Check for expired guest sessions
     const expired = await sessionService.getAndClearNewlyExpiredSessions();
     if (expired.length > 0) {
       console.log(`[Cron] Found ${expired.length} newly expired sessions. Shutting down spa...`);
       await iaqualinkService.turnOffAllEquipment();
+      return; // Skip the global check if we just shut it down
+    }
+
+    // 2. Global 3-Hour Safety Watchdog (covers official app usage too)
+    const status = await iaqualinkService.getSpaStatus();
+    const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+    const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+    const WATCHDOG_KEY = 'global_spa_start_time';
+    const MAX_ON_TIME_MS = 3 * 60 * 60 * 1000;
+
+    if (status.spaMode) {
+      let startTime = null;
+      
+      // Try to get start time from Redis
+      if (redisUrl && redisToken) {
+        const res = await fetch(redisUrl, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${redisToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(['GET', WATCHDOG_KEY])
+        });
+        const data = await res.json();
+        if (data.result) startTime = parseInt(data.result);
+      }
+
+      if (!startTime) {
+        startTime = Date.now();
+        console.log(`[Watchdog] Spa detected ON. Starting 3-hour timer...`);
+        if (redisUrl && redisToken) {
+          await fetch(redisUrl, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${redisToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(['SET', WATCHDOG_KEY, startTime.toString()])
+          });
+        }
+      } else {
+        const elapsed = Date.now() - startTime;
+        const remainingMins = Math.max(0, Math.ceil((MAX_ON_TIME_MS - elapsed) / 60000));
+        console.log(`[Watchdog] Spa has been running for ${Math.round(elapsed / 60000)} mins. ${remainingMins} mins left.`);
+        
+        if (elapsed >= MAX_ON_TIME_MS) {
+          console.log(`[Watchdog] 3-hour limit reached. Shutting down everything!`);
+          await iaqualinkService.turnOffAllEquipment();
+          if (redisUrl && redisToken) {
+            await fetch(redisUrl, {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${redisToken}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify(['DEL', WATCHDOG_KEY])
+            });
+          }
+        }
+      }
+    } else {
+      // Spa is off, clear the watchdog timer
+      if (redisUrl && redisToken) {
+        await fetch(redisUrl, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${redisToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(['DEL', WATCHDOG_KEY])
+        });
+      }
     }
   } catch (err) {
-    console.error('[Cron] Session expiration check failed:', err.message);
+    console.error('[Cron] Watchdog check failed:', err.message);
   }
 });
 
