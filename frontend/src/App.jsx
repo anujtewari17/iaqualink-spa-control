@@ -72,13 +72,12 @@ function App() {
       const last = heatingHistory[heatingHistory.length - 1];
       const timeDiffMin = (last.time - first.time) / 60000;
       
-      if (timeDiffMin >= 1) {
+      if (timeDiffMin >= 3) { // Require 3 mins of data for a "real" rate sync
         const ratePerMin = (last.temp - first.temp) / timeDiffMin;
         const ratePerHr = ratePerMin * 60;
         
-        if (ratePerHr > 0) {
-          // Only update if we don't have a rate or it differs by more than 2 degrees
-          // to avoid spamming the backend with minor fluctuations
+        // Only sync if the rate is realistic (5 to 60 F/hr)
+        if (ratePerHr >= 5 && ratePerHr <= 60) {
           if (!lastKnownRate || Math.abs(ratePerHr - lastKnownRate) > 2) {
             setLastKnownRate(ratePerHr);
             setHeatingRate(ratePerHr).catch(e => console.error('Failed to sync rate', e));
@@ -176,45 +175,50 @@ function App() {
       const tempDiff = last.temp - first.temp;
       const timeDiffMin = (last.time - first.time) / (1000 * 60);
 
-      if (timeDiffMin >= 1) {
+      if (timeDiffMin >= 3) { // Require at least 3 minutes to trust the "live" trend
+        let ratePerHr;
+        let hasRealData = false;
+
         if (tempDiff > 0) {
-          // Good measurable rate
           const ratePerMin = tempDiff / timeDiffMin;
-          const ratePerHr = ratePerMin * 60;
-          const minsRemaining = Math.ceil(diff / ratePerMin);
-          const readyTime = new Date(Date.now() + minsRemaining * 60 * 1000);
-          const timeStr = readyTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-          return {
-            eta: `~${minsRemaining} min  ·  ready by ${timeStr}`,
-            ratePerHr: ratePerHr.toFixed(1),
-            hasRealData: true
-          };
+          ratePerHr = ratePerMin * 60;
+          hasRealData = true;
         } else {
-          // Have 5+ min of history but temp is stable/cycling near setpoint
-          // Use conservative 0.5°F/hr so we don't stay stuck on "Gathering data…"
-          const minsRemaining = Math.ceil(diff / (0.5 / 60));
-          const readyTime = new Date(Date.now() + minsRemaining * 60 * 1000);
-          const timeStr = readyTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-          return {
-            eta: `Almost ready  ·  ~${minsRemaining} min`,
-            ratePerHr: null,
-            hasRealData: false
-          };
+          // Temp is flat or decreasing (cycling) - fall back to 30F/hr floor as requested
+          ratePerHr = Math.max(lastKnownRate || 30, 30);
+          hasRealData = false;
         }
+
+        // Final safety check: if rate is absurdly low, use 30F/hr fallback
+        if (ratePerHr < 5) ratePerHr = 30;
+
+        let minsRemaining = Math.ceil(diff / (ratePerHr / 60));
+        
+        // Cap the estimate at 8 hours (480 mins) to prevent UI breakage from crazy numbers
+        if (minsRemaining > 480) minsRemaining = 480;
+
+        const readyTime = new Date(Date.now() + minsRemaining * 60 * 1000);
+        const timeStr = readyTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        
+        return {
+          eta: minsRemaining >= 480 ? `~8+ hours  ·  ready later` : `~${minsRemaining} min  ·  ready by ${timeStr}`,
+          ratePerHr: hasRealData ? ratePerHr.toFixed(1) : `${ratePerHr.toFixed(1)} (est)`,
+          hasRealData
+        };
       }
     }
 
-    // Not enough time elapsed yet - Default to stored rate or 45°F/hr
-    const defaultRatePerMin = (lastKnownRate || 45) / 60;
-    const minsRemaining = Math.ceil(diff / defaultRatePerMin);
+    // Not enough time elapsed yet (less than 3 mins) - Use 30F/hr or stored rate
+    const fallbackRate = Math.max(lastKnownRate || 30, 30);
+    let minsRemaining = Math.ceil(diff / (fallbackRate / 60));
+    if (minsRemaining > 480) minsRemaining = 480;
+
     const readyTime = new Date(Date.now() + minsRemaining * 60 * 1000);
     const timeStr = readyTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
     
-    const displayRate = lastKnownRate ? `${Number(lastKnownRate).toFixed(1)} (stored)` : '45.0 (est)';
-
     return { 
-      eta: `~${minsRemaining} min  ·  ready by ${timeStr}`, 
-      ratePerHr: displayRate, 
+      eta: minsRemaining >= 480 ? `~8+ hours  ·  ready later` : `~${minsRemaining} min  ·  ready by ${timeStr}`, 
+      ratePerHr: `${fallbackRate.toFixed(1)} (est)`, 
       hasRealData: false 
     };
   };

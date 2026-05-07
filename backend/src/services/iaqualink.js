@@ -184,8 +184,8 @@ class IaqualinkService {
 
       const status = {
         airTemp: parseInt(flatStatus.air_temp, 10) || null,
-        spaTemp: parseInt(flatStatus.spa_temp || flatStatus.spa_set_point, 10) || null,
-        poolTemp: parseInt(flatStatus.pool_temp || flatStatus.pool_set_point, 10) || null,
+        spaTemp: (flatStatus.spa_temp && parseInt(flatStatus.spa_temp, 10) > 0) ? parseInt(flatStatus.spa_temp, 10) : null,
+        poolTemp: (flatStatus.pool_temp && parseInt(flatStatus.pool_temp, 10) > 0) ? parseInt(flatStatus.pool_temp, 10) : null,
         spaSetPoint: parseInt(flatStatus.spa_set_point, 10) || null,
         spaMode: flatStatus.spa_pump === '1',
         spaHeater: flatStatus.spa_heater === '3',

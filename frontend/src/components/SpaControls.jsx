@@ -21,9 +21,9 @@ function SpaControls({
 
   const spaLabel = spaMode
     ? typeof spaTemp === 'number'
-      ? `${spaTemp}°F live`
-      : 'Reading...'
-    : 'System Off';
+      ? `${spaTemp}°`
+      : '...'
+    : 'Off';
 
   return (
     <div className="card control-card compact-card">
@@ -51,9 +51,9 @@ function SpaControls({
           onClick={() => onToggle('spa')}
           disabled={disabled}
         >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', textAlign: 'left' }}>
-            <span className="spa-label">🛁 Spa System</span>
-            <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>Mode & Heater</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+            <span style={{ fontSize: '2.2rem' }}>🛁</span>
+            <span className="spa-label">Spa</span>
           </div>
           <span className="spa-temp">{spaLabel}</span>
         </button>

@@ -73,9 +73,11 @@ class RateService {
 
     async setRate(rate) {
         await this.ready;
-        const numRate = Number(rate);
-        if (!isNaN(numRate) && numRate > 0) {
-            this.lastRate = numRate;
+        let numRate = Number(rate);
+        if (!isNaN(numRate)) {
+            // Clamp rate between 5 and 80 to prevent absurd ETAs from being stored
+            const clampedRate = Math.min(Math.max(numRate, 5), 80);
+            this.lastRate = clampedRate;
             await this.save();
         }
     }
