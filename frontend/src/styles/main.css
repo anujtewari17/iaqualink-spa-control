@@ -286,11 +286,11 @@ p {
   grid-column: span 2;
   align-items: center;
   flex-direction: row;
-  justify-content: space-between;
-  gap: 1rem;
-  min-height: 140px;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+  justify-content: center;
+  gap: 2rem;
+  min-height: 100px;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
 }
 
 .spa-label {
