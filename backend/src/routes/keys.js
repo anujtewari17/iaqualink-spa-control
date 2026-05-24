@@ -27,4 +27,21 @@ router.get('/', async (req, res) => {
   });
 });
 
+// Return all logged sessions for the last 60 days (requires admin key)
+router.get('/sessions', async (req, res) => {
+  const key = req.headers['x-access-key'];
+  if (key !== process.env.ACCESS_KEY) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
+  await usageLogger.ready;
+  
+  // Sort sessions by start date descending (most recent first)
+  const sortedSessions = [...usageLogger.sessions].sort(
+    (a, b) => new Date(b.start).getTime() - new Date(a.start).getTime()
+  );
+  
+  res.json(sortedSessions);
+});
+
 export default router;

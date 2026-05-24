@@ -10,7 +10,7 @@ function formatDate(dateStr) {
   });
 }
 
-const AdminPanel = ({ guestStatus, monthlyStats, onRefresh }) => {
+const AdminPanel = ({ guestStatus, monthlyStats, sessionHistory = [], onRefresh }) => {
   const [clearing, setClearing] = useState(false);
 
   const handleClearSession = async () => {
@@ -129,6 +129,87 @@ const AdminPanel = ({ guestStatus, monthlyStats, onRefresh }) => {
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Audit Log Card */}
+          <div className="card glass-card" style={{ padding: '2rem', marginTop: '2rem' }}>
+            <h2 style={{ fontSize: '1.4rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span>📋</span> Recent Session History (60 Days)
+            </h2>
+            
+            {!sessionHistory || sessionHistory.length === 0 ? (
+              <p className="muted" style={{ fontSize: '1rem', padding: '1rem 0' }}>No recent usage history recorded.</p>
+            ) : (
+              <div style={{ maxHeight: '350px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.95rem' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', color: 'var(--muted)' }}>
+                      <th style={{ padding: '0.75rem 0.5rem', fontWeight: '600' }}>Date</th>
+                      <th style={{ padding: '0.75rem 0.5rem', fontWeight: '600' }}>Time Range</th>
+                      <th style={{ padding: '0.75rem 0.5rem', fontWeight: '600', textAlign: 'right' }}>Duration</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sessionHistory.map((session, idx) => {
+                      const startDate = new Date(session.start);
+                      const endDate = session.end ? new Date(session.end) : null;
+                      
+                      const dateStr = startDate.toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      });
+                      
+                      const startTimeStr = startDate.toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      });
+                      
+                      const endTimeStr = endDate ? endDate.toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      }) : 'Running';
+                      
+                      const isCapped = session.durationMinutes >= 240;
+                      const durationStr = session.durationMinutes >= 60 
+                        ? `${(session.durationMinutes / 60).toFixed(1)} hrs`
+                        : `${session.durationMinutes} mins`;
+
+                      return (
+                        <tr 
+                          key={idx} 
+                          style={{ 
+                            borderBottom: '1px solid rgba(255,255,255,0.04)',
+                            background: idx % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent'
+                          }}
+                        >
+                          <td style={{ padding: '0.75rem 0.5rem', fontWeight: '500' }}>{dateStr}</td>
+                          <td style={{ padding: '0.75rem 0.5rem', color: 'rgba(255,255,255,0.8)' }}>
+                            {startTimeStr} – {endTimeStr}
+                          </td>
+                          <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', fontWeight: '600' }}>
+                            <span 
+                              style={{ 
+                                color: isCapped ? 'var(--warning)' : 'var(--text)',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.3rem'
+                              }}
+                              title={isCapped ? "Capped at 4-hour max safety limit" : ""}
+                            >
+                              {durationStr}
+                              {isCapped && <span style={{ fontSize: '0.8rem' }}>⚠️</span>}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </main>
       </div>

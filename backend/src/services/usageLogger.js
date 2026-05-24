@@ -68,23 +68,32 @@ class UsageLogger {
 
   async endSession() {
     if (!this.currentSession) return;
+    
+    // Capture session and clear the field immediately to block concurrent calls
+    // during rapid toggles or UI double-clicks
+    const session = this.currentSession;
+    this.currentSession = null;
+    
     await this.ready;
     const end = new Date();
-    const start = new Date(this.currentSession.start);
-    const durationMinutes = Math.round((end - start) / 60000);
+    const start = new Date(session.start);
+    const rawDuration = Math.round((end - start) / 60000);
+    
+    // Safety cap: maximum duration of a single session is 4 hours (240 minutes)
+    // to prevent inflated numbers due to network/API failures or server restarts
+    const durationMinutes = Math.min(240, rawDuration);
     
     // Only log if it ran for at least 1 minute
     if (durationMinutes >= 1) {
       this.sessions.push({
-        key: this.currentSession.key,
-        start: this.currentSession.start,
+        key: session.key,
+        start: session.start,
         end: end.toISOString(),
         durationMinutes
       });
-      console.log(`[UsageLogger] Logged end of session: ${durationMinutes} mins`);
+      console.log(`[UsageLogger] Logged end of session: ${durationMinutes} mins (raw duration: ${rawDuration} mins)`);
     }
     
-    this.currentSession = null;
     this.prune();
     await this.save();
   }

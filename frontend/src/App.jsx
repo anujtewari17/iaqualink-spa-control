@@ -8,7 +8,8 @@ import {
   getSpaStatus,
   toggleSpaDevice,
   getActiveReservation,
-  setHeatingRate
+  setHeatingRate,
+  getSpaSessionHistory
 } from './services/spaAPI';
 
 const getWithinSpaHours = () => {
@@ -31,10 +32,10 @@ function App() {
 
     return !!storedKey;
   });
-  // null -> checking, true -> admin, false -> guest
   const [isAdmin, setIsAdmin] = useState(null);
   const [guestStatus, setGuestStatus] = useState(null);
   const [monthlyStats, setMonthlyStats] = useState(null);
+  const [sessionHistory, setSessionHistory] = useState([]);
 
   const [withinSpaHours, setWithinSpaHours] = useState(getWithinSpaHours());
   const [spaData, setSpaData] = useState({
@@ -147,6 +148,15 @@ function App() {
       setGuestStatus(res.guestStatus);
       setMonthlyStats(res.monthlyStats);
       setIsAdmin(true);
+
+      // Fetch session history
+      try {
+        const history = await getSpaSessionHistory();
+        setSessionHistory(history);
+      } catch (historyErr) {
+        console.error('Failed to fetch session history:', historyErr);
+      }
+
       return true;
     } catch (err) {
       console.log('Not an admin, redirecting...');
@@ -516,7 +526,7 @@ function App() {
           isAdmin === null ? (
             loadingScreen
           ) : isAdmin ? (
-            <AdminPanel guestStatus={guestStatus} monthlyStats={monthlyStats} onRefresh={checkAdmin} />
+            <AdminPanel guestStatus={guestStatus} monthlyStats={monthlyStats} sessionHistory={sessionHistory} onRefresh={checkAdmin} />
           ) : (
             <Login onLogin={handleLogin} />
           )

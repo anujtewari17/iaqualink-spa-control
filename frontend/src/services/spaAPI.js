@@ -58,6 +58,11 @@ export const getActiveReservation = async () => {
   return res.data;
 };
 
+export const getSpaSessionHistory = async () => {
+  const res = await api.get('/api/keys/sessions');
+  return res.data;
+};
+
 export const validateAccessKey = async (key) => {
   const res = await api.get('/api/status', {
     headers: { 'x-access-key': key },
