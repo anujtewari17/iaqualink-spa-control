@@ -280,7 +280,12 @@ function App() {
       setCommandState({ active: true, message, device });
 
     const ensureSpaStarts = async (retries = 3) => {
-      let latestStatus = null;
+      let latestStatus = await getSpaStatus();
+      
+      // If spa is already fully on, return immediately
+      if (latestStatus?.spaMode && latestStatus?.spaHeater) {
+        return latestStatus;
+      }
 
       for (let attempt = 0; attempt < retries; attempt++) {
         const attemptLabel = attempt === 0
@@ -288,24 +293,35 @@ function App() {
           : `Retrying to start spa (attempt ${attempt + 1}/${retries})...`;
         setCommandMessage(attemptLabel);
 
-        await toggleSpaDevice('spa-mode');
-        await toggleSpaDevice('spa-heater');
+        // Only toggle if the current state doesn't match the target state (ON)
+        if (!latestStatus?.spaMode) {
+          await toggleSpaDevice('spa-mode');
+        }
+        if (!latestStatus?.spaHeater) {
+          await toggleSpaDevice('spa-heater');
+        }
+
+        // Wait for system to receive and update state
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         latestStatus = await getSpaStatus();
 
         if (latestStatus?.spaMode && latestStatus?.spaHeater) {
           break;
         }
-
-        await new Promise((resolve) => setTimeout(resolve, 1500));
       }
 
       return latestStatus;
     };
 
     const ensureDeviceState = async (targetState, statusKey, retries = 3) => {
-      let latestStatus = null;
+      let latestStatus = await getSpaStatus();
       const friendlyName =
         statusKey === 'jetPump' ? 'jet pump' : 'filter pump';
+
+      // If the device is already in the target state, return immediately
+      if (latestStatus && Boolean(latestStatus[statusKey]) === targetState) {
+        return latestStatus;
+      }
 
       for (let attempt = 0; attempt < retries; attempt++) {
         const attemptLabel = attempt === 0
@@ -313,13 +329,18 @@ function App() {
           : `Confirming ${friendlyName} change (attempt ${attempt + 1}/${retries})...`;
         setCommandMessage(attemptLabel);
 
-        await toggleSpaDevice(device);
+        // Only toggle if the current state doesn't match the target state
+        if (latestStatus && Boolean(latestStatus[statusKey]) !== targetState) {
+          await toggleSpaDevice(device);
+        }
+
+        // Wait for system to receive and update state
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         latestStatus = await getSpaStatus();
+        
         if (latestStatus && Boolean(latestStatus[statusKey]) === targetState) {
           break;
         }
-
-        await new Promise((resolve) => setTimeout(resolve, 1500));
       }
 
       return latestStatus;
@@ -336,13 +357,28 @@ function App() {
           if (status) applyBackendStatus(status);
         } else {
           setCommandState({ active: true, message: 'Shutting spa down...' });
-          await toggleSpaDevice('spa-mode');
-          await toggleSpaDevice('spa-heater');
-
-          if (spaData.filterPump) {
-            await toggleSpaDevice('filter-pump');
+          
+          let currentStatus = await getSpaStatus();
+          if (currentStatus) {
+            // Only toggle off if currently on to prevent accidental activation
+            if (currentStatus.spaMode) {
+              await toggleSpaDevice('spa-mode');
+            }
+            if (currentStatus.spaHeater) {
+              await toggleSpaDevice('spa-heater');
+            }
+            if (currentStatus.filterPump) {
+              await toggleSpaDevice('filter-pump');
+            }
+          } else {
+            // Fallback to local react state if status fetch fails
+            if (spaData.spaMode) await toggleSpaDevice('spa-mode');
+            if (spaData.spaHeater) await toggleSpaDevice('spa-heater');
+            if (spaData.filterPump) await toggleSpaDevice('filter-pump');
           }
 
+          // Wait and get updated status
+          await new Promise((resolve) => setTimeout(resolve, 2000));
           const status = await getSpaStatus();
           if (status) applyBackendStatus(status);
         }
